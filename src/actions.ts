@@ -1,0 +1,42 @@
+/**
+ * Common action creators for browser and node.
+ * They return plain actions (Flux-Standard-Actions).
+ */
+import { SPLIT_READY, SPLIT_UPDATE, SPLIT_TIMEDOUT, ADD_TREATMENTS } from './constants';
+
+export function splitReady() {
+  return {
+    type: SPLIT_READY,
+    payload: {
+      timestamp: Date.now(),
+    },
+  };
+}
+
+export function splitUpdate() {
+  return {
+    type: SPLIT_UPDATE,
+    payload: {
+      timestamp: Date.now(),
+    },
+  };
+}
+
+export function splitTimedout() {
+  return {
+    type: SPLIT_TIMEDOUT,
+    payload: {
+      timestamp: Date.now(),
+    },
+  };
+}
+
+export function addTreatments(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+  return {
+    type: ADD_TREATMENTS,
+    payload: {
+      key: typeof key === 'string' ? key : key.matchingKey,
+      treatments,
+    },
+  };
+}
