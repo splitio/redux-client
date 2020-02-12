@@ -6,6 +6,10 @@
   "module": "es/index.js",
   "types": "lib/index.d.ts",
   "files": [
+    "README.md",
+    "CONTRIBUTORS-GUIDE.md",
+    "LICENSE.txt",
+    "CHANGES.txt",
     "lib",
     "es"
   ],
