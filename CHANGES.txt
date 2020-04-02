@@ -1,4 +1,4 @@
-1.0.1 (April 3, 2020)
+1.0.1 (April 2, 2020)
  - Updated dependencies to fix vulnerabilities
  - Bugfixing - support numbers as user keys
 

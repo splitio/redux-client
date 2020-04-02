@@ -92,7 +92,7 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
   };
 }
 
-function __getSplitKeyString(key?: SplitIO.SplitKey) {
+function __getSplitKeyString(key?: SplitIO.SplitKey): string {
   const splitKey = key || (splitSdk.config as SplitIO.IBrowserSettings).core.key;
   return matching(splitKey);
 }
