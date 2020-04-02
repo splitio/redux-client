@@ -23,19 +23,19 @@ export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.Tr
 };
 
 // Action types
-export const SPLIT_READY = 'SPLIT_READY';
+export const SPLIT_READY: string = 'SPLIT_READY';
 
-export const SPLIT_UPDATE = 'SPLIT_UPDATE';
+export const SPLIT_UPDATE: string = 'SPLIT_UPDATE';
 
-export const SPLIT_TIMEDOUT = 'SPLIT_TIMEDOUT';
+export const SPLIT_TIMEDOUT: string = 'SPLIT_TIMEDOUT';
 
-export const ADD_TREATMENTS = 'ADD_TREATMENTS';
+export const ADD_TREATMENTS: string = 'ADD_TREATMENTS';
 
 // Warning and error messages
-export const ERROR_GETT_NO_INITSPLITSDK = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
+export const ERROR_GETT_NO_INITSPLITSDK: string = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
 
-export const ERROR_TRACK_NO_INITSPLITSDK = '[Error] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_TRACK_NO_INITSPLITSDK: string = '[Error] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_MANAGER_NO_INITSPLITSDK = '[Error] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_MANAGER_NO_INITSPLITSDK: string = '[Error] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_SELECTOR_NO_SPLITSTATE = '[Error] When using selectors, "splitState" value must be a proper splitio piece of state';
+export const ERROR_SELECTOR_NO_SPLITSTATE: string = '[Error] When using selectors, "splitState" value must be a proper splitio piece of state';

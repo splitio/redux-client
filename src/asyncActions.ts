@@ -1,8 +1,9 @@
 import { SplitFactory } from '@splitsoftware/splitio';
-import { Dispatch, AnyAction } from 'redux';
+import { Dispatch, Action } from 'redux';
 import { ISplitSdk, IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitTimedout, splitUpdate, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
+import { matching } from './utils';
 
 /**
  * Internal object SplitSdk, shared by some library functions for their operation.
@@ -46,7 +47,7 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
   if (params.onUpdate) { defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate); }
 
   // Return Thunk (asynk) action
-  return (dispatch: Dispatch<AnyAction>): Promise<void> => {
+  return (dispatch: Dispatch<Action>): Promise<void> => {
 
     if (!splitSdk.isDettached) { // Split SDK running in Browser
 
@@ -93,7 +94,7 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
 
 function __getSplitKeyString(key?: SplitIO.SplitKey) {
   const splitKey = key || (splitSdk.config as SplitIO.IBrowserSettings).core.key;
-  return typeof splitKey === 'string' ? splitKey : splitKey.matchingKey;
+  return matching(splitKey);
 }
 
 function __getItemKey(splitName: string, splitKeyString: string) {
