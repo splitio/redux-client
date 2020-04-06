@@ -13,7 +13,7 @@ describe('matching', () => {
 
   it('if a number is passed as a param it should return a number', () => {
     const key = 1818;
-    const keyParsed = matching(key as unknown as string);
+    const keyParsed = matching(key as any);
 
     expect(typeof keyParsed).toBe('number');
     expect(keyParsed).toBe(key);
