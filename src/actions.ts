@@ -3,6 +3,7 @@
  * They return plain actions (Flux-Standard-Actions).
  */
 import { SPLIT_READY, SPLIT_UPDATE, SPLIT_TIMEDOUT, ADD_TREATMENTS } from './constants';
+import { matching } from './utils';
 
 export function splitReady() {
   return {
@@ -35,7 +36,7 @@ export function addTreatments(key: SplitIO.SplitKey, treatments: SplitIO.Treatme
   return {
     type: ADD_TREATMENTS,
     payload: {
-      key: typeof key === 'string' ? key : key.matchingKey,
+      key: matching(key),
       treatments,
     },
   };
