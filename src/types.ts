@@ -158,7 +158,7 @@ export interface ISplitSdk {
 }
 
 /**
- * Client interface for not detached variant (browser).
+ * Interface of SDK client for not detached execution (browser).
  */
 export interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
