@@ -1,3 +1,6 @@
+1.0.2 (April XXX, 2020)
+ - Bugfixing - for client-side, incorrect evaluation of splits when using `getTreatments` with a different user key than the default, caused by not waiting the complete fetch of its segments.
+
 1.0.1 (April 6, 2020)
  - Updated dependencies to fix vulnerabilities
  - Bugfixing - support numbers as user keys
