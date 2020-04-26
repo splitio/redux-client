@@ -1,4 +1,4 @@
-import { splitSdk } from './asyncActions';
+import { splitSdk, getClient } from './asyncActions';
 import { ITrackParams } from './types';
 import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
 
@@ -18,13 +18,13 @@ export function track(params: ITrackParams): boolean {
   const trackParams = [params.eventType, params.value, params.properties];
   let client; // Client getting variates depending on browser or node.
 
-  if (splitSdk.isDettached) { // Node
+  if (splitSdk.isDetached) { // Node
     // In node, user must always provide key and TT as params
     client = splitSdk.factory.client();
     trackParams.unshift(params.key, params.trafficType);
   } else { // Browser
     // client is a shared or main client whether or not the key is provided
-    client = params.key ? splitSdk.factory.client(params.key) : splitSdk.factory.client();
+    client = getClient(splitSdk, params.key);
 
     // TT is required if the key is provided (shared client) or if not present in config (main client)
     if (params.key || !(splitSdk.config.core as any).trafficType) {

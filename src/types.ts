@@ -143,6 +143,8 @@ export interface ITrackParams {
 
 export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
 
+import { Dispatch, Action } from 'redux';
+
 /**
  * Type of internal object SplitSdk.
  * This object should not be accessed or modified by the user. It is used by the library for its operation.
@@ -151,8 +153,17 @@ export interface ISplitSdk {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
   splitio: ISplitFactoryBuilder;
   factory: SplitIO.ISDK;
+  isDetached: boolean;
+  dispatch: Dispatch<Action>;
+}
+
+/**
+ * Client interface for not detached variant (browser).
+ */
+export interface IClientNotDetached extends SplitIO.IClient {
+  _trackingStatus?: boolean;
+  isReady: boolean;
+  isTimedout: boolean;
   evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
-  isReady: boolean;
-  isDettached: boolean;
 }
