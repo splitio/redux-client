@@ -40,17 +40,17 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
 
   // Return Thunk (asynk) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-    // save the dispatch function, needed to dispatch `getTreatment` actions on clients SDK_READY and SDK_UPDATE events
-    // we do it before instantiation the client, to guarantee the availability of the dispatch function
-    // @TODO possible refactor: no need to save the dispatch function if `getTreatments` plain action is made a thunk
+    // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
+    // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
+    // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
     splitSdk.dispatch = dispatch;
 
     const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
 
     // Add callback listeners
-    if (params.onReady) { defaultClient.on(defaultClient.Event.SDK_READY, params.onReady); }
-    if (params.onTimedout) { defaultClient.on(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout); }
-    if (params.onUpdate) { defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate); }
+    if (params.onReady) defaultClient.on(defaultClient.Event.SDK_READY, params.onReady);
+    if (params.onTimedout) defaultClient.on(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
+    if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
 
     if (splitSdk.isDetached) {  // Split SDK running in Node
 
@@ -166,7 +166,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
 
   const client = (key ? splitSdk.factory.client(key, trafficType) : splitSdk.factory.client()) as IClientNotDetached;
 
-  if (client._trackingStatus) { return client; }
+  if (client._trackingStatus) return client;
 
   client._trackingStatus = true;
   client.isReady = false;
@@ -179,7 +179,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
   // On SDK ready, evaluate the registered `getTreatments` actions and dispatch `splitReady` action for the main client
   function onReady() {
     client.isReady = true;
-    if (!key) { splitSdk.dispatch(splitReady()); }
+    if (!key) splitSdk.dispatch(splitReady());
     client.evalOnReady.forEach((params) =>
       splitSdk.dispatch(__getTreatments(client, params)),
     );
@@ -189,14 +189,14 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
   // On SDK timed out, dispatch `splitTimedout` action for the main client
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
     client.isTimedout = true;
-    if (!key) { splitSdk.dispatch(splitTimedout()); }
+    if (!key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
     client.once(client.Event.SDK_READY, onReady );
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
   client.on(client.Event.SDK_UPDATE, function() {
-    if (!key) { splitSdk.dispatch(splitUpdate()); }
+    if (!key) splitSdk.dispatch(splitUpdate());
     Object.values(client.evalOnUpdate).forEach(function(params) {
       splitSdk.dispatch(__getTreatments(client, params));
     });

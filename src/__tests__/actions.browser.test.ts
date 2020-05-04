@@ -90,7 +90,7 @@ describe('initSplitSdk', () => {
 
 });
 
-describe('getTreatments (not providing a user key, i.e., using the main client)', () => {
+describe('getTreatments', () => {
 
   beforeEach(() => {
     splitSdk.factory = null;
@@ -230,7 +230,7 @@ describe('getTreatments (not providing a user key, i.e., using the main client)'
 
 });
 
-describe('getTreatments (providing a user key)', () => {
+describe('getTreatments providing a user key', () => {
 
   beforeEach(() => {
     splitSdk.factory = null;
