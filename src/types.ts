@@ -163,7 +163,6 @@ export interface ISplitSdk {
 export interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   isReady: boolean;
-  isTimedout: boolean;
   evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }

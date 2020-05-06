@@ -170,7 +170,6 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
 
   client._trackingStatus = true;
   client.isReady = false;
-  client.isTimedout = false;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
   client.evalOnReady = []; // getTreatment actions stored to execute when the SDK is ready
 
@@ -188,7 +187,6 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
 
   // On SDK timed out, dispatch `splitTimedout` action for the main client
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
-    client.isTimedout = true;
     if (!key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
     client.once(client.Event.SDK_READY, onReady );
