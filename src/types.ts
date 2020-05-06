@@ -21,6 +21,12 @@ export interface ISplitState {
   hasTimedout: boolean;
 
   /**
+   * isDestroyed indicates if the Split SDK has been destroyed by dispatching a `destroySplitSdk` action.
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#shutdown}
+   */
+  isDestroyed: boolean;
+
+  /**
    * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */

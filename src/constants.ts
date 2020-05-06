@@ -29,10 +29,14 @@ export const SPLIT_UPDATE = 'SPLIT_UPDATE';
 
 export const SPLIT_TIMEDOUT = 'SPLIT_TIMEDOUT';
 
+export const SPLIT_DESTROY = 'SPLIT_DESTROY';
+
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
 
 // Warning and error messages
 export const ERROR_GETT_NO_INITSPLITSDK = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
+
+export const ERROR_DESTROY_NO_INITSPLITSDK = '[Error] To use "destroySplitSdk" the SDK must be first initialized with a "initSplitSdk" action';
 
 export const ERROR_TRACK_NO_INITSPLITSDK = '[Error] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
 
