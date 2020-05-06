@@ -1,8 +1,8 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
 import { ISplitSdk, IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder, IClientNotDetached } from './types';
-import { splitReady, splitTimedout, splitUpdate, addTreatments } from './actions';
-import { VERSION, ERROR_GETT_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
+import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
+import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
 import { matching } from './utils';
 
 /**
@@ -13,6 +13,7 @@ export const splitSdk: ISplitSdk = {
   config: null,
   splitio: null,
   factory: null,
+  sharedClients: {},
   isDetached: false,
   dispatch: null,
 };
@@ -154,20 +155,22 @@ export function getTreatments(params: IGetTreatmentsParams) {
 
 /**
  * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
- *  - `isReady` and `isTimeout` status properties.
+ *  - `isReady` status property.
  *  - `evalOnUpdate` and `evalOnReady` action lists.
+ * It also track the set of created clients to properly destroy the SDK.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
- * @param trafficType optional trafficType
  * @returns SDK client with `isReady` and `isTimeout` status properties
  */
-export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficType?: string): IClientNotDetached {
+export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
-  const client = (key ? splitSdk.factory.client(key, trafficType) : splitSdk.factory.client()) as IClientNotDetached;
+  const stringKey = matching(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key);
+  const client = splitSdk.factory.client(stringKey) as IClientNotDetached;
 
   if (client._trackingStatus) return client;
 
+  splitSdk.clients[stringKey] = client;
   client._trackingStatus = true;
   client.isReady = false;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
@@ -189,7 +192,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
     if (!key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
-    client.once(client.Event.SDK_READY, onReady );
+    client.once(client.Event.SDK_READY, onReady);
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
@@ -201,4 +204,32 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
   });
 
   return client;
+}
+
+/**
+ * This action creator destroy the Split SDK. It dispatches a Thunk (async) action.
+ */
+export function destroySplitSdk() {
+  // Log error message if the SDK was not initiated with a `initSplitSdk` action
+  if (!splitSdk.factory) {
+    console.error(ERROR_DESTROY_NO_INITSPLITSDK);
+    return () => { };
+  }
+
+  // Return Thunk (asynk) action
+  return (dispatch: Dispatch<Action>): Promise<void> => {
+
+    if (splitSdk.isDetached) {  // Split SDK running in Node
+      return splitSdk.factory.client().destroy().then(function() {
+        dispatch(splitDestroy());
+      });
+    } else {
+      // @TODO update once JS SDK shutdown is updated to support destroy of shared clients
+      const destroyPromises = Object.keys(splitSdk.clients).map((clientKey) => splitSdk.clients[clientKey].destroy());
+      return Promise.all(destroyPromises).then(function() {
+        dispatch(splitDestroy());
+      });
+    }
+
+  };
 }

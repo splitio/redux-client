@@ -168,6 +168,7 @@ export interface ISplitSdk {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
   splitio: ISplitFactoryBuilder;
   factory: SplitIO.ISDK;
+  clients: { [stringKey: string]: SplitIO.IClient };
   isDetached: boolean;
   dispatch: Dispatch<Action>;
 }
