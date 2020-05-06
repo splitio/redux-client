@@ -154,17 +154,18 @@ export function getTreatments(params: IGetTreatmentsParams) {
 
 /**
  * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
- *  - `isReady` and `isTimeout` status properties.
+ *  - `isReady` status property.
  *  - `evalOnUpdate` and `evalOnReady` action lists.
+ * It also track the set of created clients to properly destroy the SDK.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
- * @param trafficType optional trafficType
  * @returns SDK client with `isReady` and `isTimeout` status properties
  */
-export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficType?: string): IClientNotDetached {
+export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
-  const client = (key ? splitSdk.factory.client(key, trafficType) : splitSdk.factory.client()) as IClientNotDetached;
+  const stringKey = matching(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key);
+  const client = splitSdk.factory.client(stringKey) as IClientNotDetached;
 
   if (client._trackingStatus) return client;
 
@@ -189,7 +190,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, trafficTy
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
     if (!key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
-    client.once(client.Event.SDK_READY, onReady );
+    client.once(client.Event.SDK_READY, onReady);
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
