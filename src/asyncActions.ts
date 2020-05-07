@@ -49,8 +49,8 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
     const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
 
     // Add callback listeners
-    if (params.onReady) defaultClient.on(defaultClient.Event.SDK_READY, params.onReady);
-    if (params.onTimedout) defaultClient.on(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
+    if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
+    if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
     if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
 
     if (splitSdk.isDetached) {  // Split SDK running in Node
