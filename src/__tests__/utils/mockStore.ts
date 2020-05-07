@@ -6,4 +6,4 @@ const middlewares = [thunk];
 /**
  * Utils to not call requires files every time that we need mock the store
  */
-export default configureMockStore<{ splitio: ISplitState }>(middlewares);
+export default configureMockStore(middlewares);
