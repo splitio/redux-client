@@ -156,7 +156,6 @@ export function getTreatments(params: IGetTreatmentsParams) {
  * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
  *  - `isReady` status property.
  *  - `evalOnUpdate` and `evalOnReady` action lists.
- * It also track the set of created clients to properly destroy the SDK.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
@@ -164,8 +163,10 @@ export function getTreatments(params: IGetTreatmentsParams) {
  */
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
-  const stringKey = matching(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key);
-  const client = splitSdk.factory.client(stringKey) as IClientNotDetached;
+  const stringKey = matching(key);
+  const isMainClient = !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
+  // we cannot simply use `stringKey` to get the client, since the main one could have been created with a bucketing key and/or a traffic type.
+  const client = (isMainClient ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
 
   if (client._trackingStatus) return client;
 
