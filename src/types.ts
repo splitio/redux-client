@@ -3,32 +3,32 @@ export interface ISplitState {
 
   /**
    * isReady indicates if Split SDK is ready, i.e., if it has triggered a SDK_READY event.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   isReady: boolean;
 
   /**
    * isTimedout indicates if the Split SDK has triggered a SDK_READY_TIMED_OUT event and is not ready.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   isTimedout: boolean;
 
   /**
    * hasTimedout indicates if the Split SDK has triggered a SDK_READY_TIMED_OUT event.
    * It differs from `isTimedout` in that it doesn't change when SDK turns ready.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   hasTimedout: boolean;
 
   /**
    * isDestroyed indicates if the Split SDK has been destroyed by dispatching a `destroySplitSdk` action.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#shutdown}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
    */
   isDestroyed: boolean;
 
   /**
    * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
 
@@ -65,7 +65,7 @@ export interface IInitSplitSdkParams {
 
   /**
    * Setting object used to initialize the Split factory.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#configuration}
    */
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
@@ -109,7 +109,7 @@ export interface IGetTreatmentsParams {
 
   /**
    * optional map of attributes passed to the actual `client.getTreatment*` methods.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
    */
   attributes?: SplitIO.Attributes;
 
