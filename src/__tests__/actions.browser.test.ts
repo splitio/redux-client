@@ -382,9 +382,3 @@ describe('destroySplitSdk', () => {
   });
 
 });
-
-/**
- * TODO other tests:
- * - __addEvalOnUpdate, __removeEvalOnUpdate, __getSplitKeyString
- * - __getTreatments
- */

@@ -1,14 +1,24 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
-import { ISplitSdk, IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
+import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
 import { matching } from './utils';
 
 /**
- * Internal object SplitSdk, shared by some library functions for their operation.
- * This object should not be accessed or modified by the user.
+ * Internal object SplitSdk. This object should not be accessed or
+ * modified by the user, since it is not considered part of the public API
+ * and may break without notice. It is used by the library for its operation.
  */
+export interface ISplitSdk {
+  config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
+  splitio: ISplitFactoryBuilder;
+  factory: SplitIO.ISDK;
+  sharedClients: { [stringKey: string]: SplitIO.IClient };
+  isDetached: boolean;
+  dispatch: Dispatch<Action>;
+}
+
 export const splitSdk: ISplitSdk = {
   config: null,
   splitio: null,
@@ -27,7 +37,7 @@ function isDetached(factory: SplitIO.ISDK) {
  *
  * @param {IInitSplitSdkParams} params
  */
-export function initSplitSdk(params: IInitSplitSdkParams) {
+export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
 
   splitSdk.config = params.config;
   splitSdk.splitio = params.splitio || (SplitFactory as ISplitFactoryBuilder);
@@ -39,7 +49,7 @@ export function initSplitSdk(params: IInitSplitSdkParams) {
   // Already checked if detached or not, so we'll proceed with overriding the language of the SDK for correct tracking. Don't try this at home.
   (splitSdk.factory.settings.version as any) = VERSION;
 
-  // Return Thunk (asynk) action
+  // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
     // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
@@ -110,7 +120,7 @@ function __getTreatments(client: IClientNotDetached, params: IGetTreatmentsParam
  *
  * @param {IGetTreatmentsParams} params
  */
-export function getTreatments(params: IGetTreatmentsParams) {
+export function getTreatments(params: IGetTreatmentsParams): Action | (() => void) {
 
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
@@ -220,18 +230,19 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
 /**
  * This action creator destroy the Split SDK. It dispatches a Thunk (async) action.
+ * After this action is resolved, any subsequent dispatch of `getTreatments`
+ * will update your treatments at the store with the `control` value.
  */
-export function destroySplitSdk() {
+export function destroySplitSdk(): (dispatch: Dispatch<Action>) => Promise<void> {
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
     console.error(ERROR_DESTROY_NO_INITSPLITSDK);
     return () => Promise.resolve();
   }
 
-  // Return Thunk (asynk) action
+  // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     // same for node and browser (in node, `splitSdk.sharedClients` is an empty object)
-    // @TODO support individual destroy of clients once JS SDK shutdown is fixed
     const mainClient = splitSdk.factory.client();
     const sharedClients = splitSdk.sharedClients;
     const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());

@@ -157,19 +157,3 @@ export interface ITrackParams {
 }
 
 export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
-
-import { Dispatch, Action } from 'redux';
-
-/**
- * Type of internal object SplitSdk. This object should not be accessed or
- * modified by the user, since it is not considered part of the public API
- * and may break without notice. It is used by the library for its operation.
- */
-export interface ISplitSdk {
-  config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
-  splitio: ISplitFactoryBuilder;
-  factory: SplitIO.ISDK;
-  sharedClients: { [stringKey: string]: SplitIO.IClient };
-  isDetached: boolean;
-  dispatch: Dispatch<Action>;
-}
