@@ -214,25 +214,20 @@ export function destroySplitSdk() {
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
     console.error(ERROR_DESTROY_NO_INITSPLITSDK);
-    return () => { };
+    return () => Promise.resolve();
   }
 
   // Return Thunk (asynk) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-
-    if (splitSdk.isDetached) {  // Split SDK running in Node
-      return splitSdk.factory.client().destroy().then(function() {
-        dispatch(splitDestroy());
-      });
-    } else {
-      const mainClient = splitSdk.factory.client();
-      const sharedClients = splitSdk.sharedClients;
-      const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
-      destroyPromises.push(mainClient.destroy());
-      return Promise.all(destroyPromises).then(function() {
-        dispatch(splitDestroy());
-      });
-    }
+    // same for node and browser (in node, `splitSdk.sharedClients` is an empty object)
+    // @TODO support individual destroy of clients once JS SDK shutdown is fixed
+    const mainClient = splitSdk.factory.client();
+    const sharedClients = splitSdk.sharedClients;
+    const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
+    destroyPromises.push(mainClient.destroy());
+    return Promise.all(destroyPromises).then(function() {
+      dispatch(splitDestroy());
+    });
 
   };
 }
