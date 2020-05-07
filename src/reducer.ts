@@ -54,19 +54,31 @@ const splitReducer: Reducer<ISplitState> = function(
 
     case ADD_TREATMENTS:
       const { key, treatments } = action.payload;
+
+      // return the same state if no treatments have changed
+      const treatmentsToChange = Object.entries<SplitIO.TreatmentWithConfig>(treatments).filter(([splitName, treatment]) => {
+        if (!state.treatments[splitName]) return true;
+        const splitTreatments = state.treatments[splitName];
+        if (!splitTreatments[key] ||
+          splitTreatments[key].treatment !== treatment.treatment ||
+          splitTreatments[key].config !== treatment.config) return true;
+        return false;
+      });
+
+      if (treatmentsToChange.length === 0) return state;
+
+      // return the updated state if any treatment have changed
       const result: ISplitState = {
         ...state,
         treatments: { ...state.treatments },
       };
-      Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
+
+      treatmentsToChange.forEach(([splitName, treatment]) => {
         if (result.treatments[splitName]) {
-          const splitTreatments = result.treatments[splitName];
-          if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
-            result.treatments[splitName] = {
-              ...(result.treatments[splitName]),
-              [key]: treatment,
-            };
-          }
+          result.treatments[splitName] = {
+            ...(result.treatments[splitName]),
+            [key]: treatment,
+          };
         } else {
           result.treatments[splitName] = { [key]: treatment };
         }

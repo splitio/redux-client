@@ -98,7 +98,7 @@ describe('Split reducer', () => {
     });
   });
 
-  it('should not override a treatment for an existing key and split name, if the treatment is the same', () => {
+  it('should not update state and override a treatment for an existing key and split name, if the treatment is the same', () => {
     const previousTreatment = reduxState.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: {
@@ -107,18 +107,9 @@ describe('Split reducer', () => {
       },
     };
     const addTreatmentsAction = addTreatments(key, newTreatments);
-    reduxState = reducer(reduxState, addTreatmentsAction);
-    expect(reduxState.treatments.test_split[key]).toBe(previousTreatment);
-    expect(
-      reduxState,
-    ).toEqual({
-      ...initialState,
-      treatments: {
-        test_split: {
-          [key]: newTreatments.test_split,
-        },
-      },
-    });
+    const newReduxState = reducer(reduxState, addTreatmentsAction);
+    expect(newReduxState.treatments.test_split[key]).toBe(previousTreatment);
+    expect(newReduxState).toBe(reduxState);
   });
 
   it('should override a treatment for an existing key and split name, if the treatment is different', () => {
@@ -130,10 +121,10 @@ describe('Split reducer', () => {
       },
     };
     const addTreatmentsAction = addTreatments(key, newTreatments);
-    reduxState = reducer(reduxState, addTreatmentsAction);
-    expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
+    const newReduxState = reducer(reduxState, addTreatmentsAction);
+    expect(newReduxState.treatments.test_split[key]).not.toBe(previousTreatment);
     expect(
-      reduxState,
+      newReduxState,
     ).toEqual({
       ...initialState,
       treatments: {
