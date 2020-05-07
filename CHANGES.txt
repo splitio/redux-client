@@ -1,7 +1,7 @@
 1.1.0 (May 8, 2020)
  - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
- - Added `destroySplitSdk` action creator to gracefully shut down the SDK.
- - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed`.
+ - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
+ - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 
 1.0.1 (April 6, 2020)
  - Updated dependencies to fix vulnerabilities
