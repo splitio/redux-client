@@ -8,6 +8,7 @@ import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, ADD_TREATMENTS } from './con
 const initialState: ISplitState = {
   isReady: false,
   isTimedout: false,
+  hasTimedout: false,
   lastUpdate: 0,
   treatments: {},
 };
@@ -33,6 +34,7 @@ const splitReducer: Reducer<ISplitState> = function(
       return {
         ...state,
         isTimedout: true,
+        hasTimedout: true,
         lastUpdate: action.payload.timestamp,
       };
 

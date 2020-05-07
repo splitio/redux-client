@@ -5,6 +5,7 @@ import { ISplitState } from '../types';
 const initialState = {
   isReady: false,
   isTimedout: false,
+  hasTimedout: false,
   lastUpdate: 0,
   treatments: {},
 };
@@ -32,7 +33,22 @@ describe('Split reducer', () => {
     ).toEqual({
       ...initialState,
       isTimedout: true,
+      hasTimedout: true,
       lastUpdate: timedoutAction.payload.timestamp,
+    });
+  });
+
+  it('should handle SPLIT_READY after SPLIT_TIMEDOUT', () => {
+    const timedoutAction = splitTimedout();
+    const readyAction = splitReady();
+    expect(
+      reducer(reducer(initialState, timedoutAction), readyAction),
+    ).toEqual({
+      ...initialState,
+      isReady: true,
+      isTimedout: false,
+      hasTimedout: true,
+      lastUpdate: readyAction.payload.timestamp,
     });
   });
 

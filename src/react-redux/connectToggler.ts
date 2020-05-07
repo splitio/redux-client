@@ -35,7 +35,7 @@ const toggler = (ComponentOn: React.ComponentType, ComponentDefault: React.Compo
  * depending if this feature is ON or not
  *
  * @param {string} splitName split name
- * @param {SplitIO.SplitKey} key split key
+ * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
 export function mapIsFeatureOnToProps(splitName: string, key?: SplitIO.SplitKey, getSplitState: IGetSplitState = defaultGetSplitState) {
@@ -52,7 +52,7 @@ export function mapIsFeatureOnToProps(splitName: string, key?: SplitIO.SplitKey,
  * the value of this feature
  *
  * @param {string} splitName split name
- * @param {SplitIO.SplitKey} key split key
+ * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
 export function mapTreatmentToProps(splitName: string, key?: SplitIO.SplitKey, getSplitState: IGetSplitState = defaultGetSplitState): (state: any) => { feature: string } {
@@ -72,10 +72,10 @@ export function mapTreatmentToProps(splitName: string, key?: SplitIO.SplitKey, g
  * So connect send the global state and the toggler decide which to render
  *
  * @param {string} splitName split name
- * @param {SplitIO.SplitKey} key split key
+ * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
 export function connectToggler(splitName: string, key?: SplitIO.SplitKey, getSplitState: IGetSplitState = defaultGetSplitState) {
-  return (ComponentOn: React.ComponentType, ComponentDefault?: React.ComponentType ) =>
+  return (ComponentOn: React.ComponentType, ComponentDefault?: React.ComponentType) =>
     connect(mapIsFeatureOnToProps(splitName, key, getSplitState), null, mergeProps, { pure: false })(toggler(ComponentOn, ComponentDefault));
 }
