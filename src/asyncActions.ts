@@ -171,7 +171,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   if (client._trackingStatus) return client;
 
-  splitSdk.clients[stringKey] = client;
+  if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
   client.isReady = false;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
@@ -225,8 +225,10 @@ export function destroySplitSdk() {
         dispatch(splitDestroy());
       });
     } else {
-      // @TODO update once JS SDK shutdown is updated to support destroy of shared clients
-      const destroyPromises = Object.keys(splitSdk.clients).map((clientKey) => splitSdk.clients[clientKey].destroy());
+      const mainClient = splitSdk.factory.client();
+      const sharedClients = splitSdk.sharedClients;
+      const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
+      destroyPromises.push(mainClient.destroy());
       return Promise.all(destroyPromises).then(function() {
         dispatch(splitDestroy());
       });
