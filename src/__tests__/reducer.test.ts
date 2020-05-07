@@ -1,11 +1,12 @@
 import reducer from '../reducer';
-import { splitReady, splitTimedout, splitUpdate, addTreatments } from '../actions';
+import { splitReady, splitTimedout, splitUpdate, addTreatments, splitDestroy } from '../actions';
 import { ISplitState } from '../types';
 
 const initialState = {
   isReady: false,
   isTimedout: false,
   hasTimedout: false,
+  isDestroyed: false,
   lastUpdate: 0,
   treatments: {},
 };
@@ -59,6 +60,17 @@ describe('Split reducer', () => {
     ).toEqual({
       ...initialState,
       lastUpdate: updateAction.payload.timestamp,
+    });
+  });
+
+  it('should handle SPLIT_DESTROY', () => {
+    const destroyAction = splitDestroy();
+    expect(
+      reducer(initialState, destroyAction),
+    ).toEqual({
+      ...initialState,
+      isDestroyed: true,
+      lastUpdate: destroyAction.payload.timestamp,
     });
   });
 

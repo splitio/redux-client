@@ -27,11 +27,15 @@ function mockClient() {
       __isTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
     });
   });
+  const destroy: jest.Mock = jest.fn(() => {
+    return new Promise((res, rej) => { setTimeout(res, 100); });
+  });
 
   return Object.assign(Object.create(__emitter__), {
     getTreatmentsWithConfig,
     track,
     ready,
+    destroy,
     Event,
     // EventEmitter exposed to trigger events manually
     __emitter__,

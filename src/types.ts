@@ -21,8 +21,14 @@ export interface ISplitState {
   hasTimedout: boolean;
 
   /**
+   * isDestroyed indicates if the Split SDK has been destroyed by dispatching a `destroySplitSdk` action.
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
+   */
+  isDestroyed: boolean;
+
+  /**
    * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
 
@@ -59,7 +65,7 @@ export interface IInitSplitSdkParams {
 
   /**
    * Setting object used to initialize the Split factory.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#configuration}
    */
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
@@ -103,7 +109,7 @@ export interface IGetTreatmentsParams {
 
   /**
    * optional map of attributes passed to the actual `client.getTreatment*` methods.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
    */
   attributes?: SplitIO.Attributes;
 
@@ -151,27 +157,3 @@ export interface ITrackParams {
 }
 
 export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
-
-import { Dispatch, Action } from 'redux';
-
-/**
- * Type of internal object SplitSdk.
- * This object should not be accessed or modified by the user. It is used by the library for its operation.
- */
-export interface ISplitSdk {
-  config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
-  splitio: ISplitFactoryBuilder;
-  factory: SplitIO.ISDK;
-  isDetached: boolean;
-  dispatch: Dispatch<Action>;
-}
-
-/**
- * Interface of SDK client for not detached execution (browser).
- */
-export interface IClientNotDetached extends SplitIO.IClient {
-  _trackingStatus?: boolean;
-  isReady: boolean;
-  evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
-  evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
-}

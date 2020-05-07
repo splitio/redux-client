@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-redux",
-  "version": "1.0.2-canary.0",
+  "version": "1.1.0-canary.0",
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -74,7 +74,7 @@
     "redux": "3.7.2",
     "redux-mock-store": "^1.5.4",
     "redux-thunk": "^2.3.0",
-    "replace": "^1.1.5",
+    "replace": "^1.2.0",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.2.0",
     "tslint": "^5.20.1",

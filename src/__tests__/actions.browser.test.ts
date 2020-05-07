@@ -10,10 +10,10 @@ import { STATE_INITIAL } from './utils/storeState';
 import { sdkBrowserLocalhost } from './utils/sdkConfigs';
 
 /** Constants and types */
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
+import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
 
 /** Test targets */
-import { initSplitSdk, getTreatments, splitSdk, getClient } from '../asyncActions';
+import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk, getClient } from '../asyncActions';
 
 describe('initSplitSdk', () => {
 
@@ -331,10 +331,54 @@ describe('getTreatments providing a user key', () => {
     });
   });
 
-  /**
-   * TODO other tests:
-   * - __addEvalOnUpdate, __removeEvalOnUpdate, __getSplitKeyString
-   * - __getTreatments
-   */
+});
+
+describe('destroySplitSdk', () => {
+
+  beforeEach(() => {
+    splitSdk.factory = null;
+    splitSdk.config = null;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('logs error and dispatches a no-op async action that returns a resolved promise if Split SDK was not initialized', () => {
+    const errorSpy = jest.spyOn(console, 'error');
+    const store = mockStore(STATE_INITIAL);
+
+    store.dispatch<any>(destroySplitSdk()).then(() => {
+      expect(errorSpy).toBeCalledWith(ERROR_DESTROY_NO_INITSPLITSDK);
+      expect(store.getActions().length).toBe(0);
+    });
+  });
+
+  it('returns a promise and dispatch SPLIT_DESTROY actions when clients are destroyed', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+    actionResult.then(() => {
+      // we dispatch some `getTreatments` with different user keys to create new clients
+      store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key' }));
+      store.dispatch<any>(getTreatments({ splitNames: 'split3', key: 'other-user-key-2' }));
+
+      const timestamp = Date.now();
+      const actionResult = store.dispatch<any>(destroySplitSdk());
+
+      actionResult.then(() => {
+        const action = store.getActions()[3];
+        expect(action.type).toEqual(SPLIT_DESTROY);
+        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        // assert that all client's destroy methods were called
+        expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
+        expect((splitSdk.factory as any).client('other-user-key').destroy.mock.calls.length).toBe(1);
+        expect((splitSdk.factory as any).client('other-user-key-2').destroy.mock.calls.length).toBe(1);
+        done();
+      }, 0);
+    });
+  });
 
 });
