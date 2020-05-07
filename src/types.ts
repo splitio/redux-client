@@ -2,20 +2,20 @@
 export interface ISplitState {
 
   /**
-   * isReady indicates if Split SDK is ready, i.e., if it has triggered a SDK_READY event.
+   * isReady indicates if Split SDK is ready, i.e., if it has triggered an SDK_READY event.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isReady: boolean;
 
   /**
-   * isTimedout indicates if the Split SDK has triggered a SDK_READY_TIMED_OUT event and is not ready.
+   * isTimedout indicates if the Split SDK has triggered an SDK_READY_TIMED_OUT event and is not ready.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isTimedout: boolean;
 
   /**
-   * hasTimedout indicates if the Split SDK has triggered a SDK_READY_TIMED_OUT event.
-   * It differs from `isTimedout` in that it doesn't change when SDK turns ready.
+   * hasTimedout indicates if the Split SDK has ever triggered an SDK_READY_TIMED_OUT event.
+   * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   hasTimedout: boolean;
