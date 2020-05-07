@@ -14,6 +14,7 @@ export const STATE_READY: { splitio: ISplitState } = {
     isReady: true,
     isTimedout: false,
     hasTimedout: false,
+    isDestroyed: false,
     lastUpdate: 1192838123,
     treatments: {
       [SPLIT_1]: {
@@ -31,6 +32,7 @@ export const STATE_INITIAL: { splitio: ISplitState } = {
     isReady: false,
     isTimedout: false,
     hasTimedout: false,
+    isDestroyed: false,
     lastUpdate: 0,
     treatments: {
     },
