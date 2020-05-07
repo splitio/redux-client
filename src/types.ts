@@ -161,8 +161,9 @@ export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO
 import { Dispatch, Action } from 'redux';
 
 /**
- * Type of internal object SplitSdk.
- * This object should not be accessed or modified by the user. It is used by the library for its operation.
+ * Type of internal object SplitSdk. This object should not be accessed or
+ * modified by the user, since it is not considered part of the public API
+ * and may break without notice. It is used by the library for its operation.
  */
 export interface ISplitSdk {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
@@ -171,14 +172,4 @@ export interface ISplitSdk {
   sharedClients: { [stringKey: string]: SplitIO.IClient };
   isDetached: boolean;
   dispatch: Dispatch<Action>;
-}
-
-/**
- * Interface of SDK client for not detached execution (browser).
- */
-export interface IClientNotDetached extends SplitIO.IClient {
-  _trackingStatus?: boolean;
-  isReady: boolean;
-  evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
-  evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }

@@ -1,6 +1,6 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
-import { ISplitSdk, IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder, IClientNotDetached } from './types';
+import { ISplitSdk, IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
 import { matching } from './utils';
@@ -154,9 +154,20 @@ export function getTreatments(params: IGetTreatmentsParams) {
 }
 
 /**
+ * Interface of SDK client for not detached execution (browser).
+ */
+interface IClientNotDetached extends SplitIO.IClient {
+  _trackingStatus?: boolean;
+  isReady: boolean;
+  evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
+  evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
+}
+
+/**
  * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
  *  - `isReady` status property.
  *  - `evalOnUpdate` and `evalOnReady` action lists.
+ * It is exported for testing purposes only.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
