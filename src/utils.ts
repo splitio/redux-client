@@ -28,10 +28,11 @@ export function promiseWrapper(customPromise: Promise<any>, defaultOnRejected: (
       return promise.then(
         res,
         function(value) {
-          if (hasCatch)
+          if (hasCatch) {
             rej(value);
-          else
+          } else {
             defaultOnRejected(value);
+          }
         },
       );
     });
@@ -39,10 +40,13 @@ export function promiseWrapper(customPromise: Promise<any>, defaultOnRejected: (
     const originalThen = newPromise.then;
 
     newPromise.then = function(onfulfilled, onrejected) {
+      const result = originalThen.call(newPromise, onfulfilled, onrejected);
       if (typeof onrejected === 'function') {
         hasCatch = true;
+        return result;
+      } else {
+        return chain(result);
       }
-      return chain(originalThen.call(newPromise, onfulfilled, onrejected));
     };
 
     return newPromise;
