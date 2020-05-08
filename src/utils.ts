@@ -40,7 +40,7 @@ export function promiseWrapper(customPromise: Promise<any>, defaultOnRejected: (
     const originalThen = newPromise.then;
 
     newPromise.then = function(onfulfilled?: any, onrejected?: any) {
-      const result = originalThen.call(newPromise, onfulfilled, onrejected);
+      const result: Promise<any> = originalThen.call(newPromise, onfulfilled, onrejected);
       if (typeof onrejected === 'function') {
         hasCatch = true;
         return result;
