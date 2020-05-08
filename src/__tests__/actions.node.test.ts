@@ -82,6 +82,19 @@ describe('initSplitSdk', () => {
     });
   });
 
+  it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const onReadyCb = jest.fn();
+    const onTimedoutCb = jest.fn();
+    try {
+      setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
+      await store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig}));
+    } catch (error) {
+      expect(error.includes('SDK_READY_TIMED_OUT'));
+      done();
+    }
+  });
+
 });
 
 describe('getTreatments', () => {

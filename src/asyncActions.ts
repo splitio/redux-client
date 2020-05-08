@@ -3,7 +3,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching } from './utils';
+import { matching, promiseWrapper } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -78,7 +78,10 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
     }
 
     // Return the promise so that the user can call .then() on async dispatch result and wait until ready.
-    return defaultClient.ready();
+    return promiseWrapper(new Promise(function(res, rej) {
+      defaultClient.once(defaultClient.Event.SDK_READY, res);
+      defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, rej);
+    }), function() { });
   };
 }
 
@@ -230,7 +233,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
 /**
  * This action creator destroy the Split SDK. It dispatches a Thunk (async) action.
- * After this action is resolved, any subsequent dispatch of `getTreatments`
+ * Once the action is resolved, any subsequent dispatch of `getTreatments`
  * will update your treatments at the store with the `control` value.
  */
 export function destroySplitSdk(): (dispatch: Dispatch<Action>) => Promise<void> {
