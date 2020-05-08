@@ -81,7 +81,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
     return promiseWrapper(new Promise(function(res, rej) {
       defaultClient.once(defaultClient.Event.SDK_READY, res);
       defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, rej);
-    }), function(error) { console.log(error); });
+    }), function() { });
   };
 }
 
