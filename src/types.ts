@@ -2,27 +2,40 @@
 export interface ISplitState {
 
   /**
-   * isReady indicates if Split SDK is ready, i.e., if it has triggered a SDK_READY event.
+   * isReady indicates if Split SDK is ready, i.e., if it has triggered an SDK_READY event.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isReady: boolean;
 
   /**
-   * isTimedout indicates if the Split SDK has triggered a SDK_READY_TIMED_OUT event.
+   * isTimedout indicates if the Split SDK has triggered an SDK_READY_TIMED_OUT event and is not ready.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isTimedout: boolean;
 
   /**
-   * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
+   * hasTimedout indicates if the Split SDK has ever triggered an SDK_READY_TIMED_OUT event.
+   * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   */
+  hasTimedout: boolean;
+
+  /**
+   * isDestroyed indicates if the Split SDK has been destroyed by dispatching a `destroySplitSdk` action.
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
+   */
+  isDestroyed: boolean;
+
+  /**
+   * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
 
   /**
    * This property contains the evaluations of Splits.
    * Each evaluation is associated with an Split name and a key (e.g., user id or organization name).
-   * Thus the property has 3 levels: split name, split key, and finally the treatment that was evaluated for that split and key.
+   * Thus the property has 3 levels: split name, user key, and finally the treatment that was evaluated for that split and key.
    */
   treatments: ISplitTreatments;
 }
@@ -46,13 +59,13 @@ export interface IKeyTreatments {
 export type IGetSplitState = (state: any) => ISplitState;
 
 /**
- * Type of the param object passed to `initSplitSdk` action creator (for browser).
+ * Type of the param object passed to `initSplitSdk` action creator.
  */
 export interface IInitSplitSdkParams {
 
   /**
    * Setting object used to initialize the Split factory.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#configuration}
    */
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
@@ -79,12 +92,13 @@ export interface IInitSplitSdkParams {
 }
 
 /**
- * Type of the param object passed to `getTreatments` action creator (for browser).
+ * Type of the param object passed to `getTreatments` action creator.
  */
 export interface IGetTreatmentsParams {
 
   /**
-   * optional split key. If not provided, it defaults to the key defined in the SDK setting, i.e., the config object passed to `initSplitSdk`.
+   * user key used to evaluate. It is mandatory for node but optional for browser. If not provided in browser,
+   * it defaults to the key defined in the SDK config, i.e., the config object passed to `initSplitSdk`.
    */
   key?: SplitIO.SplitKey;
 
@@ -95,7 +109,7 @@ export interface IGetTreatmentsParams {
 
   /**
    * optional map of attributes passed to the actual `client.getTreatment*` methods.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
+   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
    */
   attributes?: SplitIO.Attributes;
 
@@ -110,12 +124,13 @@ export interface IGetTreatmentsParams {
 }
 
 /**
- * Type of the param object passed to `track` function helper (for browser).
+ * Type of the param object passed to `track` function helper.
  */
 export interface ITrackParams {
 
   /**
-   * optional split key. If not provided, it defaults to the key defined in the SDK config object.
+   * user key used to track event. It is mandatory for node but optional for browser. If not provided in browser,
+   * it defaults to the key defined in the SDK config object.
    */
   key?: SplitIO.SplitKey;
 
@@ -142,17 +157,3 @@ export interface ITrackParams {
 }
 
 export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
-
-/**
- * Type of internal object SplitSdk.
- * This object should not be accessed or modified by the user. It is used by the library for its operation.
- */
-export interface ISplitSdk {
-  config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
-  splitio: ISplitFactoryBuilder;
-  factory: SplitIO.ISDK;
-  evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
-  evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
-  isReady: boolean;
-  isDettached: boolean;
-}

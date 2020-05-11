@@ -1,4 +1,4 @@
-import { splitSdk } from './asyncActions';
+import { splitSdk, getClient } from './asyncActions';
 import { ITrackParams } from './types';
 import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
 
@@ -8,7 +8,7 @@ import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './co
  *
  * @param {ITrackParams} params
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track}
+ * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#track}
  */
 export function track(params: ITrackParams): boolean {
   if (!splitSdk.factory) {
@@ -18,13 +18,13 @@ export function track(params: ITrackParams): boolean {
   const trackParams = [params.eventType, params.value, params.properties];
   let client; // Client getting variates depending on browser or node.
 
-  if (splitSdk.isDettached) { // Node
+  if (splitSdk.isDetached) { // Node
     // In node, user must always provide key and TT as params
     client = splitSdk.factory.client();
     trackParams.unshift(params.key, params.trafficType);
   } else { // Browser
     // client is a shared or main client whether or not the key is provided
-    client = params.key ? splitSdk.factory.client(params.key) : splitSdk.factory.client();
+    client = getClient(splitSdk, params.key);
 
     // TT is required if the key is provided (shared client) or if not present in config (main client)
     if (params.key || !(splitSdk.config.core as any).trafficType) {
@@ -41,7 +41,7 @@ export function track(params: ITrackParams): boolean {
  *
  * @returns {string[]} The list of Split names. The list might be empty if the SDK was not initialized or if it's not ready yet.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+ * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
  */
 export function getSplitNames(): string[] {
   if (!splitSdk.factory) {
@@ -58,7 +58,7 @@ export function getSplitNames(): string[] {
  * @param {string} splitName The name of the split we wan't to get info of.
  * @returns {SplitView} The SplitIO.SplitView of the given split, or null if split does not exist or the SDK was not initialized or is not ready.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+ * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
  */
 export function getSplit(splitName: string): SplitIO.SplitView {
   if (!splitSdk.factory) {
@@ -74,7 +74,7 @@ export function getSplit(splitName: string): SplitIO.SplitView {
  *
  * @returns {SplitViews} The list of SplitIO.SplitView. The list might be empty if the SDK was not initialized or if it's not ready yet
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#manager}
+ * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
  */
 export function getSplits(): SplitIO.SplitViews {
   if (!splitSdk.factory) {

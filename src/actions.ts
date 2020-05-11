@@ -2,7 +2,7 @@
  * Common action creators for browser and node.
  * They return plain actions (Flux-Standard-Actions).
  */
-import { SPLIT_READY, SPLIT_UPDATE, SPLIT_TIMEDOUT, ADD_TREATMENTS } from './constants';
+import { SPLIT_READY, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
 import { matching } from './utils';
 
 export function splitReady() {
@@ -26,6 +26,15 @@ export function splitUpdate() {
 export function splitTimedout() {
   return {
     type: SPLIT_TIMEDOUT,
+    payload: {
+      timestamp: Date.now(),
+    },
+  };
+}
+
+export function splitDestroy() {
+  return {
+    type: SPLIT_DESTROY,
     payload: {
       timestamp: Date.now(),
     },

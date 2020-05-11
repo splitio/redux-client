@@ -14,7 +14,8 @@
         "no-shadowed-variable": false,
         "no-empty": false,
         "variable-name": false,
-        "only-arrow-functions": false
+        "only-arrow-functions": false,
+        "curly": false
     },
     "rulesDirectory": []
 }
