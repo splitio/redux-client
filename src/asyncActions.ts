@@ -152,8 +152,8 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return __getTreatments(client, params);
     } else {
       client.evalOnReady.push(params);
-      // In this case we dispatch an addTreatments with control treatments, without calling the SDK (no impressions sent)
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
+      // addTreatments is dispatched once the client is ready. Until then the treatment is not present and `selectTreatmentValue` will return `control`
+      return () => { };
     }
 
   } else { // Split SDK running in Node
