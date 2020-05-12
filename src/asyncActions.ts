@@ -85,33 +85,6 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   };
 }
 
-function __getSplitKeyString(key?: SplitIO.SplitKey): string {
-  const splitKey = key || (splitSdk.config as SplitIO.IBrowserSettings).core.key;
-  return matching(splitKey);
-}
-
-function __getItemKey(splitName: string, splitKeyString: string) {
-  return splitName + '-' + splitKeyString;
-}
-
-function __addEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      client.evalOnUpdate[__getItemKey(splitName, splitKeyString)] = { ...params, splitNames: [splitName] };
-    });
-  }
-}
-
-function __removeEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      delete client.evalOnUpdate[__getItemKey(splitName, splitKeyString)];
-    });
-  }
-}
-
 function __getTreatments(client: IClientNotDetached, params: IGetTreatmentsParams) {
   const treatments = client.getTreatmentsWithConfig((params.splitNames as string[]), params.attributes);
 
@@ -142,9 +115,13 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      __addEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        client.evalOnUpdate[splitName] = { ...params, splitNames: [splitName] };
+      });
     } else {
-      __removeEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        delete client.evalOnUpdate[splitName];
+      });
     }
 
     // Execute the action if the SDK is ready, or store it for execution when ready and store a control treatment
@@ -172,7 +149,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   isReady: boolean;
-  evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
+  evalOnUpdate: { [splitName: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }
 
