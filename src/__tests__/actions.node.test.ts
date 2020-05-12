@@ -56,7 +56,7 @@ describe('initSplitSdk', () => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onTimedoutCb = jest.fn();
-    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig, onReady: onReadyCb, onTimedout: onTimedoutCb}));
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig, onReady: onReadyCb, onTimedout: onTimedoutCb }));
 
     let timestamp = Date.now();
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
@@ -82,6 +82,19 @@ describe('initSplitSdk', () => {
     });
   });
 
+  it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const onReadyCb = jest.fn();
+    const onTimedoutCb = jest.fn();
+    try {
+      setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
+      await store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig }));
+    } catch (error) {
+      expect(error.includes('SDK_READY_TIMED_OUT'));
+      done();
+    }
+  });
+
 });
 
 describe('getTreatments', () => {
@@ -99,24 +112,37 @@ describe('getTreatments', () => {
     const errorSpy = jest.spyOn(console, 'error');
     const store = mockStore(STATE_INITIAL);
 
-    store.dispatch<any>(getTreatments({key: splitKey, splitNames: 'split1'}));
+    store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1' }));
 
     expect(errorSpy).toBeCalledWith(ERROR_GETT_NO_INITSPLITSDK);
     expect(store.getActions().length).toBe(0);
   });
 
-  it('dispatch an ADD_TREATMENTS action if Split SDK is ready', (done) => {
+  it('dispatch an ADD_TREATMENTS action whether Split SDK is ready or not', (done) => {
 
     // Init SDK and set ready
     const store = mockStore(STATE_INITIAL);
-    const actionResult = store.dispatch<any>(initSplitSdk({config: sdkNodeConfig}));
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig }));
+
+    // Invoke before Split is ready, with a Split name string and no attributes
+    store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1' }));
+
+    let action = store.getActions()[0];
+    expect(action.type).toBe(ADD_TREATMENTS);
+    expect(action.payload.key).toBe(splitKey);
+    expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
+    expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 
     actionResult.then(() => {
-      // Invoke with a Split name string and no attributes
-      store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1'}));
+      action = store.getActions()[1];
+      expect(action.type).toBe(SPLIT_READY);
 
-      let action = store.getActions()[1];
+      // Invoke when Split is ready
+      store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1' }));
+
+      action = store.getActions()[2];
       expect(action.type).toBe(ADD_TREATMENTS);
       expect(action.payload.key).toBe(splitKey);
       expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
@@ -125,14 +151,15 @@ describe('getTreatments', () => {
       // Invoke with a list of Split names and a attributes object
       const splitNames = ['split1', 'split2'];
       const attributes = { att1: 'att1' };
-      store.dispatch<any>(getTreatments({ key: splitKey, splitNames, attributes}));
+      store.dispatch<any>(getTreatments({ key: splitKey, splitNames, attributes }));
 
-      action = store.getActions()[2];
+      action = store.getActions()[3];
       expect(action.type).toBe(ADD_TREATMENTS);
       expect(action.payload.key).toBe(splitKey);
       expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, splitNames, attributes);
       expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
+      expect(store.getActions().length).toBe(4); // 1 SDK_READY and 3 ADD_TREATMENTS
       done();
     });
   });
