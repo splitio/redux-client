@@ -1,5 +1,6 @@
-1.1.1 (May XX, 2020)
- - Improved state updates on client-side: `getTreatments` async actions only update the state (via ADD_TREATMENTS actions) when the client is ready or when the evaluation of treatments changed on client updates.
+1.1.1 (Jul XX, 2020)
+ - Added a return promise when dispatching `getTreatments` asycn action. The promise resolves with the treatments values when the SDK client is ready, and rejects if the client timeouts, i.e., it emits an SDK_READY_TIMED_OUT event).
+ - Improved state updates on client-side: `getTreatments` async action only updates the Split state when the client is ready and when the treatment's values change.
 
 1.1.0 (May 11, 2020)
  - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.

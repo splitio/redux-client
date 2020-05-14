@@ -135,7 +135,8 @@ export function getTreatments(params: IGetTreatmentsParams): (dispatch: Dispatch
           client.once(client.Event.SDK_READY, onReady);
           client.once(client.Event.SDK_READY_TIMED_OUT, (error) => {
             client.once(client.Event.SDK_READY, onReady);
-            rej(error);
+            console.log('error: ' + error);
+            rej('SDK_READY_TIMED_OUT');
           });
         }
       }), function () { });
