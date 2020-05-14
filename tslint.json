@@ -15,7 +15,8 @@
         "no-empty": false,
         "variable-name": false,
         "only-arrow-functions": false,
-        "curly": false
+        "curly": false,
+        "space-before-function-paren": false
     },
     "rulesDirectory": []
 }
