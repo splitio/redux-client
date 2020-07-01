@@ -1,12 +1,13 @@
 import { Reducer } from 'redux';
 import { ISplitState } from './types';
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
 
 /**
  * Initial default state for Split reducer
  */
 const initialState: ISplitState = {
   isReady: false,
+  isReadyFromCache: false,
   isTimedout: false,
   hasTimedout: false,
   isDestroyed: false,
@@ -28,6 +29,13 @@ const splitReducer: Reducer<ISplitState> = function(
         ...state,
         isReady: true,
         isTimedout: false,
+        lastUpdate: action.payload.timestamp,
+      };
+
+    case SPLIT_READY_FROM_CACHE:
+      return {
+        ...state,
+        isReadyFromCache: true,
         lastUpdate: action.payload.timestamp,
       };
 
