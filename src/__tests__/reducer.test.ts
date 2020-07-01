@@ -1,9 +1,10 @@
 import reducer from '../reducer';
-import { splitReady, splitTimedout, splitUpdate, addTreatments, splitDestroy } from '../actions';
+import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, addTreatments, splitDestroy } from '../actions';
 import { ISplitState } from '../types';
 
 const initialState = {
   isReady: false,
+  isReadyFromCache: false,
   isTimedout: false,
   hasTimedout: false,
   isDestroyed: false,
@@ -23,6 +24,17 @@ describe('Split reducer', () => {
     ).toEqual({
       ...initialState,
       isReady: true,
+      lastUpdate: readyAction.payload.timestamp,
+    });
+  });
+
+  it('should handle SPLIT_READY_FROM_CACHE', () => {
+    const readyAction = splitReadyFromCache();
+    expect(
+      reducer(initialState, readyAction),
+    ).toEqual({
+      ...initialState,
+      isReadyFromCache: true,
       lastUpdate: readyAction.payload.timestamp,
     });
   });

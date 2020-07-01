@@ -2,12 +2,21 @@
  * Common action creators for browser and node.
  * They return plain actions (Flux-Standard-Actions).
  */
-import { SPLIT_READY, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
 import { matching } from './utils';
 
 export function splitReady() {
   return {
     type: SPLIT_READY,
+    payload: {
+      timestamp: Date.now(),
+    },
+  };
+}
+
+export function splitReadyFromCache() {
+  return {
+    type: SPLIT_READY_FROM_CACHE,
     payload: {
       timestamp: Date.now(),
     },

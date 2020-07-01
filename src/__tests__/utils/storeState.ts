@@ -12,6 +12,7 @@ export const USER_INVALID = 'user_invalid';
 export const STATE_READY: { splitio: ISplitState } = {
   splitio: {
     isReady: true,
+    isReadyFromCache: false,
     isTimedout: false,
     hasTimedout: false,
     isDestroyed: false,
@@ -30,6 +31,7 @@ export const STATE_READY: { splitio: ISplitState } = {
 export const STATE_INITIAL: { splitio: ISplitState } = {
   splitio: {
     isReady: false,
+    isReadyFromCache: false,
     isTimedout: false,
     hasTimedout: false,
     isDestroyed: false,
