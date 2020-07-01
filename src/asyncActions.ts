@@ -3,7 +3,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, promiseWrapper } from './utils';
+import { matching } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -66,6 +66,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
     if (splitSdk.isDetached) {  // Split SDK running in Node
 
       // Dispatch actions for updating Split SDK status
+      // We use ready promise instead of event listeners, since on server-side this thunk action is called per session/request.
       defaultClient.ready().then(() => {
         dispatch(splitReady());
       }, () => {
@@ -77,11 +78,8 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 
     }
 
-    // Return the promise so that the user can call .then() on async dispatch result and wait until ready.
-    return promiseWrapper(new Promise(function(res, rej) {
-      defaultClient.once(defaultClient.Event.SDK_READY, res);
-      defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, rej);
-    }), function() { });
+    // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
+    return defaultClient.ready();
   };
 }
 
@@ -129,6 +127,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return __getTreatments(client, params);
     } else {
       client.evalOnReady.push(params);
+      // @TODO handle isReadyFromCache
       // In this case we dispatch an addTreatments with control treatments, without calling the SDK (no impressions sent)
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
     }
