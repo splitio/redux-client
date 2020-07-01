@@ -10,7 +10,7 @@ import { STATE_INITIAL } from './utils/storeState';
 import { sdkBrowserLocalhost } from './utils/sdkConfigs';
 
 /** Constants and types */
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
+import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, SPLIT_READY_FROM_CACHE } from '../constants';
 
 /** Test targets */
 import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk, getClient } from '../asyncActions';
@@ -26,7 +26,7 @@ describe('initSplitSdk', () => {
     jest.clearAllMocks();
   });
 
-  it('invokes callbacks and creates SPLIT_READY and SPLIT_UPDATE actions when SDK_READY and SDK_UPDATE events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_READY and SPLIT_UPDATE actions when SDK_READY and SDK_UPDATE events are triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onUpdateCb = jest.fn();
@@ -58,7 +58,7 @@ describe('initSplitSdk', () => {
     });
   });
 
-  it('invokes callbacks and creates SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onTimedoutCb = jest.fn();
@@ -88,10 +88,37 @@ describe('initSplitSdk', () => {
     });
   });
 
+  it('invokes onReadyFromCache callback and dispatches SPLIT_READY_FROM_CACHE action when SDK_READY_FROM_CACHE event is triggered', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const onReadyFromCacheCb = jest.fn();
+    const onReadyCb = jest.fn();
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReady: onReadyCb, onReadyFromCache: onReadyFromCacheCb }));
+    expect(splitSdk.config).toBe(sdkBrowserLocalhost);
+    expect(splitSdk.factory).toBeTruthy();
+
+    const timestamp = Date.now();
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+    actionResult.then(() => {
+      // return of async action
+      let action = store.getActions()[0];
+      expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+
+      action = store.getActions()[1];
+      expect(action.type).toEqual(SPLIT_READY);
+
+      expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
+      expect(onReadyFromCacheCb.mock.calls.length).toBe(1);
+      expect(onReadyCb.mock.calls.length).toBe(1);
+
+      done();
+    });
+  });
+
   it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
     const store = mockStore(STATE_INITIAL);
-    const onReadyCb = jest.fn();
-    const onTimedoutCb = jest.fn();
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
       await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));

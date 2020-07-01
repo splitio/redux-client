@@ -27,7 +27,7 @@ describe('initSplitSdk', () => {
     jest.clearAllMocks();
   });
 
-  it('invokes callbacks and creates SPLIT_READY actions when SDK_READY event is triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_READY actions when SDK_READY event is triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onUpdateCb = jest.fn();
@@ -52,7 +52,7 @@ describe('initSplitSdk', () => {
     });
   });
 
-  it('invokes callbacks and creates SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onTimedoutCb = jest.fn();
@@ -84,8 +84,6 @@ describe('initSplitSdk', () => {
 
   it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
     const store = mockStore(STATE_INITIAL);
-    const onReadyCb = jest.fn();
-    const onTimedoutCb = jest.fn();
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
       await store.dispatch<any>(initSplitSdk({ config: sdkNodeConfig}));
