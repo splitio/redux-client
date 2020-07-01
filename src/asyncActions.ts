@@ -38,6 +38,8 @@ function isDetached(factory: SplitIO.ISDK) {
  * @param {IInitSplitSdkParams} params
  */
 export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
+  // flag for server-side, where `initSplitSdk` is called once but the created thunk is dispatched each time a new store is created per request/session.
+  let thunkWasNotHandled = true;
 
   splitSdk.config = params.config;
   splitSdk.splitio = params.splitio || (SplitFactory as ISplitFactoryBuilder);
@@ -58,24 +60,29 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 
     const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
 
-    // Add callback listeners
-    if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
-    if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
-    if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
+    // Using this flag to guarantee that event listeners are attached only once, in case the thunk is dispatched more than once (server-side)
+    if (thunkWasNotHandled) {
+      thunkWasNotHandled = false;
 
-    if (splitSdk.isDetached) {  // Split SDK running in Node
+      // Add callback listeners
+      if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
+      if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
+      if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
 
-      // Dispatch actions for updating Split SDK status
-      // We use ready promise instead of event listeners, since on server-side this thunk action is called per session/request.
-      defaultClient.ready().then(() => {
-        dispatch(splitReady());
-      }, () => {
-        dispatch(splitTimedout());
-        defaultClient.once(defaultClient.Event.SDK_READY, () => {
+      if (splitSdk.isDetached) {  // Split SDK running in Node
+
+        // Dispatch actions for updating Split SDK status
+        // We use ready promise instead of event listeners, since on server-side this thunk action is called per session/request.
+        defaultClient.ready().then(() => {
           dispatch(splitReady());
+        }, () => {
+          dispatch(splitTimedout());
+          defaultClient.once(defaultClient.Event.SDK_READY, () => {
+            dispatch(splitReady());
+          });
         });
-      });
 
+      }
     }
 
     // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
