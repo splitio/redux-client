@@ -3,7 +3,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, getIsReady, getIsOperational } from './utils';
+import { matching, getIsReady, getIsOperational, getHasTimedout, getIsDestroyed } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -49,33 +49,32 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // Already checked if detached or not, so we'll proceed with overriding the language of the SDK for correct tracking. Don't try this at home.
   (splitSdk.factory.settings.version as any) = VERSION;
 
+  // @TODO add comments
+  const defaultClient = splitSdk.factory.client();
+
+  // Add callback listeners
+  if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
+  if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
+  if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
+
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-    // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
-    // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
-    // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
-    splitSdk.dispatch = dispatch;
-
-    const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
-
-    // Add callback listeners
-    if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
-    if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
-    if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
 
     if (splitSdk.isDetached) {  // Split SDK running in Node
+      // Dispatch actions for updating Split SDK status.
+      // Since on server-side the store has a life-span per session/request,
+      // we cannot dispatch actions asynchronously using the client ready promise or event listeners.
+      if (getHasTimedout(defaultClient)) dispatch(splitTimedout());
+      if (getIsReady(defaultClient)) dispatch(splitReady());
+      if (getIsDestroyed(defaultClient)) dispatch(splitDestroy());
 
-      // Dispatch actions for updating Split SDK status
-      // We use ready promise instead of event listeners, since on server-side this thunk action is called per session/request.
-      defaultClient.ready().then(() => {
-        dispatch(splitReady());
-      }, () => {
-        dispatch(splitTimedout());
-        defaultClient.once(defaultClient.Event.SDK_READY, () => {
-          dispatch(splitReady());
-        });
-      });
-
+    } else {
+      // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
+      // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
+      // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
+      splitSdk.dispatch = dispatch;
+      // @TODO add comment
+      getClient(splitSdk);
     }
 
     // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.

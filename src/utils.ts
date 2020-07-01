@@ -40,3 +40,11 @@ export function getIsReadyFromCache(client: SplitIO.IClient): boolean {
 export function getIsOperational(client: SplitIO.IClient): boolean {
   return getIsReady(client) || getIsReadyFromCache(client);
 }
+
+export function getHasTimedout(client: SplitIO.IClient): boolean {
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.HAS_TIMEDOUT, true) ? true : false;
+}
+
+export function getIsDestroyed(client: SplitIO.IClient): boolean {
+  return (client as IClientWithContext).__context.get((client as IClientWithContext).__context.constants.DESTROYED, true) ? true : false;
+}
