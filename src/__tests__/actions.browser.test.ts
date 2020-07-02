@@ -10,7 +10,7 @@ import { STATE_INITIAL } from './utils/storeState';
 import { sdkBrowserLocalhost } from './utils/sdkConfigs';
 
 /** Constants and types */
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
+import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, SPLIT_READY_FROM_CACHE } from '../constants';
 
 /** Test targets */
 import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk, getClient } from '../asyncActions';
@@ -26,7 +26,7 @@ describe('initSplitSdk', () => {
     jest.clearAllMocks();
   });
 
-  it('invokes callbacks and creates SPLIT_READY and SPLIT_UPDATE actions when SDK_READY and SDK_UPDATE events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_READY and SPLIT_UPDATE actions when SDK_READY and SDK_UPDATE events are triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onUpdateCb = jest.fn();
@@ -58,7 +58,7 @@ describe('initSplitSdk', () => {
     });
   });
 
-  it('invokes callbacks and creates SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
     const onReadyCb = jest.fn();
     const onTimedoutCb = jest.fn();
@@ -88,10 +88,37 @@ describe('initSplitSdk', () => {
     });
   });
 
+  it('invokes onReadyFromCache callback and dispatches SPLIT_READY_FROM_CACHE action when SDK_READY_FROM_CACHE event is triggered', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const onReadyFromCacheCb = jest.fn();
+    const onReadyCb = jest.fn();
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReady: onReadyCb, onReadyFromCache: onReadyFromCacheCb }));
+    expect(splitSdk.config).toBe(sdkBrowserLocalhost);
+    expect(splitSdk.factory).toBeTruthy();
+
+    const timestamp = Date.now();
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+    actionResult.then(() => {
+      // return of async action
+      let action = store.getActions()[0];
+      expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+
+      action = store.getActions()[1];
+      expect(action.type).toEqual(SPLIT_READY);
+
+      expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
+      expect(onReadyFromCacheCb.mock.calls.length).toBe(1);
+      expect(onReadyCb.mock.calls.length).toBe(1);
+
+      done();
+    });
+  });
+
   it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
     const store = mockStore(STATE_INITIAL);
-    const onReadyCb = jest.fn();
-    const onTimedoutCb = jest.fn();
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
       await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));
@@ -145,7 +172,49 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not ready, and dispatch it when ready', (done) => {
+  it('dispatches an ADD_TREATMENTS action and registers an ADD_TREATMENTS action if Split SDK is ready from cache, to dispatch it when ready', (done) => {
+
+    // Init SDK and set ready from cache
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReadyFromCache: onReadyFromCacheCb }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+
+    function onReadyFromCacheCb() {
+      store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+
+      let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
+      expect(action.type).toBe('ADD_TREATMENTS');
+      expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+      // Splits are evaluated if ready from cache
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+      expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(1);
+
+      (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+      actionResult.then(() => {
+        // The ADD_TREATMENTS action is dispatched again once the SDK is ready
+        action = store.getActions()[3]; // action 2 is SPLIT_READY
+        expect(action.type).toBe(ADD_TREATMENTS);
+        expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+        expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+
+        // The same action is dispatched again, but this time is registered for 'evalOnUpdate'
+        store.dispatch<any>(getTreatments({ splitNames: 'split1', evalOnUpdate: true }));
+
+        expect(store.getActions()[3]).toEqual(store.getActions()[4]);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toBeCalledTimes(3);
+        expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
+
+        done();
+      });
+    }
+  });
+
+  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not operational, to dispatch it when ready', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
@@ -184,7 +253,7 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not ready, and dispatch it when ready and updated', (done) => {
+  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not operational, to dispatch it when ready and updated', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
