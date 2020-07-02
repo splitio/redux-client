@@ -172,7 +172,49 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not ready, and dispatch it when ready', (done) => {
+  it('dispatches an ADD_TREATMENTS action and registers an ADD_TREATMENTS action if Split SDK is ready from cache, to dispatch it when ready', (done) => {
+
+    // Init SDK and set ready from cache
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReadyFromCache: onReadyFromCacheCb }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+
+    function onReadyFromCacheCb() {
+      store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+
+      let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
+      expect(action.type).toBe('ADD_TREATMENTS');
+      expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+      // Splits are evaluated if ready from cache
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+      expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(1);
+
+      (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+      actionResult.then(() => {
+        // The ADD_TREATMENTS action is dispatched again once the SDK is ready
+        action = store.getActions()[3]; // action 2 is SPLIT_READY
+        expect(action.type).toBe(ADD_TREATMENTS);
+        expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+        expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+
+        // The same action is dispatched again, but this time is registered for 'evalOnUpdate'
+        store.dispatch<any>(getTreatments({ splitNames: 'split1', evalOnUpdate: true }));
+
+        expect(store.getActions()[3]).toEqual(store.getActions()[4]);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toBeCalledTimes(3);
+        expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
+
+        done();
+      });
+    }
+  });
+
+  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not operational, to dispatch it when ready', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
@@ -211,7 +253,7 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not ready, and dispatch it when ready and updated', (done) => {
+  it('stores control treatments (without calling SDK client) and registers an ADD_TREATMENTS action if Split SDK is not operational, to dispatch it when ready and updated', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
