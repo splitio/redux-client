@@ -89,6 +89,11 @@ export interface IInitSplitSdkParams {
   onReady?: () => any;
 
   /**
+   * optional callback to be invoked on SDK_READY_FROM_CACHE event
+   */
+  onReadyFromCache?: () => any;
+
+  /**
    * optional callback to be invoked on SDK_READY_TIMED_OUT event
    */
   onTimedout?: () => any;

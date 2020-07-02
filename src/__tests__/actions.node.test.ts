@@ -27,7 +27,7 @@ describe('initSplitSdk', () => {
     jest.clearAllMocks();
   });
 
-  it('invokes callbacks and creates SPLIT_READY actions when SDK_READY event is triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_READY actions when SDK_READY event is triggered', (done) => {
     const onUpdateCb = jest.fn();
     const initSplitSdkAction = initSplitSdk({ config: sdkNodeConfig, onReady: onReadyCb, onUpdate: onUpdateCb });
     expect(splitSdk.config).toBe(sdkNodeConfig);
@@ -54,10 +54,11 @@ describe('initSplitSdk', () => {
     }
   });
 
-  it('invokes callbacks and creates SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
+  it('invokes callbacks and dispatches SPLIT_TIMEDOUT and then SPLIT_READY actions when SDK_READY_TIMED_OUT and SDK_READY events are triggered', (done) => {
     const initSplitSdkAction = initSplitSdk({ config: sdkNodeConfig, onReady: onReadyCb, onTimedout: onTimedoutCb });
     let onTimeoutCbFirstTime = true;
     let onReadyCbFirstTime = true;
+
     let timestamp = Date.now();
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
 
