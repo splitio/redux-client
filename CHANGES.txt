@@ -1,6 +1,5 @@
 1.2.0 (Jul XX, 2020)
- - Updated `@splitsoftware/splitio` dependency to version 10.13.0, which uses streaming synchronization by default. Streaming can be disabled via the `streamingEnabled` config param.
-  If disabled or in the event of an issue, the SDK will fallback to the known polling mechanism to provide a seamless experience.
+ - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
 
 1.1.0 (May 11, 2020)
  - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
