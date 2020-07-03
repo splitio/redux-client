@@ -1,9 +1,9 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
-import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
+import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, getIsReady, getIsOperational, getHasTimedout, getIsDestroyed } from './utils';
+import { matching, getIsReady, getIsReadyFromCache, getIsOperational, getHasTimedout, getIsDestroyed } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -49,10 +49,10 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // Already checked if detached or not, so we'll proceed with overriding the language of the SDK for correct tracking. Don't try this at home.
   (splitSdk.factory.settings.version as any) = VERSION;
 
-  // @TODO add comments
-  const defaultClient = splitSdk.factory.client();
+  const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
 
-  // Add callback listeners
+  // Add callback listeners. They are attached outside the thunk action, since on server-side the
+  // store has a life-span per session/request and thus the action is dispatched more than once
   if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
   if (params.onReadyFromCache) defaultClient.once(defaultClient.Event.SDK_READY_FROM_CACHE, params.onReadyFromCache);
   if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
@@ -61,21 +61,16 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
 
-    if (splitSdk.isDetached) {  // Split SDK running in Node
-      // Dispatch actions for updating Split SDK status.
-      // Since on server-side the store has a life-span per session/request,
-      // we cannot dispatch actions asynchronously using the client ready promise or event listeners.
-      if (getHasTimedout(defaultClient)) dispatch(splitTimedout());
-      if (getIsReady(defaultClient)) dispatch(splitReady());
-      if (getIsDestroyed(defaultClient)) dispatch(splitDestroy());
+    if (getHasTimedout(defaultClient)) dispatch(splitTimedout()); // dispatched before `splitReady`, since it overwrites `isTimedout` property
+    if (getIsReady(defaultClient)) dispatch(splitReady());
+    if (getIsDestroyed(defaultClient)) dispatch(splitDestroy());
 
-    } else {
+    if (!splitSdk.isDetached) {  // Split SDK running in Browser
       // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
       // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
       // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
       splitSdk.dispatch = dispatch;
-      // @TODO add comment
-      getClient(splitSdk);
+      if (getIsReadyFromCache(defaultClient)) dispatch(splitReadyFromCache());
     }
 
     // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
@@ -182,6 +177,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   // On SDK ready, evaluate the registered `getTreatments` actions and dispatch `splitReady` action for the main client
   function onReady() {
+    if (!splitSdk.dispatch) return;
     if (!key) splitSdk.dispatch(splitReady());
     client.evalOnReady.forEach((params) =>
       splitSdk.dispatch(__getTreatments(client, params)),
@@ -191,17 +187,18 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   // On SDK timed out, dispatch `splitTimedout` action for the main client
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
-    if (!key) splitSdk.dispatch(splitTimedout());
+    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
     client.once(client.Event.SDK_READY, onReady);
   });
 
   client.once(client.Event.SDK_READY_FROM_CACHE, function() {
-    if (!key) splitSdk.dispatch(splitReadyFromCache());
+    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitReadyFromCache());
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
   client.on(client.Event.SDK_UPDATE, function() {
+    if (!splitSdk.dispatch) return;
     if (!key) splitSdk.dispatch(splitUpdate());
     Object.values(client.evalOnUpdate).forEach(function(params) {
       splitSdk.dispatch(__getTreatments(client, params));
@@ -216,23 +213,29 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
  * Once the action is resolved, any subsequent dispatch of `getTreatments`
  * will update your treatments at the store with the `control` value.
  */
-export function destroySplitSdk(): (dispatch: Dispatch<Action>) => Promise<void> {
+export function destroySplitSdk(params?: IDestroySplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
     console.error(ERROR_DESTROY_NO_INITSPLITSDK);
     return () => Promise.resolve();
   }
 
+  // Destroy the client(s) outside the thunk action, since on server-side the action is not dispatched
+  // because stores have a life-span per session/request and there may not be one when server shut down.
+  const mainClient = splitSdk.factory.client();
+  // in node, `splitSdk.sharedClients` is an empty object
+  const sharedClients = splitSdk.sharedClients;
+  const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
+  destroyPromises.push(mainClient.destroy());
+
+  // Add onDestroy callback listener. It is important for server-side, where the thunk action is not dispatched
+  // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
+  if (params && params.onDestroy) Promise.all(destroyPromises).then(params.onDestroy);
+
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-    // same for node and browser (in node, `splitSdk.sharedClients` is an empty object)
-    const mainClient = splitSdk.factory.client();
-    const sharedClients = splitSdk.sharedClients;
-    const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
-    destroyPromises.push(mainClient.destroy());
     return Promise.all(destroyPromises).then(function() {
       dispatch(splitDestroy());
     });
-
   };
 }

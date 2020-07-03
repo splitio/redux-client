@@ -10,17 +10,23 @@ import { STATE_INITIAL } from './utils/storeState';
 import { sdkBrowserLocalhost } from './utils/sdkConfigs';
 
 /** Constants and types */
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, SPLIT_READY_FROM_CACHE } from '../constants';
+import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
 
 /** Test targets */
 import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk, getClient } from '../asyncActions';
 
+function clearSplitSdk() {
+  splitSdk.config = null;
+  splitSdk.splitio = null;
+  splitSdk.factory = null;
+  splitSdk.sharedClients = {};
+  splitSdk.isDetached = false;
+  splitSdk.dispatch = null;
+}
+
 describe('initSplitSdk', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -121,7 +127,7 @@ describe('initSplitSdk', () => {
     const store = mockStore(STATE_INITIAL);
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
-      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
+      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));
     } catch (error) {
       expect(error.includes('SDK_READY_TIMED_OUT'));
       done();
@@ -132,10 +138,7 @@ describe('initSplitSdk', () => {
 
 describe('getTreatments', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -180,40 +183,37 @@ describe('getTreatments', () => {
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
 
     function onReadyFromCacheCb() {
-      // @TODO update the order of listeners, to have the store updated before user callbacks are invoked
-      setTimeout(() => {
-        store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+      store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
 
-        let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
-        expect(action.type).toBe('ADD_TREATMENTS');
+      let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
+      expect(action.type).toBe('ADD_TREATMENTS');
+      expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+      // Splits are evaluated if ready from cache
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
+      expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+      expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(1);
+
+      (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+      actionResult.then(() => {
+        // The ADD_TREATMENTS action is dispatched again once the SDK is ready
+        action = store.getActions()[3]; // action 2 is SPLIT_READY
+        expect(action.type).toBe(ADD_TREATMENTS);
         expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
-        // Splits are evaluated if ready from cache
         expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
         expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
         expect(getClient(splitSdk).evalOnUpdate).toEqual({});
-        expect(getClient(splitSdk).evalOnReady.length).toEqual(1);
 
-        (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+        // The same action is dispatched again, but this time is registered for 'evalOnUpdate'
+        store.dispatch<any>(getTreatments({ splitNames: 'split1', evalOnUpdate: true }));
 
-        actionResult.then(() => {
-          // The ADD_TREATMENTS action is dispatched again once the SDK is ready
-          action = store.getActions()[3]; // action 2 is SPLIT_READY
-          expect(action.type).toBe(ADD_TREATMENTS);
-          expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
-          expect((splitSdk.factory as any).client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
-          expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
-          expect(getClient(splitSdk).evalOnUpdate).toEqual({});
+        expect(store.getActions()[3]).toEqual(store.getActions()[4]);
+        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toBeCalledTimes(3);
+        expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
 
-          // The same action is dispatched again, but this time is registered for 'evalOnUpdate'
-          store.dispatch<any>(getTreatments({ splitNames: 'split1', evalOnUpdate: true }));
-
-          expect(store.getActions()[3]).toEqual(store.getActions()[4]);
-          expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toBeCalledTimes(3);
-          expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
-
-          done();
-        });
-      }, 0);
+        done();
+      });
     }
   });
 
@@ -317,10 +317,7 @@ describe('getTreatments', () => {
 
 describe('getTreatments providing a user key', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -420,10 +417,7 @@ describe('getTreatments providing a user key', () => {
 
 describe('destroySplitSdk', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -462,7 +456,7 @@ describe('destroySplitSdk', () => {
         expect((splitSdk.factory as any).client('other-user-key').destroy.mock.calls.length).toBe(1);
         expect((splitSdk.factory as any).client('other-user-key-2').destroy.mock.calls.length).toBe(1);
         done();
-      }, 0);
+      });
     });
   });
 

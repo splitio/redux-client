@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import promiseWrapper from './promiseWrapper';
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
@@ -56,10 +57,10 @@ export function mockSdk() {
         return 'getTreatmentsWithConfig';
       });
       const ready: jest.Mock = jest.fn(() => {
-        return new Promise((res, rej) => {
+        return promiseWrapper(new Promise((res, rej) => {
           __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
           __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
-        });
+        }), () => { });
       });
       const context = {
         constants: {
