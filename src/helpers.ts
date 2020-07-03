@@ -1,6 +1,7 @@
 import { splitSdk, getClient } from './asyncActions';
-import { ITrackParams } from './types';
-import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
+import { ITrackParams, IStatus } from './types';
+import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK, WARN_GETSTATUS_NO_CLIENT } from './constants';
+import { matching, getIsReady, getIsReadyFromCache, getHasTimedout, getIsDestroyed } from './utils';
 
 /**
  * This function track events, i.e., it invokes the actual `client.track*` methods.
@@ -83,4 +84,34 @@ export function getSplits(): SplitIO.SplitViews {
   }
 
   return splitSdk.factory.manager().splits();
+}
+
+/**
+ * Get the status of a client given the user key. If not provided, it returns the status of the main client.
+ *
+ * @param {SplitIO.SplitKey} key user key of the client. To use only on client-side.
+ * @returns {IStatus | undefined} status of the client or undefined if the SDK was not initialized or the client with the given key wasn't found,
+ * what means that it wasn't used via the `track` helper or `getTreatments` action creator.
+ */
+export function getStatus(key?: SplitIO.SplitKey): IStatus | undefined {
+  if (!splitSdk.factory) {
+    console.error(ERROR_MANAGER_NO_INITSPLITSDK);
+    return undefined;
+  }
+
+  const client = key ? splitSdk.sharedClients[matching(key)] : splitSdk.factory.client();
+  if (!client) {
+    console.log(WARN_GETSTATUS_NO_CLIENT);
+    return undefined;
+  }
+
+  const isReady = getIsReady(client);
+  const hasTimedout = getHasTimedout(client);
+  return {
+    isReady,
+    isReadyFromCache: getIsReadyFromCache(client),
+    isTimedout: hasTimedout && !isReady,
+    hasTimedout,
+    isDestroyed: getIsDestroyed(client),
+  };
 }

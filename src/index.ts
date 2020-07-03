@@ -1,7 +1,7 @@
 // For Redux
 export { default as splitReducer } from './reducer';
 export { initSplitSdk, getTreatments, destroySplitSdk, splitSdk } from './asyncActions';
-export { track, getSplitNames, getSplit, getSplits } from './helpers';
+export { track, getSplitNames, getSplit, getSplits, getStatus } from './helpers';
 export { selectTreatmentValue, selectTreatmentWithConfig } from './selectors';
 
 // For React-redux

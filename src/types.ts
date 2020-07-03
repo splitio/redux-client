@@ -1,5 +1,5 @@
-/** Type for Split reducer's slice of state */
-export interface ISplitState {
+/** Type for Split client's status */
+export interface IStatus {
 
   /**
    * isReady indicates if Split SDK is ready, i.e., if it has emitted an SDK_READY event.
@@ -33,6 +33,10 @@ export interface ISplitState {
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
    */
   isDestroyed: boolean;
+}
+
+/** Type for Split reducer's slice of state */
+export interface ISplitState extends IStatus {
 
   /**
    * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).

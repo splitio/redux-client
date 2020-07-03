@@ -45,3 +45,5 @@ export const ERROR_TRACK_NO_INITSPLITSDK = '[Error] To use "track" the SDK must 
 export const ERROR_MANAGER_NO_INITSPLITSDK = '[Error] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
 
 export const ERROR_SELECTOR_NO_SPLITSTATE = '[Error] When using selectors, "splitState" value must be a proper splitio piece of state';
+
+export const WARN_GETSTATUS_NO_CLIENT = '[Warn] No client was found with the given user key';
