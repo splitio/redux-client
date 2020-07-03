@@ -1,9 +1,9 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
-import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
+import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, promiseWrapper } from './utils';
+import { matching, promiseWrapper, getIsReady, getIsOperational } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -60,6 +60,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 
     // Add callback listeners
     if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
+    if (params.onReadyFromCache) defaultClient.once(defaultClient.Event.SDK_READY_FROM_CACHE, params.onReadyFromCache);
     if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
     if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
 
@@ -147,12 +148,15 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       __removeEvalOnUpdate(client, params);
     }
 
-    // Execute the action if the SDK is ready, or store it for execution when ready and store a control treatment
-    if (client.isReady) {
+    // If the SDK is not ready, it stores the action to execute when ready
+    if (!getIsReady(client)) {
+      client.evalOnReady.push(params);
+    }
+    if (getIsOperational(client)) {
+      // If the SDK is operational (i.e., it is ready or ready from cache), it evaluates and adds treatments to the store
       return __getTreatments(client, params);
     } else {
-      client.evalOnReady.push(params);
-      // In this case we dispatch an addTreatments with control treatments, without calling the SDK (no impressions sent)
+      // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
     }
 
@@ -172,19 +176,19 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   isReady: boolean;
+  isReadyFromCache: boolean;
   evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }
 
 /**
- * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
- *  - `isReady` status property.
- *  - `evalOnUpdate` and `evalOnReady` action lists.
+ * Used in not detached version (browser). It gets an SDK client and enhances it with `evalOnUpdate` and `evalOnReady` lists.
+ * These lists are used by `getTreatments` action creator to schedule evaluation of splits on SDK_READY and SDK_UPDATE events.
  * It is exported for testing purposes only.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
- * @returns SDK client with `isReady` and `isTimeout` status properties
+ * @returns SDK client with `evalOnUpdate` and `evalOnReady` action lists.
  */
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
@@ -197,7 +201,6 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
-  client.isReady = false;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
   client.evalOnReady = []; // getTreatment actions stored to execute when the SDK is ready
 
@@ -205,7 +208,6 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   // On SDK ready, evaluate the registered `getTreatments` actions and dispatch `splitReady` action for the main client
   function onReady() {
-    client.isReady = true;
     if (!key) splitSdk.dispatch(splitReady());
     client.evalOnReady.forEach((params) =>
       splitSdk.dispatch(__getTreatments(client, params)),
@@ -218,6 +220,10 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (!key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
     client.once(client.Event.SDK_READY, onReady);
+  });
+
+  client.once(client.Event.SDK_READY_FROM_CACHE, function() {
+    if (!key) splitSdk.dispatch(splitReadyFromCache());
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
