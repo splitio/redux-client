@@ -3,7 +3,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, promiseWrapper, getIsReady, getIsOperational } from './utils';
+import { matching, getIsReady, getIsOperational } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -67,6 +67,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
     if (splitSdk.isDetached) {  // Split SDK running in Node
 
       // Dispatch actions for updating Split SDK status
+      // We use ready promise instead of event listeners, since on server-side this thunk action is called per session/request.
       defaultClient.ready().then(() => {
         dispatch(splitReady());
       }, () => {
@@ -78,39 +79,9 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 
     }
 
-    // Return the promise so that the user can call .then() on async dispatch result and wait until ready.
-    return promiseWrapper(new Promise(function(res, rej) {
-      defaultClient.once(defaultClient.Event.SDK_READY, res);
-      defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, rej);
-    }), function() { });
+    // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
+    return defaultClient.ready();
   };
-}
-
-function __getSplitKeyString(key?: SplitIO.SplitKey): string {
-  const splitKey = key || (splitSdk.config as SplitIO.IBrowserSettings).core.key;
-  return matching(splitKey);
-}
-
-function __getItemKey(splitName: string, splitKeyString: string) {
-  return splitName + '-' + splitKeyString;
-}
-
-function __addEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      client.evalOnUpdate[__getItemKey(splitName, splitKeyString)] = { ...params, splitNames: [splitName] };
-    });
-  }
-}
-
-function __removeEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      delete client.evalOnUpdate[__getItemKey(splitName, splitKeyString)];
-    });
-  }
 }
 
 function __getTreatments(client: IClientNotDetached, params: IGetTreatmentsParams) {
@@ -143,9 +114,13 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      __addEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        client.evalOnUpdate[splitName] = { ...params, splitNames: [splitName] };
+      });
     } else {
-      __removeEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        delete client.evalOnUpdate[splitName];
+      });
     }
 
     // If the SDK is not ready, it stores the action to execute when ready
@@ -175,8 +150,6 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
  */
 interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
-  isReady: boolean;
-  isReadyFromCache: boolean;
   evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }
