@@ -130,7 +130,7 @@ describe('initSplitSdk', () => {
     const store = mockStore(STATE_INITIAL);
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
-      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));
+      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
     } catch (error) {
       expect(error.includes('SDK_READY_TIMED_OUT'));
       done();
@@ -361,7 +361,7 @@ describe('getTreatments providing a user key', () => {
       // an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
       // and the item is added to the 'evalOnReady' list of the new client.
       expect(store.getActions().length).toBe(2);
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // @TODO test fail when changing to 1
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(0);
       expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
       let action = store.getActions()[0];
@@ -460,6 +460,30 @@ describe('destroySplitSdk', () => {
         expect((splitSdk.factory as any).client('other-user-key-2').destroy.mock.calls.length).toBe(1);
         done();
       });
+    });
+  });
+
+  it('invokes callback and dispatch SPLIT_DESTROY actions when clients are destroyed', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+    actionResult.then(() => {
+      store.dispatch<any>(destroySplitSdk({ onDestroy: onDestroyCb }));
+
+      function onDestroyCb() {
+        // the cb is invoked before the splitDestroy action is dispatched
+        expect(store.getActions().length).toEqual(1);
+        // assert that all client's destroy methods were called
+        expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
+
+        // check store updated on a following event-loop cycle
+        setTimeout(() => {
+          const action = store.getActions()[1];
+          expect(action.type).toEqual(SPLIT_DESTROY);
+          done();
+        }, 0);
+      }
     });
   });
 

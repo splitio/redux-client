@@ -211,7 +211,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
  * Once the action is resolved, any subsequent dispatch of `getTreatments`
  * will update your treatments at the store with the `control` value.
  */
-export function destroySplitSdk(params?: IDestroySplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
+export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch: Dispatch<Action>) => Promise<void> {
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
     console.error(ERROR_DESTROY_NO_INITSPLITSDK);
@@ -228,7 +228,7 @@ export function destroySplitSdk(params?: IDestroySplitSdkParams): (dispatch: Dis
 
   // Add onDestroy callback listener. It is important for server-side, where the thunk action is not dispatched
   // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
-  if (params && params.onDestroy) Promise.all(destroyPromises).then(params.onDestroy);
+  if (params.onDestroy) Promise.all(destroyPromises).then(params.onDestroy);
 
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
