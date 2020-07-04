@@ -228,12 +228,17 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
 
   // Add onDestroy callback listener. It is important for server-side, where the thunk action is not dispatched
   // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
-  if (params.onDestroy) Promise.all(destroyPromises).then(params.onDestroy);
+  let dispatched = false;
+  if (params.onDestroy) Promise.all(destroyPromises).then(() => {
+    if (!dispatched) params.onDestroy();
+  });
 
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
+    dispatched = true;
     return Promise.all(destroyPromises).then(function() {
       dispatch(splitDestroy());
+      if (params.onDestroy) params.onDestroy();
     });
   };
 }

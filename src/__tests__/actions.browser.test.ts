@@ -472,17 +472,12 @@ describe('destroySplitSdk', () => {
       store.dispatch<any>(destroySplitSdk({ onDestroy: onDestroyCb }));
 
       function onDestroyCb() {
-        // the cb is invoked before the splitDestroy action is dispatched
-        expect(store.getActions().length).toEqual(1);
         // assert that all client's destroy methods were called
         expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
 
-        // check store updated on a following event-loop cycle
-        setTimeout(() => {
-          const action = store.getActions()[1];
-          expect(action.type).toEqual(SPLIT_DESTROY);
-          done();
-        }, 0);
+        const action = store.getActions()[1];
+        expect(action.type).toEqual(SPLIT_DESTROY);
+        done();
       }
     });
   });
