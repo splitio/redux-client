@@ -219,7 +219,7 @@ export function destroySplitSdk(params?: IDestroySplitSdkParams): (dispatch: Dis
   }
 
   // Destroy the client(s) outside the thunk action, since on server-side the action is not dispatched
-  // because stores have a life-span per session/request and there may not be one when server shut down.
+  // because stores have a life-span per session/request and there may not be one when server shuts down.
   const mainClient = splitSdk.factory.client();
   // in node, `splitSdk.sharedClients` is an empty object
   const sharedClients = splitSdk.sharedClients;
