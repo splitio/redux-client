@@ -1,4 +1,4 @@
-1.2.0 (Jul XX, 2020)
+1.2.0 (Jul 7, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
  - Added a new status property to split's piece of state: `isReadyFromCache`, to indicate that the SDK is ready to evaluate when using LocalStorage cached data in browser.
  - Added an optional callback parameter to `initSplitSdk` action creator: `onReadyFromCache`, to listen when the SDK is ready to evaluate using LocalStorage cached data.
