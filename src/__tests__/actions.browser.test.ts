@@ -10,17 +10,23 @@ import { STATE_INITIAL } from './utils/storeState';
 import { sdkBrowserLocalhost } from './utils/sdkConfigs';
 
 /** Constants and types */
-import { SPLIT_READY, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, SPLIT_READY_FROM_CACHE } from '../constants';
+import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from '../constants';
 
 /** Test targets */
 import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk, getClient } from '../asyncActions';
 
+function clearSplitSdk() {
+  splitSdk.config = null;
+  splitSdk.splitio = null;
+  splitSdk.factory = null;
+  splitSdk.sharedClients = {};
+  splitSdk.isDetached = false;
+  splitSdk.dispatch = null;
+}
+
 describe('initSplitSdk', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -124,7 +130,7 @@ describe('initSplitSdk', () => {
     const store = mockStore(STATE_INITIAL);
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
-      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));
+      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
     } catch (error) {
       expect(error.includes('SDK_READY_TIMED_OUT'));
       done();
@@ -135,10 +141,7 @@ describe('initSplitSdk', () => {
 
 describe('getTreatments', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -317,10 +320,7 @@ describe('getTreatments', () => {
 
 describe('getTreatments providing a user key', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -361,7 +361,7 @@ describe('getTreatments providing a user key', () => {
       // an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
       // and the item is added to the 'evalOnReady' list of the new client.
       expect(store.getActions().length).toBe(2);
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // @TODO test fail when changing to 1
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(0);
       expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
       let action = store.getActions()[0];
@@ -420,10 +420,7 @@ describe('getTreatments providing a user key', () => {
 
 describe('destroySplitSdk', () => {
 
-  beforeEach(() => {
-    splitSdk.factory = null;
-    splitSdk.config = null;
-  });
+  beforeEach(clearSplitSdk);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -462,7 +459,26 @@ describe('destroySplitSdk', () => {
         expect((splitSdk.factory as any).client('other-user-key').destroy.mock.calls.length).toBe(1);
         expect((splitSdk.factory as any).client('other-user-key-2').destroy.mock.calls.length).toBe(1);
         done();
-      }, 0);
+      });
+    });
+  });
+
+  it('invokes callback and dispatch SPLIT_DESTROY actions when clients are destroyed', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+    actionResult.then(() => {
+      store.dispatch<any>(destroySplitSdk({ onDestroy: onDestroyCb }));
+
+      function onDestroyCb() {
+        // assert that all client's destroy methods were called
+        expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
+
+        const action = store.getActions()[1];
+        expect(action.type).toEqual(SPLIT_DESTROY);
+        done();
+      }
     });
   });
 

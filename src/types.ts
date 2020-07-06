@@ -137,6 +137,16 @@ export interface IGetTreatmentsParams {
 }
 
 /**
+ * Type of the param object passed to `destroySplitSdk` action creator.
+ */
+export interface IDestroySplitSdkParams {
+  /**
+   * optional callback to be invoked once the SDK has gracefully shut down
+   */
+  onDestroy?: () => any;
+}
+
+/**
  * Type of the param object passed to `track` function helper.
  */
 export interface ITrackParams {
