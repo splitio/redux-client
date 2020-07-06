@@ -230,6 +230,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
   let dispatched = false;
   if (params.onDestroy) Promise.all(destroyPromises).then(() => {
+    // condition to avoid calling the callback twice, since it should be called preferably after the action has been dispatched
     if (!dispatched) params.onDestroy();
   });
 
