@@ -1,3 +1,9 @@
+1.2.0 (Jul 7, 2020)
+ - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
+ - Added a new status property to split's piece of state: `isReadyFromCache`, to indicate that the SDK is ready to evaluate when using LocalStorage cached data in browser.
+ - Added an optional callback parameter to `initSplitSdk` action creator: `onReadyFromCache`, to listen when the SDK is ready to evaluate using LocalStorage cached data.
+ - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
+
 1.1.0 (May 11, 2020)
  - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.

@@ -1,9 +1,9 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
-import { IInitSplitSdkParams, IGetTreatmentsParams, ISplitFactoryBuilder } from './types';
-import { splitReady, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
+import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
+import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, promiseWrapper } from './utils';
+import { matching, getIsReady, getIsReadyFromCache, getIsOperational, getHasTimedout, getIsDestroyed } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -49,67 +49,33 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // Already checked if detached or not, so we'll proceed with overriding the language of the SDK for correct tracking. Don't try this at home.
   (splitSdk.factory.settings.version as any) = VERSION;
 
+  const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
+
+  // Add callback listeners. They are attached outside the thunk action, since on server-side the
+  // store has a life-span per session/request and thus the action is dispatched more than once
+  if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
+  if (params.onReadyFromCache) defaultClient.once(defaultClient.Event.SDK_READY_FROM_CACHE, params.onReadyFromCache);
+  if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
+  if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
+
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-    // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
-    // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
-    // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
-    splitSdk.dispatch = dispatch;
 
-    const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
+    if (getHasTimedout(defaultClient)) dispatch(splitTimedout()); // dispatched before `splitReady`, since it overwrites `isTimedout` property
+    if (getIsReady(defaultClient)) dispatch(splitReady());
+    if (getIsDestroyed(defaultClient)) dispatch(splitDestroy());
 
-    // Add callback listeners
-    if (params.onReady) defaultClient.once(defaultClient.Event.SDK_READY, params.onReady);
-    if (params.onTimedout) defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, params.onTimedout);
-    if (params.onUpdate) defaultClient.on(defaultClient.Event.SDK_UPDATE, params.onUpdate);
-
-    if (splitSdk.isDetached) {  // Split SDK running in Node
-
-      // Dispatch actions for updating Split SDK status
-      defaultClient.ready().then(() => {
-        dispatch(splitReady());
-      }, () => {
-        dispatch(splitTimedout());
-        defaultClient.once(defaultClient.Event.SDK_READY, () => {
-          dispatch(splitReady());
-        });
-      });
-
+    if (!splitSdk.isDetached) {  // Split SDK running in Browser
+      // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
+      // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
+      // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
+      splitSdk.dispatch = dispatch;
+      if (getIsReadyFromCache(defaultClient)) dispatch(splitReadyFromCache());
     }
 
-    // Return the promise so that the user can call .then() on async dispatch result and wait until ready.
-    return promiseWrapper(new Promise(function(res, rej) {
-      defaultClient.once(defaultClient.Event.SDK_READY, res);
-      defaultClient.once(defaultClient.Event.SDK_READY_TIMED_OUT, rej);
-    }), function() { });
+    // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
+    return defaultClient.ready();
   };
-}
-
-function __getSplitKeyString(key?: SplitIO.SplitKey): string {
-  const splitKey = key || (splitSdk.config as SplitIO.IBrowserSettings).core.key;
-  return matching(splitKey);
-}
-
-function __getItemKey(splitName: string, splitKeyString: string) {
-  return splitName + '-' + splitKeyString;
-}
-
-function __addEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      client.evalOnUpdate[__getItemKey(splitName, splitKeyString)] = { ...params, splitNames: [splitName] };
-    });
-  }
-}
-
-function __removeEvalOnUpdate(client: IClientNotDetached, params: IGetTreatmentsParams) {
-  const splitKeyString = __getSplitKeyString(params.key);
-  if (splitKeyString) {
-    (params.splitNames as string[]).forEach((splitName) => {
-      delete client.evalOnUpdate[__getItemKey(splitName, splitKeyString)];
-    });
-  }
 }
 
 function __getTreatments(client: IClientNotDetached, params: IGetTreatmentsParams) {
@@ -142,17 +108,24 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      __addEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        client.evalOnUpdate[splitName] = { ...params, splitNames: [splitName] };
+      });
     } else {
-      __removeEvalOnUpdate(client, params);
+      params.splitNames.forEach((splitName) => {
+        delete client.evalOnUpdate[splitName];
+      });
     }
 
-    // Execute the action if the SDK is ready, or store it for execution when ready and store a control treatment
-    if (client.isReady) {
+    // If the SDK is not ready, it stores the action to execute when ready
+    if (!getIsReady(client)) {
+      client.evalOnReady.push(params);
+    }
+    if (getIsOperational(client)) {
+      // If the SDK is operational (i.e., it is ready or ready from cache), it evaluates and adds treatments to the store
       return __getTreatments(client, params);
     } else {
-      client.evalOnReady.push(params);
-      // In this case we dispatch an addTreatments with control treatments, without calling the SDK (no impressions sent)
+      // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
     }
 
@@ -171,20 +144,18 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
  */
 interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
-  isReady: boolean;
   evalOnUpdate: { [splitNameSplitKeyPair: string]: IGetTreatmentsParams }; // redoOnUpdateOrReady
   evalOnReady: IGetTreatmentsParams[]; // waitUntilReady
 }
 
 /**
- * Used in not detached version (browser). It gets an SDK client and enhance it with additional properties:
- *  - `isReady` status property.
- *  - `evalOnUpdate` and `evalOnReady` action lists.
+ * Used in not detached version (browser). It gets an SDK client and enhances it with `evalOnUpdate` and `evalOnReady` lists.
+ * These lists are used by `getTreatments` action creator to schedule evaluation of splits on SDK_READY and SDK_UPDATE events.
  * It is exported for testing purposes only.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
  * @param key optional user key
- * @returns SDK client with `isReady` and `isTimeout` status properties
+ * @returns SDK client with `evalOnUpdate` and `evalOnReady` action lists.
  */
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
@@ -197,7 +168,6 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
-  client.isReady = false;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
   client.evalOnReady = []; // getTreatment actions stored to execute when the SDK is ready
 
@@ -205,7 +175,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   // On SDK ready, evaluate the registered `getTreatments` actions and dispatch `splitReady` action for the main client
   function onReady() {
-    client.isReady = true;
+    if (!splitSdk.dispatch) return;
     if (!key) splitSdk.dispatch(splitReady());
     client.evalOnReady.forEach((params) =>
       splitSdk.dispatch(__getTreatments(client, params)),
@@ -215,13 +185,18 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
 
   // On SDK timed out, dispatch `splitTimedout` action for the main client
   client.once(client.Event.SDK_READY_TIMED_OUT, function() {
-    if (!key) splitSdk.dispatch(splitTimedout());
+    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitTimedout());
     // register a listener for SDK_READY event, that might trigger after a timeout
     client.once(client.Event.SDK_READY, onReady);
   });
 
+  client.once(client.Event.SDK_READY_FROM_CACHE, function() {
+    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitReadyFromCache());
+  });
+
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action for the main client
   client.on(client.Event.SDK_UPDATE, function() {
+    if (!splitSdk.dispatch) return;
     if (!key) splitSdk.dispatch(splitUpdate());
     Object.values(client.evalOnUpdate).forEach(function(params) {
       splitSdk.dispatch(__getTreatments(client, params));
@@ -236,23 +211,35 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
  * Once the action is resolved, any subsequent dispatch of `getTreatments`
  * will update your treatments at the store with the `control` value.
  */
-export function destroySplitSdk(): (dispatch: Dispatch<Action>) => Promise<void> {
+export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch: Dispatch<Action>) => Promise<void> {
   // Log error message if the SDK was not initiated with a `initSplitSdk` action
   if (!splitSdk.factory) {
     console.error(ERROR_DESTROY_NO_INITSPLITSDK);
     return () => Promise.resolve();
   }
 
+  // Destroy the client(s) outside the thunk action, since on server-side the action is not dispatched
+  // because stores have a life-span per session/request and there may not be one when server shuts down.
+  const mainClient = splitSdk.factory.client();
+  // in node, `splitSdk.sharedClients` is an empty object
+  const sharedClients = splitSdk.sharedClients;
+  const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
+  destroyPromises.push(mainClient.destroy());
+
+  // Add onDestroy callback listener. It is important for server-side, where the thunk action is not dispatched
+  // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
+  let dispatched = false;
+  if (params.onDestroy) Promise.all(destroyPromises).then(() => {
+    // condition to avoid calling the callback twice, since it should be called preferably after the action has been dispatched
+    if (!dispatched) params.onDestroy();
+  });
+
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
-    // same for node and browser (in node, `splitSdk.sharedClients` is an empty object)
-    const mainClient = splitSdk.factory.client();
-    const sharedClients = splitSdk.sharedClients;
-    const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
-    destroyPromises.push(mainClient.destroy());
+    dispatched = true;
     return Promise.all(destroyPromises).then(function() {
       dispatch(splitDestroy());
+      if (params.onDestroy) params.onDestroy();
     });
-
   };
 }
