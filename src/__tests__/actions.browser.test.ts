@@ -96,8 +96,19 @@ describe('initSplitSdk', () => {
 
   it('invokes onReadyFromCache callback and dispatches SPLIT_READY_FROM_CACHE action when SDK_READY_FROM_CACHE event is triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
-    const onReadyFromCacheCb = jest.fn();
-    const onReadyCb = jest.fn();
+
+    const onReadyFromCacheCb = jest.fn(() => {
+      // action should be already dispatched when the callback is called
+      const action = store.getActions()[0];
+      expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+    });
+    const onReadyCb = jest.fn(() => {
+      const action = store.getActions()[1];
+      expect(action.type).toEqual(SPLIT_READY);
+    });
+
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReady: onReadyCb, onReadyFromCache: onReadyFromCacheCb }));
     expect(splitSdk.config).toBe(sdkBrowserLocalhost);
     expect(splitSdk.factory).toBeTruthy();
@@ -105,16 +116,8 @@ describe('initSplitSdk', () => {
     const timestamp = Date.now();
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
     actionResult.then(() => {
-      // return of async action
-      let action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
-
-      action = store.getActions()[1];
-      expect(action.type).toEqual(SPLIT_READY);
-
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
       expect(onReadyFromCacheCb.mock.calls.length).toBe(1);
       expect(onReadyCb.mock.calls.length).toBe(1);
@@ -127,7 +130,7 @@ describe('initSplitSdk', () => {
     const store = mockStore(STATE_INITIAL);
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
-      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost}));
+      await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
     } catch (error) {
       expect(error.includes('SDK_READY_TIMED_OUT'));
       done();
@@ -358,7 +361,7 @@ describe('getTreatments providing a user key', () => {
       // an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
       // and the item is added to the 'evalOnReady' list of the new client.
       expect(store.getActions().length).toBe(2);
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // @TODO test fail when changing to 1
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(0);
       expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
       let action = store.getActions()[0];
@@ -457,6 +460,25 @@ describe('destroySplitSdk', () => {
         expect((splitSdk.factory as any).client('other-user-key-2').destroy.mock.calls.length).toBe(1);
         done();
       });
+    });
+  });
+
+  it('invokes callback and dispatch SPLIT_DESTROY actions when clients are destroyed', (done) => {
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+    actionResult.then(() => {
+      store.dispatch<any>(destroySplitSdk({ onDestroy: onDestroyCb }));
+
+      function onDestroyCb() {
+        // assert that all client's destroy methods were called
+        expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
+
+        const action = store.getActions()[1];
+        expect(action.type).toEqual(SPLIT_DESTROY);
+        done();
+      }
     });
   });
 
