@@ -1,7 +1,7 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
-import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments } from './actions';
+import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, splitDestroy, addTreatments, splitReadyWithEvaluations } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
 import { matching, getIsReady, getIsReadyFromCache, getIsOperational, getHasTimedout, getIsDestroyed } from './utils';
 
@@ -176,10 +176,17 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
   // On SDK ready, evaluate the registered `getTreatments` actions and dispatch `splitReady` action for the main client
   function onReady() {
     if (!splitSdk.dispatch) return;
-    if (!key) splitSdk.dispatch(splitReady());
-    client.evalOnReady.forEach((params) =>
-      splitSdk.dispatch(__getTreatments(client, params)),
-    );
+
+    if (client.evalOnReady.length) {
+      const acc: Array<{
+        key: string,
+        treatments: SplitIO.TreatmentsWithConfig,
+      }> = [];
+      client.evalOnReady.forEach((params) => acc.push(__getTreatments(client, params).payload));
+
+      splitSdk.dispatch(splitReadyWithEvaluations(acc));
+
+    } else if (!key) splitSdk.dispatch(splitReady());
   }
   client.once(client.Event.SDK_READY, onReady);
 

@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
-import { ISplitState } from './types';
-import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import { ISplitState, IKeyTreatments } from './types';
+import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
 
 /**
  * Initial default state for Split reducer
@@ -14,6 +14,24 @@ const initialState: ISplitState = {
   lastUpdate: 0,
   treatments: {},
 };
+
+function mapTreatments(result: ISplitState, key: string, treatments: IKeyTreatments): ISplitState {
+  Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
+    if (result.treatments[splitName]) {
+      const splitTreatments = result.treatments[splitName];
+      if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
+        result.treatments[splitName] = {
+          ...(result.treatments[splitName]),
+          [key]: treatment,
+        };
+      }
+    } else {
+      result.treatments[splitName] = { [key]: treatment };
+    }
+  });
+
+  return result;
+}
 
 /**
  * Split reducer.
@@ -31,6 +49,23 @@ const splitReducer: Reducer<ISplitState> = function(
         isTimedout: false,
         lastUpdate: action.payload.timestamp,
       };
+// @TODO: build for ready_from_cache if applicable
+    case SPLIT_READY_WITH_EVALUATIONS:
+      const res = {
+        ...state,
+        treatments: { ...state.treatments },
+        isReady: true,
+        isTimedout: false,
+        lastUpdate: action.payload.timestamp,
+      };
+
+      action.payload.evaluations.forEach((evaluation: any) => {
+        const { key, treatments } = evaluation;
+
+        mapTreatments(res, key, treatments);
+      });
+
+      return res;
 
     case SPLIT_READY_FROM_CACHE:
       return {
@@ -62,24 +97,12 @@ const splitReducer: Reducer<ISplitState> = function(
 
     case ADD_TREATMENTS:
       const { key, treatments } = action.payload;
-      const result: ISplitState = {
+      const result = {
         ...state,
         treatments: { ...state.treatments },
       };
-      Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
-        if (result.treatments[splitName]) {
-          const splitTreatments = result.treatments[splitName];
-          if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
-            result.treatments[splitName] = {
-              ...(result.treatments[splitName]),
-              [key]: treatment,
-            };
-          }
-        } else {
-          result.treatments[splitName] = { [key]: treatment };
-        }
-      });
-      return result;
+
+      return mapTreatments(result, key, treatments);
 
     default:
       return state;
