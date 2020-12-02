@@ -39,6 +39,8 @@ export const SPLIT_DESTROY = 'SPLIT_DESTROY';
 
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
 
+export const ADD_EVALUATIONS = 'ADD_EVALUATIONS';
+
 // Warning and error messages
 export const ERROR_GETT_NO_INITSPLITSDK = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
 

@@ -2,7 +2,7 @@
  * Common action creators for browser and node.
  * They return plain actions (Flux-Standard-Actions).
  */
-import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS, ADD_EVALUATIONS } from './constants';
 import { matching } from './utils';
 
 export function splitReady() {
@@ -70,6 +70,19 @@ export function addTreatments(key: SplitIO.SplitKey, treatments: SplitIO.Treatme
     payload: {
       key: matching(key),
       treatments,
+    },
+  };
+}
+
+export function addEvaluations(evaluations: Array<{
+  key: string,
+  treatments: SplitIO.TreatmentsWithConfig,
+}>) {
+
+  return {
+    type: ADD_EVALUATIONS,
+    payload: {
+      evaluations,
     },
   };
 }

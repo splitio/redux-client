@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 import { ISplitState, IKeyTreatments } from './types';
-import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS, ADD_EVALUATIONS } from './constants';
 
 /**
  * Initial default state for Split reducer
@@ -41,6 +41,8 @@ const splitReducer: Reducer<ISplitState> = function(
   state = initialState,
   action,
 ) {
+  let result: ISplitState;
+
   switch (action.type) {
     case SPLIT_READY:
       return {
@@ -51,7 +53,7 @@ const splitReducer: Reducer<ISplitState> = function(
       };
 // @TODO: build for ready_from_cache if applicable
     case SPLIT_READY_WITH_EVALUATIONS:
-      const res = {
+      result = {
         ...state,
         treatments: { ...state.treatments },
         isReady: true,
@@ -62,10 +64,10 @@ const splitReducer: Reducer<ISplitState> = function(
       action.payload.evaluations.forEach((evaluation: any) => {
         const { key, treatments } = evaluation;
 
-        mapTreatments(res, key, treatments);
+        mapTreatments(result, key, treatments);
       });
 
-      return res;
+      return result;
 
     case SPLIT_READY_FROM_CACHE:
       return {
@@ -97,12 +99,26 @@ const splitReducer: Reducer<ISplitState> = function(
 
     case ADD_TREATMENTS:
       const { key, treatments } = action.payload;
-      const result = {
+      result = {
         ...state,
         treatments: { ...state.treatments },
       };
 
       return mapTreatments(result, key, treatments);
+
+    case ADD_EVALUATIONS:
+      result = {
+        ...state,
+        treatments: { ...state.treatments },
+      };
+
+      action.payload.evaluations.forEach((evaluation: any) => {
+        const { key, treatments } = evaluation;
+
+        mapTreatments(result, key, treatments);
+      });
+
+      return result;
 
     default:
       return state;
