@@ -1,6 +1,7 @@
 import reducer from '../reducer';
-import { splitReady, splitReadyFromCache, splitTimedout, splitUpdate, addTreatments, splitDestroy } from '../actions';
+import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
+import SplitIO from '@splitsoftware/splitio/types/splitio'
 
 const initialState = {
   isReady: false,

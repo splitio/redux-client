@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import promiseWrapper from './promiseWrapper';
+import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
@@ -49,12 +50,15 @@ export function mockSdk() {
           tt = config.core.trafficType;
         }
         return typeof tt === 'string' &&
-               typeof et === 'string' &&
-               (typeof v === 'number' || typeof v === 'undefined') &&
-               (typeof p === 'object' || typeof p === 'undefined');
+          typeof et === 'string' &&
+          (typeof v === 'number' || typeof v === 'undefined') &&
+          (typeof p === 'object' || typeof p === 'undefined');
       });
-      const getTreatmentsWithConfig: jest.Mock = jest.fn(() => {
-        return 'getTreatmentsWithConfig';
+      const getTreatmentsWithConfig: jest.Mock = jest.fn((splitNames) => {
+        return splitNames.reduce((acc: SplitIO.TreatmentsWithConfig, splitName: string) => {
+          acc[splitName] = { treatment: 'fakeTreatment', config: null };
+          return acc;
+        }, {});
       });
       const ready: jest.Mock = jest.fn(() => {
         return promiseWrapper(new Promise((res, rej) => {

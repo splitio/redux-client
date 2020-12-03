@@ -154,9 +154,20 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
  */
 interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
-  evalOnUpdate: { [splitName: string]: IGetTreatmentsParams }; // evaluate on SDK_UPDATE
-  evalOnReady: IGetTreatmentsParams[]; // wait until SDK_READY
-  evalOnReadyFromCache: IGetTreatmentsParams[]; // wait until SDK_READY_FROM_CACHE
+  /**
+   * stored evaluations to execute on SDK update. It is an object because we might
+   * want to change the evaluation parameters (i.e. attributes) per each split name.
+   */
+  evalOnUpdate: { [splitName: string]: IGetTreatmentsParams };
+  /**
+   * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations
+   * are set with the same split name, the result (i.e. treatment) of the last one is the stored one.
+   */
+  evalOnReady: IGetTreatmentsParams[];
+  /**
+   * Similar to evalOnReady: stored evaluations to execute when the SDK is ready from cache.
+   */
+  evalOnReadyFromCache: IGetTreatmentsParams[];
 }
 
 /**
