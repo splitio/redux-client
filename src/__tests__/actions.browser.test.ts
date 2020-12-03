@@ -184,7 +184,7 @@ describe('getTreatments', () => {
     });
   });
 
-  it('dispatches an ADD_TREATMENTS action if Split SDK is ready from cache, and registers it to be evaluated along with SDK ready', (done) => {
+  it('dispatches ADD_TREATMENTS actions if Split SDK is ready from cache, and registers them to be evaluated along with SDK ready', (done) => {
 
     // Init SDK and set ready from cache
     const store = mockStore(STATE_INITIAL);
@@ -192,40 +192,56 @@ describe('getTreatments', () => {
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
 
     function onReadyFromCacheCb() {
+      // dispatching multiple ADD_TREATMENTS actions
       store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+      const attributes = { att1: 'att1' };
+      store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes }));
 
+      // getting the 1st evaluation result and validating it matches the results from SDK
       let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
       expect(action.type).toBe(ADD_TREATMENTS);
       expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(1, ['split1'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveNthReturnedWith(1, action.payload.treatments);
 
-      // getting the evaluation result and validating it matches the results from SDK
-      const treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
+      // getting the 2nd evaluation result and validating it matches the results from SDK
+      action = store.getActions()[2];
+      expect(action.type).toBe(ADD_TREATMENTS);
+      expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(2, ['split2'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveNthReturnedWith(2, action.payload.treatments);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(1); // control assertion - cbs scheduled for ready
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(2); // control assertion - cbs scheduled for ready
 
       (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 
       actionResult.then(() => {
         // The SPLIT_READY_WITH_EVALUATIONS action is dispatched if the SDK is ready and there are pending evaluations.
-        action = store.getActions()[2];
+        action = store.getActions()[3];
         expect(action.type).toBe(SPLIT_READY_WITH_EVALUATIONS);
         expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
 
-        // getting the evaluation result and validating it matches the results from SDK
-        const treatments = action.payload.treatments;
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split1'], undefined);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
+        // Multiple evaluations where registered, but only one SPLIT_READY_WITH_EVALUATIONS action is dispatched
+        expect(store.getActions().length).toBe(4);
 
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(2); // control assertion - getTreatmentsWithConfig calls
+        // getting the evaluation result and validating it matches the results from SDK calls
+        const treatments = action.payload.treatments;
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(3, ['split1'], undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2'], attributes);
+        const expectedTreatments = {
+          ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[2].value,
+          ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[3].value,
+        };
+        expect(treatments).toEqual(expectedTreatments);
+
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(4); // control assertion - getTreatmentsWithConfig calls
         expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
 
-        // The ADD_TREATMENTS actions is dispatched again, but this time is registered for 'evalOnUpdate'
+        // The first ADD_TREATMENTS actions is dispatched again, but this time is registered for 'evalOnUpdate'
         store.dispatch<any>(getTreatments({ splitNames: 'split1', evalOnUpdate: true }));
 
         // Validate action and registered callback
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(3);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(5);
         expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
 
         done();
@@ -285,7 +301,7 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers pending evaluations if Split SDK is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that there are no issues when SDK timeout)', (done) => {
+  it('stores control treatments (without calling SDK client) and registers pending evaluations if Split SDK is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when SDK timeout)', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
