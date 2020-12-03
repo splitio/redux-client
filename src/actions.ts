@@ -2,7 +2,10 @@
  * Common action creators for browser and node.
  * They return plain actions (Flux-Standard-Actions).
  */
-import { SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_UPDATE, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS, ADD_EVALUATIONS } from './constants';
+import {
+  SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
+  SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS, // ADD_EVALUATIONS,
+} from './constants';
 import { matching } from './utils';
 
 export function splitReady() {
@@ -13,17 +16,14 @@ export function splitReady() {
     },
   };
 }
-// @TODO: build for ready_from_cache if applicable
-export function splitReadyWithEvaluations(evaluations: Array<{
-  key: string,
-  treatments: SplitIO.TreatmentsWithConfig,
-}>) {
 
+export function splitReadyWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
   return {
     type: SPLIT_READY_WITH_EVALUATIONS,
     payload: {
       timestamp: Date.now(),
-      evaluations,
+      key: matching(key),
+      treatments,
     },
   };
 }
@@ -37,11 +37,33 @@ export function splitReadyFromCache() {
   };
 }
 
+export function splitReadyFromCacheWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+  return {
+    type: SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
+    payload: {
+      timestamp: Date.now(),
+      key: matching(key),
+      treatments,
+    },
+  };
+}
+
 export function splitUpdate() {
   return {
     type: SPLIT_UPDATE,
     payload: {
       timestamp: Date.now(),
+    },
+  };
+}
+
+export function splitUpdateWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+  return {
+    type: SPLIT_UPDATE_WITH_EVALUATIONS,
+    payload: {
+      timestamp: Date.now(),
+      key: matching(key),
+      treatments,
     },
   };
 }
@@ -70,19 +92,6 @@ export function addTreatments(key: SplitIO.SplitKey, treatments: SplitIO.Treatme
     payload: {
       key: matching(key),
       treatments,
-    },
-  };
-}
-
-export function addEvaluations(evaluations: Array<{
-  key: string,
-  treatments: SplitIO.TreatmentsWithConfig,
-}>) {
-
-  return {
-    type: ADD_EVALUATIONS,
-    payload: {
-      evaluations,
     },
   };
 }

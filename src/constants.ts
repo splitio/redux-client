@@ -28,18 +28,18 @@ export const SPLIT_READY = 'SPLIT_READY';
 export const SPLIT_READY_WITH_EVALUATIONS = 'SPLIT_READY_WITH_EVALUATIONS';
 
 export const SPLIT_READY_FROM_CACHE = 'SPLIT_READY_FROM_CACHE';
-// @TODO: if not used, remove.
+
 export const SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS = 'SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS';
 
 export const SPLIT_UPDATE = 'SPLIT_UPDATE';
+
+export const SPLIT_UPDATE_WITH_EVALUATIONS = 'SPLIT_UPDATE_WITH_EVALUATIONS';
 
 export const SPLIT_TIMEDOUT = 'SPLIT_TIMEDOUT';
 
 export const SPLIT_DESTROY = 'SPLIT_DESTROY';
 
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
-
-export const ADD_EVALUATIONS = 'ADD_EVALUATIONS';
 
 // Warning and error messages
 export const ERROR_GETT_NO_INITSPLITSDK = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
