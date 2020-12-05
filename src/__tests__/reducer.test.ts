@@ -18,7 +18,7 @@ const key = 'userkey';
 const treatments: SplitIO.TreatmentsWithConfig = {
   test_split: {
     treatment: 'on',
-    config: null,
+    config: '{\"color\": \"green\"}',
   },
 };
 
@@ -120,13 +120,17 @@ describe('Split reducer', () => {
   });
 
   it('should not override a treatment for an existing key and split name, if the treatment is the same', () => {
+    // apply an ADD_TREATMENTS action with a treatment with same value and config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: { ...previousTreatment },
     };
     const addTreatmentsAction = addTreatments(key, newTreatments);
     const reduxState = reducer(stateWithTreatments, addTreatmentsAction);
+
+    // control assertion - treatment object was not replaced in the sate
     expect(reduxState.treatments.test_split[key]).toBe(previousTreatment);
+    // control assertion - reduced state has the expected shape
     expect(
       reduxState,
     ).toEqual({
@@ -139,17 +143,48 @@ describe('Split reducer', () => {
     });
   });
 
-  it('should override a treatment for an existing key and split name, if the treatment is different', () => {
+  it('should override a treatment for an existing key and split name, if the treatment is different (different treatment value)', () => {
+    // apply an ADD_TREATMENTS action with a treatment with different value but same config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: {
         treatment: previousTreatment.treatment === 'on' ? 'off' : 'on',
-        config: null,
+        config: previousTreatment.config,
       },
     };
     const addTreatmentsAction = addTreatments(key, newTreatments);
     const reduxState = reducer(stateWithTreatments, addTreatmentsAction);
+
+    // control assertion - treatment object was replaced in the sate
     expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
+    // control assertion - reduced state has the expected shape
+    expect(
+      reduxState,
+    ).toEqual({
+      ...initialState,
+      treatments: {
+        test_split: {
+          [key]: newTreatments.test_split,
+        },
+      },
+    });
+  });
+
+  it('should override a treatment for an existing key and split name, if the treatment is different (different config value)', () => {
+    // apply an ADD_TREATMENTS action with a treatment with same value but different config
+    const previousTreatment = stateWithTreatments.treatments.test_split[key];
+    const newTreatments: SplitIO.TreatmentsWithConfig = {
+      test_split: {
+        treatment: previousTreatment.treatment,
+        config: previousTreatment.config === '{\"color\": \"green\"}' ? null : '{\"color\": \"green\"}',
+      },
+    };
+    const addTreatmentsAction = addTreatments(key, newTreatments);
+    const reduxState = reducer(stateWithTreatments, addTreatmentsAction);
+
+    // control assertion - treatment object was replaced in the sate
+    expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
+    // control assertion - reduced state has the expected shape
     expect(
       reduxState,
     ).toEqual({

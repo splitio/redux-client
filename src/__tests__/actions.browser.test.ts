@@ -193,9 +193,9 @@ describe('getTreatments', () => {
 
     function onReadyFromCacheCb() {
       // dispatching multiple ADD_TREATMENTS actions
-      store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+      store.dispatch<any>(getTreatments({ splitNames: 'split1' })); // single split name
       const attributes = { att1: 'att1' };
-      store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes }));
+      store.dispatch<any>(getTreatments({ splitNames: ['split2', 'split3'], attributes })); // list of split names with attributes
 
       // getting the 1st evaluation result and validating it matches the results from SDK
       let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE
@@ -208,7 +208,7 @@ describe('getTreatments', () => {
       action = store.getActions()[2];
       expect(action.type).toBe(ADD_TREATMENTS);
       expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(2, ['split2'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(2, ['split2', 'split3'], attributes);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveNthReturnedWith(2, action.payload.treatments);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
       expect(getClient(splitSdk).evalOnReady.length).toEqual(2); // control assertion - cbs scheduled for ready
@@ -227,7 +227,7 @@ describe('getTreatments', () => {
         // getting the evaluation result and validating it matches the results from SDK calls
         const treatments = action.payload.treatments;
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(3, ['split1'], undefined);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2'], attributes);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2', 'split3'], attributes);
         const expectedTreatments = {
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[2].value,
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[3].value,

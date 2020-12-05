@@ -78,12 +78,16 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   };
 }
 
-function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]) {
-
+/**
+ * Util that reduce the results of multiple calls to `client.getTreatmentsWithConfig` method into a single `SplitIO.TreatmentsWithConfig` object.
+ *
+ * @param client Sdk client to call
+ * @param evalParams list of evaluation params, i.e. the list of split names and attributes passed when calling `client.getTreatmentsWithConfig` method.
+ */
+function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
     return { ...acc, ...client.getTreatmentsWithConfig((params.splitNames as string[]), params.attributes) };
   }, {});
-
 }
 
 /**
