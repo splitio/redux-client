@@ -253,7 +253,7 @@ describe('getTreatments', () => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onReadyFromCache: onReadyFromCacheCb }));
-    store.dispatch<any>(getTreatments({ splitNames: 'split2' })); // `evalOnUpdate` and `evalOnReadyFromCache` params are false by default
+    store.dispatch<any>(getTreatments({ splitNames: 'split2' })); // `evalOnUpdate` is false by default
 
     // If SDK is not operational, an ADD_TREATMENTS action is dispatched with control treatments
     // without calling SDK client, but the item is added to 'evalOnReady' list.
@@ -266,15 +266,23 @@ describe('getTreatments', () => {
     expect(action.payload.treatments).toEqual(getControlTreatmentsWithConfig(['split2']));
     expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(0);
 
-    // When the SDK is ready from cache, the SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS action is not dispatched if the `getTreatments` action was dispatched with `evalOnReadyFromCache` false
+    // When the SDK is ready from cache, the SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS action is dispatched instead of
+    // SPLIT_READY_FROM_CACHE, because some evaluations were registered due to the dispatched `getTreatments` action
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     function onReadyFromCacheCb() {
       expect(store.getActions().length).toBe(2);
       action = store.getActions()[1];
-      expect(action.type).toBe(SPLIT_READY_FROM_CACHE);
-    }
+      expect(action.type).toBe(SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS);
+      expect(action.payload.key).toBe(sdkBrowserLocalhost.core.key);
 
-    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+      // getting the evaluation result and validating it matches the results from SDK
+      const treatments = action.payload.treatments;
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
+
+      // dispatch SDK_READY event after asserting SDK_READY_FROM_CACHE event
+      (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+    }
 
     actionResult.then(() => {
       // The SPLIT_READY_WITH_EVALUATIONS action is dispatched if the SDK is ready and there are pending evaluations.
@@ -287,14 +295,14 @@ describe('getTreatments', () => {
       expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
 
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(1); // control assertion - getTreatmentsWithConfig calls
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(2); // control assertion - getTreatmentsWithConfig called 2 times: on SDK_READY_FROM_CACHE and SDK_READY events
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
 
       // The ADD_TREATMENTS actions is dispatched again, but this time is registered for 'evalOnUpdate'
       store.dispatch<any>(getTreatments({ splitNames: 'split2', evalOnUpdate: true }));
 
       // Validate action and registered callback
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(2);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(3);
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
 
       done();
@@ -307,7 +315,7 @@ describe('getTreatments', () => {
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
 
     const attributes = { att1: 'att1' };
-    store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, evalOnUpdate: true, evalOnReadyFromCache: true }));
+    store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, evalOnUpdate: true }));
 
     // If SDK is not ready, an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
     expect(store.getActions().length).toBe(1);
@@ -317,8 +325,8 @@ describe('getTreatments', () => {
     expect(action.payload.treatments).toEqual(getControlTreatmentsWithConfig(['split3']));
     expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(0);
 
-    // the item is added for evaluation on SDK_READY, and also on SDK_READY_FROM_CACHE and SDK_UPDATE events
-    // because of `evalOnReadyFromCache` and `evalOnUpdate` params in `getTreatments` action creator.
+    // the item is added for evaluation on SDK_READY, SDK_READY_FROM_CACHE and also on SDK_UPDATE events
+    // because of `evalOnUpdate` params in `getTreatments` action creator.
     expect(getClient(splitSdk).evalOnReady.length).toEqual(1);
     expect(getClient(splitSdk).evalOnReadyFromCache.length).toEqual(1);
     expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1);
@@ -331,7 +339,7 @@ describe('getTreatments', () => {
     }
 
     // When the SDK is ready from cache, the SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS action is dispatched instead of
-    // SPLIT_READY_FROM_CACHE, because of the `evalOnReadyFromCache` param in `getTreatments` action
+    // SPLIT_READY_FROM_CACHE, because some evaluations were registered due to the dispatched `getTreatments` action
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     function onReadyFromCacheCb() {
       action = store.getActions()[2];

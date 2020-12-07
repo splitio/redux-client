@@ -128,8 +128,8 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       client.evalOnReady.push(params);
     }
 
-    // If the SDK is not ready from cache and flag `evalOnReadyFromCache`, it stores the action to execute when ready from cache
-    if (!getIsReadyFromCache(client) && params.evalOnReadyFromCache) {
+    // If the SDK is not ready from cache, it stores the action to execute when ready from cache
+    if (!getIsReadyFromCache(client)) {
       client.evalOnReadyFromCache.push(params);
     }
 
