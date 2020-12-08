@@ -35,26 +35,9 @@ function setReadyFromCache(state: ISplitState, timestamp: number) {
   };
 }
 
-function setTimedout(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
-    isTimedout: true,
-    hasTimedout: true,
-    lastUpdate: timestamp,
-  };
-}
-
 function setUpdated(state: ISplitState, timestamp: number) {
   return {
     ...state,
-    lastUpdate: timestamp,
-  };
-}
-
-function setDestroyed(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
-    isDestroyed: true,
     lastUpdate: timestamp,
   };
 }
@@ -95,13 +78,22 @@ const splitReducer: Reducer<ISplitState> = function(
       return setReadyFromCache(state, action.payload.timestamp);
 
     case SPLIT_TIMEDOUT:
-      return setTimedout(state, action.payload.timestamp);
+      return {
+        ...state,
+        isTimedout: true,
+        hasTimedout: true,
+        lastUpdate: action.payload.timestamp,
+      };
 
     case SPLIT_UPDATE:
       return setUpdated(state, action.payload.timestamp);
 
     case SPLIT_DESTROY:
-      return setDestroyed(state, action.payload.timestamp);
+      return {
+        ...state,
+        isDestroyed: true,
+        lastUpdate: action.payload.timestamp,
+      };
 
     case ADD_TREATMENTS: {
       const { key, treatments } = action.payload;
