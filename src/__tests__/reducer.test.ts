@@ -114,7 +114,10 @@ describe('Split reducer', () => {
   ];
 
   it.each(actionCreatorsWithEvaluations)('should handle %s', (_, actionCreator, isReady, isReadyFromCache) => {
+    const initialTreatments = initialState.treatments;
     const action = actionCreator(key, treatments);
+
+    // control assertion - reduced state has the expected shape
     expect(
       reducer(initialState, action),
     ).toEqual({
@@ -128,6 +131,9 @@ describe('Split reducer', () => {
         },
       },
     });
+
+    expect(initialState.treatments).toBe(initialTreatments); // control-assert initialState treatments object shouldn't be replaced
+    expect(initialState.treatments).toEqual({}); // control-assert initialState treatments object shouldn't be modified
   });
 
   it.each(actionCreatorsWithEvaluations)('%s should not override a treatment for an existing key and split name, if the treatment is the same', (_, actionCreator, isReady, isReadyFromCache) => {
@@ -139,7 +145,7 @@ describe('Split reducer', () => {
     const action = actionCreator(key, newTreatments);
     const reduxState = reducer(stateWithTreatments, action);
 
-    // control assertion - treatment object was not replaced in the sate
+    // control assertion - treatment object was not replaced in the state
     expect(reduxState.treatments.test_split[key]).toBe(previousTreatment);
 
     // control assertion - reduced state has the expected shape
@@ -170,7 +176,7 @@ describe('Split reducer', () => {
     const action = actionCreator(key, newTreatments);
     const reduxState = reducer(stateWithTreatments, action);
 
-    // control assertion - treatment object was replaced in the sate
+    // control assertion - treatment object was replaced in the state
     expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
     // control assertion - reduced state has the expected shape
     expect(
@@ -201,7 +207,7 @@ describe('Split reducer', () => {
     const action = actionCreator(key, newTreatments);
     const reduxState = reducer(stateWithTreatments, action);
 
-    // control assertion - treatment object was replaced in the sate
+    // control assertion - treatment object was replaced in the state
     expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
     // control assertion - reduced state has the expected shape
     expect(

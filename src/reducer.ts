@@ -46,6 +46,7 @@ function setUpdated(state: ISplitState, timestamp: number) {
  * Copy the given `treatments` for the given `key` to a `result` Split's slice of state. Returns the `result` object.
  */
 function assignTreatments(result: ISplitState, key: string, treatments: SplitIO.TreatmentsWithConfig): ISplitState {
+  result.treatments = { ...result.treatments };
   Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
     if (result.treatments[splitName]) {
       const splitTreatments = result.treatments[splitName];
@@ -98,28 +99,24 @@ const splitReducer: Reducer<ISplitState> = function(
     case ADD_TREATMENTS: {
       const { key, treatments } = action.payload;
       const result = { ...state };
-      result.treatments = { ...state.treatments };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
       const { key, treatments, timestamp } = action.payload;
       const result = setReady(state, timestamp);
-      result.treatments = { ...state.treatments };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
       const { key, treatments, timestamp } = action.payload;
       const result = setReadyFromCache(state, timestamp);
-      result.treatments = { ...state.treatments };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
       const { key, treatments, timestamp } = action.payload;
       const result = setUpdated(state, timestamp);
-      result.treatments = { ...state.treatments };
       return assignTreatments(result, key, treatments);
     }
 
