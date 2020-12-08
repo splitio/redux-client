@@ -172,8 +172,8 @@ describe('getTreatments', () => {
         let action = store.getActions()[1]; // action 0 is SPLIT_READY
         expect(action.type).toBe(ADD_TREATMENTS);
         expect(action.payload.key).toBe(splitKey);
-        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
-        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
         // Invoke with a list of Split names and a attributes object
         const splitNames = ['split1', 'split2'];
@@ -183,8 +183,8 @@ describe('getTreatments', () => {
         action = store.getActions()[2];
         expect(action.type).toBe(ADD_TREATMENTS);
         expect(action.payload.key).toBe(splitKey);
-        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, splitNames, attributes);
-        expect((splitSdk.factory as any).client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, splitNames, attributes);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
 
       // create multiple stores
@@ -228,7 +228,7 @@ describe('destroySplitSdk', () => {
 
       function onDestroyCb() {
         // assert that the client destroy method was called
-        expect((splitSdk.factory as any).client().destroy.mock.calls.length).toBe(1);
+        expect(splitSdk.factory.client().destroy).toBeCalledTimes(1);
 
         // the store created before destroy has 3 actions: SPLIT_READY and ADD_TREATMENTS x 2
         expect(store.getActions().length).toEqual(3);

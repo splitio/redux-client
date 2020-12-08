@@ -131,9 +131,16 @@ export interface IGetTreatmentsParams {
    * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
    * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
    * you want to keep the treatment unchanged during the sesion of the user.
-   * The param is `false` by default.
+   * @default false
    */
   evalOnUpdate?: boolean;
+
+  /**
+   * This param indicates to evaluate the splits if the SDK is ready from cache (i.e., it emits SDK_READY_TIMED_OUT event).
+   * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
+   * @default false
+   */
+  evalOnReadyFromCache?: boolean;
 }
 
 /**

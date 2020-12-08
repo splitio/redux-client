@@ -25,9 +25,15 @@ export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.Tr
 // Action types
 export const SPLIT_READY = 'SPLIT_READY';
 
+export const SPLIT_READY_WITH_EVALUATIONS = 'SPLIT_READY_WITH_EVALUATIONS';
+
 export const SPLIT_READY_FROM_CACHE = 'SPLIT_READY_FROM_CACHE';
 
+export const SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS = 'SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS';
+
 export const SPLIT_UPDATE = 'SPLIT_UPDATE';
+
+export const SPLIT_UPDATE_WITH_EVALUATIONS = 'SPLIT_UPDATE_WITH_EVALUATIONS';
 
 export const SPLIT_TIMEDOUT = 'SPLIT_TIMEDOUT';
 
