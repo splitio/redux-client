@@ -1,6 +1,6 @@
-1.3.0 (December XXX, 2020)
+1.3.0 (December 9, 2020)
  - Added a new parameter to `getTreatments` actions creator: `evalOnReadyFromCache` to evaluate splits when the SDK_READY_FROM_CACHE event is emitted. Learn more in our Redux SDK documentation.
- - Updated how splits evaluations are handled on SDK_READY and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple subscriber notifications.
+ - Updated how splits evaluations are handled on SDK_READY, SDK_READY_FROM_CACHE and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple store notifications.
  - Updated some NPM dependencies for vulnerability fixes.
 
 1.2.1 (Oct 7, 2020)
