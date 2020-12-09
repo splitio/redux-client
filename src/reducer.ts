@@ -1,6 +1,9 @@
 import { Reducer } from 'redux';
 import { ISplitState } from './types';
-import { SPLIT_READY, SPLIT_READY_FROM_CACHE, SPLIT_TIMEDOUT, SPLIT_UPDATE, SPLIT_DESTROY, ADD_TREATMENTS } from './constants';
+import {
+  SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
+  SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
+} from './constants';
 
 /**
  * Initial default state for Split reducer
@@ -15,9 +18,54 @@ const initialState: ISplitState = {
   treatments: {},
 };
 
+function setReady(state: ISplitState, timestamp: number) {
+  return {
+    ...state,
+    isReady: true,
+    isTimedout: false,
+    lastUpdate: timestamp,
+  };
+}
+
+function setReadyFromCache(state: ISplitState, timestamp: number) {
+  return {
+    ...state,
+    isReadyFromCache: true,
+    lastUpdate: timestamp,
+  };
+}
+
+function setUpdated(state: ISplitState, timestamp: number) {
+  return {
+    ...state,
+    lastUpdate: timestamp,
+  };
+}
+
+/**
+ * Copy the given `treatments` for the given `key` to a `result` Split's slice of state. Returns the `result` object.
+ */
+function assignTreatments(result: ISplitState, key: string, treatments: SplitIO.TreatmentsWithConfig): ISplitState {
+  result.treatments = { ...result.treatments };
+  Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
+    if (result.treatments[splitName]) {
+      const splitTreatments = result.treatments[splitName];
+      if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
+        result.treatments[splitName] = {
+          ...(result.treatments[splitName]),
+          [key]: treatment,
+        };
+      }
+    } else {
+      result.treatments[splitName] = { [key]: treatment };
+    }
+  });
+  return result;
+}
+
 /**
  * Split reducer.
- * It tracks the SDK status and saves treatment evaluations for different splits (features) that we use in the app.
+ * It updates the Split's slice of state.
  */
 const splitReducer: Reducer<ISplitState> = function(
   state = initialState,
@@ -25,19 +73,10 @@ const splitReducer: Reducer<ISplitState> = function(
 ) {
   switch (action.type) {
     case SPLIT_READY:
-      return {
-        ...state,
-        isReady: true,
-        isTimedout: false,
-        lastUpdate: action.payload.timestamp,
-      };
+      return setReady(state, action.payload.timestamp);
 
     case SPLIT_READY_FROM_CACHE:
-      return {
-        ...state,
-        isReadyFromCache: true,
-        lastUpdate: action.payload.timestamp,
-      };
+      return setReadyFromCache(state, action.payload.timestamp);
 
     case SPLIT_TIMEDOUT:
       return {
@@ -48,10 +87,7 @@ const splitReducer: Reducer<ISplitState> = function(
       };
 
     case SPLIT_UPDATE:
-      return {
-        ...state,
-        lastUpdate: action.payload.timestamp,
-      };
+      return setUpdated(state, action.payload.timestamp);
 
     case SPLIT_DESTROY:
       return {
@@ -60,26 +96,29 @@ const splitReducer: Reducer<ISplitState> = function(
         lastUpdate: action.payload.timestamp,
       };
 
-    case ADD_TREATMENTS:
+    case ADD_TREATMENTS: {
       const { key, treatments } = action.payload;
-      const result: ISplitState = {
-        ...state,
-        treatments: { ...state.treatments },
-      };
-      Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
-        if (result.treatments[splitName]) {
-          const splitTreatments = result.treatments[splitName];
-          if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
-            result.treatments[splitName] = {
-              ...(result.treatments[splitName]),
-              [key]: treatment,
-            };
-          }
-        } else {
-          result.treatments[splitName] = { [key]: treatment };
-        }
-      });
-      return result;
+      const result = { ...state };
+      return assignTreatments(result, key, treatments);
+    }
+
+    case SPLIT_READY_WITH_EVALUATIONS: {
+      const { key, treatments, timestamp } = action.payload;
+      const result = setReady(state, timestamp);
+      return assignTreatments(result, key, treatments);
+    }
+
+    case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
+      const { key, treatments, timestamp } = action.payload;
+      const result = setReadyFromCache(state, timestamp);
+      return assignTreatments(result, key, treatments);
+    }
+
+    case SPLIT_UPDATE_WITH_EVALUATIONS: {
+      const { key, treatments, timestamp } = action.payload;
+      const result = setUpdated(state, timestamp);
+      return assignTreatments(result, key, treatments);
+    }
 
     default:
       return state;
