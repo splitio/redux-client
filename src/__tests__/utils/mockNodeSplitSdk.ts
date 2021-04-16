@@ -28,8 +28,8 @@ function mockClient() {
     }, {});
   });
   const ready: jest.Mock = jest.fn(() => {
-    return promiseWrapper(new Promise((res, rej) => {
-      __isReady__ ? res(null) : __emitter__.on(Event.SDK_READY, res);
+    return promiseWrapper(new Promise<void>((res, rej) => {
+      __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
       __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
     }), () => { });
   });
