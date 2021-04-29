@@ -5,12 +5,12 @@
         "lib": [
             "es2015"
         ],
-        "strict": true,
+        "strict": false,
         "declaration": true,
         "outDir": "dist",
         "sourceMap": true,
         "esModuleInterop": true,
-        "strictNullChecks": false,
+        "strictNullChecks": false
     },
     "include": [
         "src/**/*"

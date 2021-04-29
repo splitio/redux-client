@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import * as React from 'react';
+import { createElement } from 'react';
 import { ISplitState, IGetSplitState } from '../types';
 import { selectTreatmentValue, defaultGetSplitState } from '../selectors';
 import { ON } from '../constants';
@@ -28,7 +28,7 @@ const mergeProps = (stateProps: any, dispatchProps: any, ownProps: any) => ({
  */
 const toggler = (ComponentOn: React.ComponentType, ComponentDefault: React.ComponentType = NullRenderComponent) =>
   ({ isFeatureOn, ...props }: { isFeatureOn: boolean }) =>
-    isFeatureOn ? (React.createElement(ComponentOn, props)) : (React.createElement(ComponentDefault, props));
+    isFeatureOn ? (createElement(ComponentOn, props)) : (createElement(ComponentDefault, props));
 
 /**
  * Looks on the features of the Split piece of state, and maps to isFeatureOn
