@@ -20,7 +20,7 @@ Split Redux SDK is an open source project and we welcome feedback and contributi
 
 ### Building the SDK
 
-For the moment, we provide two different builds of the library:
+At the moment, we provide two different builds of the library:
 * A **ES2015** modules compatible build.
 * A **CommonJS** modules compatible build.
 
