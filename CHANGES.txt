@@ -1,3 +1,8 @@
+1.3.2 (June 25, 2021)
+ - Updated @splitsoftware/splitio dependency to version 10.15.8, which fixes some issues with localhost mode and includes other improvements.
+ - Updated other NPM dependencies to fix vulnerabilities.
+ - Updated ES modules build to target ES5.
+
 1.3.1 (April 29, 2021)
  - Updated dependencies to fix vulnerabilities.
  - Updated Split's SDK dependency to fix vulnerabilities.
