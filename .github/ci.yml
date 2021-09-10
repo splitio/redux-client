@@ -1,0 +1,28 @@
+name: ci
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.6'
+          cache: 'npm'
+
+      - name: npm Check
+        run: npm run check
+
+      - name: npm Test
+        run: npm run test
+
+      - name: npm Build
+        run: npm run build
