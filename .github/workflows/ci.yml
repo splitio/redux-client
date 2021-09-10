@@ -21,6 +21,9 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
+      - name: npm CI
+        run: npm ci
+
       - name: npm Check
         run: npm run check
 
