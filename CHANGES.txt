@@ -1,3 +1,7 @@
+1.3.3 (September XX, 2021)
+ - Updated @splitsoftware/splitio dependency to version 10.15.10, which includes streaming improvements and extends localhost mode with support for LocalStorage and SDK_READY_FROM_CACHE event (see @TODO_ADD_LINK).
+ - Updated other NPM dependencies to fix vulnerabilities.
+
 1.3.2 (June 25, 2021)
  - Updated @splitsoftware/splitio dependency to version 10.15.8, which fixes some issues with localhost mode and includes other improvements.
  - Updated other NPM dependencies to fix vulnerabilities.
