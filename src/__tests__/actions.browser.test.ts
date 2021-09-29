@@ -130,14 +130,13 @@ describe('initSplitSdk', () => {
     });
   });
 
-  it('returns a promise that rejects on SDK_READY_TIMED_OUT', async (done) => {
+  it('returns a promise that rejects on SDK_READY_TIMED_OUT', async () => {
     const store = mockStore(STATE_INITIAL);
     try {
       setTimeout(() => { (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT, 'SDK_READY_TIMED_OUT'); }, 100);
       await store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost }));
     } catch (error) {
-      expect(error.includes('SDK_READY_TIMED_OUT'));
-      done();
+      expect(error).toBe('SDK_READY_TIMED_OUT');
     }
   });
 
