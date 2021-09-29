@@ -136,7 +136,7 @@ export interface IGetTreatmentsParams {
   evalOnUpdate?: boolean;
 
   /**
-   * This param indicates to evaluate the splits if the SDK is ready from cache (i.e., it emits SDK_READY_TIMED_OUT event).
+   * This param indicates to evaluate the splits if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
    * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
    * @default false
    */
