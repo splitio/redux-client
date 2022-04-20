@@ -33,26 +33,13 @@ function mockClient() {
       __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
     }), () => { });
   });
-  const context = {
-    constants: {
-      READY: 'is_ready',
-      READY_FROM_CACHE: 'is_ready_from_cache',
-      HAS_TIMEDOUT: 'has_timedout',
-      DESTROYED: 'is_destroyed',
-    },
-    get(name: string, flagCheck: boolean = false): boolean | undefined {
-      if (flagCheck !== true) throw new Error('Don\'t use promise result on SDK context');
-      switch (name) {
-        case this.constants.READY:
-          return __isReady__;
-        case this.constants.HAS_TIMEDOUT:
-          return __hasTimedout__;
-        case this.constants.DESTROYED:
-          return __isDestroyed__;
-      }
-      throw new Error(`We shouldn't be accessing property "${name}" from the context`);
-    },
-  };
+  const __getStatus = () => ({
+    isReady: __isReady__ || false,
+    isReadyFromCache: false,
+    hasTimedout: __hasTimedout__ || false,
+    isDestroyed: __isDestroyed__ || false,
+    isOperational: (__isReady__ && !__isDestroyed__) || false,
+  });
   const destroy: jest.Mock = jest.fn(() => {
     __isDestroyed__ = true;
     return new Promise((res, rej) => { setTimeout(res, 100); });
@@ -66,14 +53,14 @@ function mockClient() {
     Event,
     // EventEmitter exposed to trigger events manually
     __emitter__,
-    // Client context exposed to get readiness status (READY, HAS_TIMEDOUT, DESTROYED)
-    __context: context,
+    // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
+    __getStatus,
   });
 }
 
 export function mockSdk() {
 
-  return jest.fn((config: SplitIO.INodeSettings) => {
+  return jest.fn((config: SplitIO.INodeSettings, __updateModules?: (modules: { settings: { version: string } }) => void) => {
 
     // Manager
     const names: jest.Mock = jest.fn().mockReturnValue([]);
@@ -87,11 +74,14 @@ export function mockSdk() {
       return __client__;
     });
 
+    const modules = { settings: { version: 'nodejs-10.18.0' } };
+    if (__updateModules) __updateModules(modules);
+
     // SDK factory
     const factory = {
       client,
       manager,
-      settings: { version: 'nodejs-10.9.2' },
+      settings: modules.settings,
       __names__: names,
       __split__: split,
       __splits__: splits,
