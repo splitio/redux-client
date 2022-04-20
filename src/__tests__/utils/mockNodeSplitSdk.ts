@@ -55,13 +55,12 @@ function mockClient() {
     __emitter__,
     // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
     __getStatus,
-    isClientSide: false
   });
 }
 
 export function mockSdk() {
 
-  return jest.fn((config: SplitIO.INodeSettings) => {
+  return jest.fn((config: SplitIO.INodeSettings, __updateModules?: (modules: { settings: { version: string } }) => void) => {
 
     // Manager
     const names: jest.Mock = jest.fn().mockReturnValue([]);
@@ -75,11 +74,14 @@ export function mockSdk() {
       return __client__;
     });
 
+    const modules = { settings: { version: 'nodejs-10.18.0' } };
+    if (__updateModules) __updateModules(modules);
+
     // SDK factory
     const factory = {
       client,
       manager,
-      settings: { version: 'nodejs-10.9.2' },
+      settings: modules.settings,
       __names__: names,
       __split__: split,
       __splits__: splits,

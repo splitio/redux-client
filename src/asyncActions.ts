@@ -28,11 +28,6 @@ export const splitSdk: ISplitSdk = {
   dispatch: null,
 };
 
-function isDetached(factory: SplitIO.ISDK) {
-  // @ts-ignore, `isClientSide` property exists but it is not part of type definitions
-  return factory.client().isClientSide === false;
-}
-
 /**
  * This action creator initializes the Split SDK. It dispatches a Thunk (async) action.
  *
@@ -46,9 +41,10 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // SDK factory and client initialization
   // @ts-ignore. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
   splitSdk.factory = splitSdk.splitio(splitSdk.config, (modules) => {
+    // `nodejs-x.x.x` => server-side/detached client, `javascript-x.x.x` => client-side/no detached client
+    splitSdk.isDetached = modules.settings.version.includes('nodejs');
     modules.settings.version = VERSION;
   });
-  splitSdk.isDetached = isDetached(splitSdk.factory);
 
   const defaultClient = splitSdk.isDetached ? splitSdk.factory.client() : getClient(splitSdk);
 

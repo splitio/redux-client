@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-redux",
-  "version": "1.4.1-rc.1",
+  "version": "1.4.1-rc.2",
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -14,7 +14,6 @@
     "lib",
     "es"
   ],
-  "sideEffects": false,
   "scripts": {
     "build": "rimraf lib/* es/* && tsc && tsc -m es2015 -d false --outDir es",
     "postbuild": "./version_replace.sh",
