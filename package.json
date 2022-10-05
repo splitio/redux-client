@@ -4,7 +4,7 @@
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "types": "lib/index.d.ts",
+  "types": "types/index.d.ts",
   "files": [
     "README.md",
     "CONTRIBUTORS-GUIDE.md",
@@ -12,10 +12,11 @@
     "CHANGES.txt",
     "src",
     "lib",
-    "es"
+    "es",
+    "types"
   ],
   "scripts": {
-    "build": "rimraf lib/* es/* && tsc && tsc -m es2015 -d false --outDir es",
+    "build": "rimraf lib/* es/* types/* && tsc && tsc -m commonjs --outDir lib -d true --declarationDir types",
     "postbuild": "./version_replace.sh",
     "check": "npm run check:lint && npm run check:types",
     "check:lint": "tslint -p tsconfig.json",
@@ -24,6 +25,7 @@
     "test:watch": "npm test -- --watch",
     "test:coverage": "jest src --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
+    "all": "npm run check && npm run build && npm run test",
     "publish:rc": "npm publish --tag rc",
     "publish:stable": "npm publish",
     "prepublishOnly": "npm run check && npm run build"
