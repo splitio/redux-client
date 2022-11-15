@@ -77,5 +77,5 @@ export function mapTreatmentToProps(splitName: string, key?: SplitIO.SplitKey, g
  */
 export function connectToggler(splitName: string, key?: SplitIO.SplitKey, getSplitState: IGetSplitState = defaultGetSplitState) {
   return (ComponentOn: React.ComponentType, ComponentDefault?: React.ComponentType) =>
-    connect(mapIsFeatureOnToProps(splitName, key, getSplitState), null, mergeProps, { pure: false })(toggler(ComponentOn, ComponentDefault));
+    connect(mapIsFeatureOnToProps(splitName, key, getSplitState), null, mergeProps)(toggler(ComponentOn, ComponentDefault));
 }
