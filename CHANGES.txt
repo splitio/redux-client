@@ -1,5 +1,6 @@
 1.7.1 (November 15, 2022)
  - Updated React Redux peer dependency range to include React-redux@8.x.x and React@18.x.x.
+ - Updated @splitsoftware/splitio dependency to version 10.22.2, which includes vulnerability and bug fixes.
 
 1.7.0 (October 5, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.22.0, which includes:
