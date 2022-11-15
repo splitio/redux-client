@@ -23,7 +23,8 @@ describe('connectToggler', () => {
     const store = mockStore(STATE_READY);
     /** SPLIT_1 is ON */
     const ConnectedFeatureTogler = connectToggler(SPLIT_1)(FeatureComponent, LegacyComponent);
-    const wrapper = shallow(React.createElement(ConnectedFeatureTogler, {store})).dive();
+    const wrapper = mount(React.createElement(ConnectedFeatureTogler, { store }));
+
     expect(wrapper.find('FeatureComponent')).toHaveLength(1);
     expect(wrapper.find('LegacyComponent')).toHaveLength(0);
   });
@@ -32,7 +33,8 @@ describe('connectToggler', () => {
     const store = mockStore(STATE_READY);
     /** SPLIT_2 is OFF */
     const ConnectedFeatureTogler = connectToggler(SPLIT_2)(FeatureComponent, LegacyComponent);
-    const wrapper = shallow(React.createElement(ConnectedFeatureTogler, {store})).dive();
+    const wrapper = mount(React.createElement(ConnectedFeatureTogler, { store }));
+
     expect(wrapper.find('FeatureComponent')).toHaveLength(0);
     expect(wrapper.find('LegacyComponent')).toHaveLength(1);
   });
@@ -41,7 +43,7 @@ describe('connectToggler', () => {
     const store = mockStore(STATE_READY);
     /** SPLIT_2 is OFF */
     const ConnectedFeatureTogler = connectToggler(SPLIT_2)(FeatureComponent);
-    const wrapper = mount(React.createElement(ConnectedFeatureTogler, {store}));
+    const wrapper = mount(React.createElement(ConnectedFeatureTogler, { store }));
     expect(wrapper.find('FeatureComponent')).toHaveLength(0);
     expect(wrapper.find('LegacyComponent')).toHaveLength(0);
   });
@@ -50,7 +52,7 @@ describe('connectToggler', () => {
     const store = mockStore(STATE_READY);
 
     const ConnectedFeatureTogler = connectToggler(SPLIT_1)(FeatureComponent);
-    const wrapper = shallow(React.createElement(ConnectedFeatureTogler, {store, someProp: 'expected'})).dive();
+    const wrapper = mount(React.createElement(ConnectedFeatureTogler, { store, someProp: 'expected' }));
 
     expect(wrapper.find('FeatureComponent')).toHaveLength(1);
     // Important: For testing purpose we should pass store to let the test work,
