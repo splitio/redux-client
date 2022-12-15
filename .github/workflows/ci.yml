@@ -50,6 +50,7 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
             -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
             -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
+
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request'
         uses: SonarSource/sonarcloud-github-action@v1.8
