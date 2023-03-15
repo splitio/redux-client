@@ -1,7 +1,7 @@
 /**
  * Validates if a value is an object.
  */
-export function isObject(obj: any) {
+export function isObject(obj: unknown) {
   return obj && typeof obj === 'object' && obj.constructor === Object;
 }
 

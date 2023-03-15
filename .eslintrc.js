@@ -27,7 +27,6 @@ module.exports = {
     'eol-last': ['error', 'always'],
     'keyword-spacing': 'error',
     'no-trailing-spaces': 'error',
-    'semi': ['error','always'],
     'react/display-name': 'warn',
     '@typescript-eslint/no-empty-function': 'off',
     // '@typescript-eslint/no-inferrable-types': 'off', // @TODO test this
