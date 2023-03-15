@@ -100,6 +100,7 @@ describe('initSplitSdk', () => {
 
   it('invokes onReadyFromCache callback and dispatches SPLIT_READY_FROM_CACHE action when SDK_READY_FROM_CACHE event is triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
+    const timestamp = Date.now();
 
     const onReadyFromCacheCb = jest.fn(() => {
       // action should be already dispatched when the callback is called
@@ -117,7 +118,6 @@ describe('initSplitSdk', () => {
     expect(splitSdk.config).toBe(sdkBrowserLocalhost);
     expect(splitSdk.factory).toBeTruthy();
 
-    const timestamp = Date.now();
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 

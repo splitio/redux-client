@@ -12,7 +12,7 @@ import { defaultGetSplitState } from '../selectors';
  * the state slice which corresponds to where the Split reducer was mounted. This functionality is rarely
  * needed, and defaults to assuming that the reducer is mounted under the `splitio` key.
  */
-function connectSplit(getSplitState: IGetSplitState = defaultGetSplitState) {
+export function connectSplit(getSplitState: IGetSplitState = defaultGetSplitState) {
 
   function mapSplitStateToProps(state: any) {
     const splitState: ISplitState = getSplitState(state);
@@ -23,5 +23,3 @@ function connectSplit(getSplitState: IGetSplitState = defaultGetSplitState) {
   return connect(mapSplitStateToProps, { getTreatments });
 
 }
-
-export default connectSplit;

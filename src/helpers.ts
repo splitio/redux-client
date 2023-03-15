@@ -32,8 +32,7 @@ export function track(params: ITrackParams): boolean {
     }
   }
 
-  // Spread operator type issue workaround.
-  return client.track.apply(client, trackParams as [string, any]);
+  return client.track(...trackParams as [string, any]);
 }
 
 /**

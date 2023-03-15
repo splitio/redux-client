@@ -26,6 +26,6 @@ export interface IClientStatus {
 }
 
 export function getStatus(client: SplitIO.IClient): IClientStatus {
-  // @ts-ignore, function exists but it is not part of JS SDK type definitions
+  // @ts-expect-error, function exists but it is not part of JS SDK type definitions
   return client.__getStatus();
 }
