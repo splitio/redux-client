@@ -20,10 +20,10 @@ module.exports = {
     'import'
   ],
   'rules': {
-    'indent': ['error',2, { 'SwitchCase': 1 }],
+    'indent': ['error', 2, { 'SwitchCase': 1 }],
     'quotes': ['warn', 'single', 'avoid-escape'],
     'linebreak-style': ['error', 'unix'],
-    'camelcase': ['error', {'properties': 'never'}],
+    'camelcase': ['error', { 'properties': 'never' }],
     'eol-last': ['error', 'always'],
     'keyword-spacing': 'error',
     'no-trailing-spaces': 'error',
