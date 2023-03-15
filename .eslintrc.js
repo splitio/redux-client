@@ -29,7 +29,7 @@ module.exports = {
     'no-trailing-spaces': 'error',
     'react/display-name': 'warn',
     '@typescript-eslint/no-empty-function': 'off',
-    // '@typescript-eslint/no-inferrable-types': 'off', // @TODO test this
+    '@typescript-eslint/no-inferrable-types': 'error',
   },
   'overrides': [{
     'files': ['src/**/*.ts'],
