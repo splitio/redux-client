@@ -30,6 +30,9 @@ module.exports = {
     'react/display-name': 'warn',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-inferrable-types': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
   },
   'overrides': [{
     'files': ['src/**/*.ts'],
