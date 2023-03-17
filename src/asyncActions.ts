@@ -39,7 +39,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   splitSdk.splitio = params.splitio || (SplitFactory as ISplitFactoryBuilder);
 
   // SDK factory and client initialization
-  // @ts-ignore. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
+  // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
   splitSdk.factory = splitSdk.splitio(splitSdk.config, (modules) => {
     // `nodejs-x.x.x` => server-side/detached client, `javascript-x.x.x` => client-side/no detached client
     splitSdk.isDetached = modules.settings.version.includes('nodejs');
@@ -284,7 +284,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     dispatched = true;
-    return Promise.all(destroyPromises).then(function() {
+    return Promise.all(destroyPromises).then(function () {
       dispatch(splitDestroy());
       if (params.onDestroy) params.onDestroy();
     });

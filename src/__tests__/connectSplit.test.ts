@@ -6,7 +6,7 @@ import mockStore from './utils/mockStore';
 import { STATE_READY } from './utils/storeState';
 
 /** Test targets */
-import connectSplit from '../react-redux/connectSplit';
+import { connectSplit } from '../react-redux/connectSplit';
 
 const FeatureComponent: React.ComponentType = () => null;
 

@@ -100,6 +100,7 @@ describe('initSplitSdk', () => {
 
   it('invokes onReadyFromCache callback and dispatches SPLIT_READY_FROM_CACHE action when SDK_READY_FROM_CACHE event is triggered', (done) => {
     const store = mockStore(STATE_INITIAL);
+    const timestamp = Date.now();
 
     const onReadyFromCacheCb = jest.fn(() => {
       // action should be already dispatched when the callback is called
@@ -117,7 +118,6 @@ describe('initSplitSdk', () => {
     expect(splitSdk.config).toBe(sdkBrowserLocalhost);
     expect(splitSdk.factory).toBeTruthy();
 
-    const timestamp = Date.now();
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 
@@ -303,7 +303,7 @@ describe('getTreatments', () => {
   it('stores control treatments (without calling SDK client) and registers pending evaluations if Split SDK is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when SDK timeout)', (done) => {
 
     const store = mockStore(STATE_INITIAL);
-    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
+    store.dispatch<any>(initSplitSdk({ config: sdkBrowserLocalhost, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
 
     const attributes = { att1: 'att1' };
     store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, evalOnUpdate: true, evalOnReadyFromCache: true }));

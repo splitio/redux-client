@@ -84,7 +84,7 @@ export function mockSdk() {
       });
       const destroy: jest.Mock = jest.fn(() => {
         __isDestroyed__ = true;
-        return new Promise((res, rej) => { setTimeout(res, 100); });
+        return new Promise((res) => { setTimeout(res, 100); });
       });
 
       return Object.assign(Object.create(__emitter__), {
