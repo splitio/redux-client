@@ -35,4 +35,6 @@ export declare function mapTreatmentToProps(splitName: string, key?: SplitIO.Spl
  */
 export declare function connectToggler(splitName: string, key?: SplitIO.SplitKey, getSplitState?: IGetSplitState): (ComponentOn: React.ComponentType, ComponentDefault?: React.ComponentType) => import("react-redux").ConnectedComponent<({ isFeatureOn, ...props }: {
     isFeatureOn: boolean;
-}) => import("react").ReactElement<{}, string | import("react").JSXElementConstructor<any>>, any>;
+}) => import("react").ReactElement<{}, string | import("react").JSXElementConstructor<any>>, {
+    [x: string]: any;
+}>;
