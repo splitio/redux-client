@@ -284,7 +284,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     dispatched = true;
-    return Promise.all(destroyPromises).then(function() {
+    return Promise.all(destroyPromises).then(function () {
       dispatch(splitDestroy());
       if (params.onDestroy) params.onDestroy();
     });

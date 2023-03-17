@@ -67,7 +67,7 @@ function assignTreatments(result: ISplitState, key: string, treatments: SplitIO.
  * Split reducer.
  * It updates the Split's slice of state.
  */
-export const splitReducer: Reducer<ISplitState> = function(
+export const splitReducer: Reducer<ISplitState> = function (
   state = initialState,
   action,
 ) {
