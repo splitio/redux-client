@@ -1,4 +1,5 @@
 import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitFactory as SplitFactoryForLocalhost } from '@splitsoftware/splitio/client';
 import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
@@ -36,7 +37,12 @@ export const splitSdk: ISplitSdk = {
 export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
 
   splitSdk.config = params.config;
-  splitSdk.splitio = params.splitio || (SplitFactory as ISplitFactoryBuilder);
+
+  splitSdk.splitio = params.splitio ||
+    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in NodeJS
+    (splitSdk.config?.core?.authorizationKey === 'localhost' && typeof splitSdk.config?.features === 'object' ?
+      SplitFactoryForLocalhost :
+      SplitFactory) as ISplitFactoryBuilder;
 
   // SDK factory and client initialization
   // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
