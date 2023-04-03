@@ -1,7 +1,7 @@
 /**
  * Validates if a value is an object.
  */
-export function isObject(obj: any) {
+export function isObject(obj: unknown) {
   return obj && typeof obj === 'object' && obj.constructor === Object;
 }
 
@@ -26,6 +26,6 @@ export interface IClientStatus {
 }
 
 export function getStatus(client: SplitIO.IClient): IClientStatus {
-  // @ts-ignore, function exists but it is not part of JS SDK type definitions
+  // @ts-expect-error, function exists but it is not part of JS SDK type definitions
   return client.__getStatus();
 }

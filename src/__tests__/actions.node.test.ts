@@ -222,7 +222,6 @@ describe('destroySplitSdk', () => {
       store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key' }));
       store.dispatch<any>(getTreatments({ splitNames: 'split3', key: 'other-user-key-2' }));
 
-      const timestamp = Date.now();
       destroySplitSdk({ onDestroy: onDestroyCb });
 
       function onDestroyCb() {
