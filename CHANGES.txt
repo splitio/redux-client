@@ -2,7 +2,7 @@
  - Updated linter dependencies and rules. The deprecated TSLint package was replaced by ESLint.
  - Updated some transitive dependencies for vulnerability fixes.
  - Updated @splitsoftware/splitio package to version 10.22.4 that includes minor improvements.
- - Bugfixing - Fixed error running the SDK in localhost mode for testing with NodeJS test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
+ - Bugfixing - Fixed error when using the SDK in localhost mode for testing with NodeJS test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
 
 1.7.1 (November 15, 2022)
  - Updated React Redux peer dependency range to include React-redux@8.x.x and React@18.x.x.
