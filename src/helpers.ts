@@ -27,13 +27,12 @@ export function track(params: ITrackParams): boolean {
     client = getClient(splitSdk, params.key);
 
     // TT is required if the key is provided (shared client) or if not present in config (main client)
-    if (params.key || !(splitSdk.config.core as any).trafficType) {
+    if (params.key || !(splitSdk.config.core as SplitIO.IBrowserSettings['core']).trafficType) {
       trackParams.unshift(params.trafficType);
     }
   }
 
-  // Spread operator type issue workaround.
-  return client.track.apply(client, trackParams as [string, any]);
+  return client.track(...trackParams as [string, any]);
 }
 
 /**

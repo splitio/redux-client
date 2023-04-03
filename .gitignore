@@ -2,7 +2,6 @@
 node_modules
 lib
 es
-types
 coverage
 examples
 .vscode
