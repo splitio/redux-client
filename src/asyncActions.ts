@@ -87,7 +87,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  * Util that reduce the results of multiple calls to `client.getTreatmentsWithConfig` method into a single `SplitIO.TreatmentsWithConfig` object.
  *
  * @param client Sdk client to call
- * @param evalParams list of evaluation params, i.e. the list of split names and attributes passed when calling `client.getTreatmentsWithConfig` method.
+ * @param evalParams list of evaluation params, i.e. the list of feature flag names and attributes passed when calling `client.getTreatmentsWithConfig` method.
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
@@ -119,12 +119,12 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      params.splitNames.forEach((splitName) => {
-        client.evalOnUpdate[splitName] = { ...params, splitNames: [splitName] };
+      params.splitNames.forEach((featureFlagName) => {
+        client.evalOnUpdate[featureFlagName] = { ...params, splitNames: [featureFlagName] };
       });
     } else {
-      params.splitNames.forEach((splitName) => {
-        delete client.evalOnUpdate[splitName];
+      params.splitNames.forEach((featureFlagName) => {
+        delete client.evalOnUpdate[featureFlagName];
       });
     }
 
@@ -167,12 +167,12 @@ interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   /**
    * stored evaluations to execute on SDK update. It is an object because we might
-   * want to change the evaluation parameters (i.e. attributes) per each split name.
+   * want to change the evaluation parameters (i.e. attributes) per each feature flag name.
    */
   evalOnUpdate: { [splitName: string]: IGetTreatmentsParams };
   /**
    * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations
-   * are set with the same split name, the result (i.e. treatment) of the last one is the stored one.
+   * are set with the same feature flag name, the result (i.e. treatment) of the last one is the stored one.
    */
   evalOnReady: IGetTreatmentsParams[];
   /**
@@ -183,7 +183,7 @@ interface IClientNotDetached extends SplitIO.IClient {
 
 /**
  * Used in not detached version (browser). It gets an SDK client and enhances it with `evalOnUpdate`, `evalOnReady` and `evalOnReadyFromCache` lists.
- * These lists are used by `getTreatments` action creator to schedule evaluation of splits on SDK_UPDATE, SDK_READY and SDK_READY_FROM_CACHE events.
+ * These lists are used by `getTreatments` action creator to schedule evaluation of feature flags on SDK_UPDATE, SDK_READY and SDK_READY_FROM_CACHE events.
  * It is exported for testing purposes only.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties

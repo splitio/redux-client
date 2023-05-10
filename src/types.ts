@@ -116,7 +116,7 @@ export interface IGetTreatmentsParams {
   key?: SplitIO.SplitKey;
 
   /**
-   * split name or array of split names to evaluate.
+   * feature flag name or array of feature flag names to evaluate.
    */
   splitNames: string[] | string;
 
@@ -127,7 +127,7 @@ export interface IGetTreatmentsParams {
   attributes?: SplitIO.Attributes;
 
   /**
-   * This param indicates to re-evaluate the splits if the SDK is updated. For example, a `true` value might be
+   * This param indicates to re-evaluate the feature flags if the SDK is updated. For example, a `true` value might be
    * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
    * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
    * you want to keep the treatment unchanged during the sesion of the user.
@@ -136,7 +136,7 @@ export interface IGetTreatmentsParams {
   evalOnUpdate?: boolean;
 
   /**
-   * This param indicates to evaluate the splits if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
+   * This param indicates to evaluate the feature flags if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
    * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
    * @default false
    */

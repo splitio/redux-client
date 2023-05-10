@@ -21,9 +21,9 @@ function mockClient() {
   const track: jest.Mock = jest.fn(() => {
     return true;
   });
-  const getTreatmentsWithConfig: jest.Mock = jest.fn((key, splitNames) => {
-    return splitNames.reduce((acc: SplitIO.TreatmentsWithConfig, splitName: string) => {
-      acc[splitName] = { treatment: 'fakeTreatment', config: null };
+  const getTreatmentsWithConfig: jest.Mock = jest.fn((key, featureFlagNames) => {
+    return featureFlagNames.reduce((acc: SplitIO.TreatmentsWithConfig, featureFlagName: string) => {
+      acc[featureFlagName] = { treatment: 'fakeTreatment', config: null };
       return acc;
     }, {});
   });
