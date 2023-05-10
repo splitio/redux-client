@@ -20,8 +20,8 @@ import {
   track,
 } from '../helpers';
 
-const splitNames: string[] = ['split_1', 'split_2'];
-const splitViews: SplitIO.SplitViews = [
+const featureFlagNames: string[] = ['split_1', 'split_2'];
+const featureFlagViews: SplitIO.SplitViews = [
   {
     name: 'split_1',
     trafficType: 'user',
@@ -52,9 +52,9 @@ describe('getSplitNames', () => {
 
   it('should return an array with split names and invoke the `names` method from manager', () => {
     initSplitSdk({ config: sdkNodeConfig });
-    (splitSdk.factory as any).__names__.mockReturnValue(splitNames);
+    (splitSdk.factory as any).__names__.mockReturnValue(featureFlagNames);
 
-    expect(getSplitNames()).toHaveLength(splitNames.length);
+    expect(getSplitNames()).toHaveLength(featureFlagNames.length);
     expect((splitSdk.factory as any).manager.mock.calls.length).toBe(1);
     expect((splitSdk.factory as any).__names__.mock.calls.length).toBe(1);
   });
@@ -74,9 +74,9 @@ describe('getSplit', () => {
 
   it('should return a SplitView and invoke the `split` method from manager', () => {
     initSplitSdk({ config: sdkNodeConfig });
-    (splitSdk.factory as any).__split__.mockReturnValue(splitViews[0]);
+    (splitSdk.factory as any).__split__.mockReturnValue(featureFlagViews[0]);
 
-    expect(getSplit('split_1')).toBe(splitViews[0]);
+    expect(getSplit('split_1')).toBe(featureFlagViews[0]);
     expect((splitSdk.factory as any).manager.mock.calls.length).toBe(1);
     expect((splitSdk.factory as any).__split__.mock.calls.length).toBe(1);
     expect((splitSdk.factory as any).__split__.mock.calls[0][0]).toBe('split_1');
@@ -97,9 +97,9 @@ describe('getSplits', () => {
 
   it('should return a SplitViews and invoke the `splits` method from manager', () => {
     initSplitSdk({ config: sdkNodeConfig });
-    (splitSdk.factory as any).__splits__.mockReturnValue(splitViews);
+    (splitSdk.factory as any).__splits__.mockReturnValue(featureFlagViews);
 
-    expect(getSplits()).toBe(splitViews);
+    expect(getSplits()).toBe(featureFlagViews);
     expect((splitSdk.factory as any).manager.mock.calls.length).toBe(1);
     expect((splitSdk.factory as any).__splits__.mock.calls.length).toBe(1);
   });

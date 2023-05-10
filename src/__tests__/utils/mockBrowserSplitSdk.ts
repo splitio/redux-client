@@ -54,9 +54,9 @@ export function mockSdk() {
           (typeof v === 'number' || typeof v === 'undefined') &&
           (typeof p === 'object' || typeof p === 'undefined');
       });
-      const getTreatmentsWithConfig: jest.Mock = jest.fn((splitNames) => {
-        return splitNames.reduce((acc: SplitIO.TreatmentsWithConfig, splitName: string) => {
-          acc[splitName] = { treatment: 'fakeTreatment', config: null };
+      const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames) => {
+        return featureFlagNames.reduce((acc: SplitIO.TreatmentsWithConfig, featureFlagName: string) => {
+          acc[featureFlagName] = { treatment: 'fakeTreatment', config: null };
           return acc;
         }, {});
       });

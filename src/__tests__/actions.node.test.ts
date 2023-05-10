@@ -174,15 +174,15 @@ describe('getTreatments', () => {
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
-        // Invoke with a list of Split names and a attributes object
-        const splitNames = ['split1', 'split2'];
+        // Invoke with a list of feature flag names and a attributes object
+        const featureFlagNames = ['split1', 'split2'];
         const attributes = { att1: 'att1' };
-        store.dispatch<any>(getTreatments({ key: splitKey, splitNames, attributes }));
+        store.dispatch<any>(getTreatments({ key: splitKey, splitNames:featureFlagNames, attributes }));
 
         action = store.getActions()[2];
         expect(action.type).toBe(ADD_TREATMENTS);
         expect(action.payload.key).toBe(splitKey);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, splitNames, attributes);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, featureFlagNames, attributes);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
 
