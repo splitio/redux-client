@@ -41,9 +41,9 @@ const CONFIG = {
 };
 store.dispatch(initSplitSdk({ config: CONFIG }))
 
-// Dispach a `getTreatments` action to evaluate one or more splits.
+// Dispach a `getTreatments` action to evaluate one or more feature flags.
 // The evaluation is done asynchronously when the SDK is ready.
-store.dispatch(getTreatments({ splitNames: 'SPLIT_NAME' }))
+store.dispatch(getTreatments({ splitNames: 'FEATURE_FLAG_NAME' }))
 
 // Connect your component to splitio's piece of state
 const MyComponent = connectSplit()(({ splitio }) => {
@@ -52,7 +52,7 @@ const MyComponent = connectSplit()(({ splitio }) => {
     return <div>Loading SDK ...</div>;
 
   // Select a treatment value
-  const treatment = selectTreatmentValue(splitio, 'SPLIT_NAME')
+  const treatment = selectTreatmentValue(splitio, 'FEATURE_FLAG_NAME')
   if (treatment === 'on') {
     // return JSX for 'on' treatment
   } else if (treatment === 'off') {
