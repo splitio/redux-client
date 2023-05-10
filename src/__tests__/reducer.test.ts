@@ -136,7 +136,7 @@ describe('Split reducer', () => {
     expect(initialState.treatments).toEqual({}); // control-assert initialState treatments object shouldn't be modified
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should not override a treatment for an existing key and split name, if the treatment is the same', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should not override a treatment for an existing key and feature flag name, if the treatment is the same', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with same value and config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
@@ -164,7 +164,7 @@ describe('Split reducer', () => {
     });
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and split name, if the treatment is different (different treatment value)', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and feature flag name, if the treatment is different (different treatment value)', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with different value but same config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
@@ -194,7 +194,7 @@ describe('Split reducer', () => {
     });
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and split name, if the treatment is different (different config value)', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and feature flag name, if the treatment is different (different config value)', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with same value but different config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {

@@ -192,9 +192,9 @@ describe('getTreatments', () => {
 
     function onReadyFromCacheCb() {
       // dispatching multiple ADD_TREATMENTS actions
-      store.dispatch<any>(getTreatments({ splitNames: 'split1' })); // single split name
+      store.dispatch<any>(getTreatments({ splitNames: 'split1' })); // single feature flag name
       const attributes = { att1: 'att1' };
-      store.dispatch<any>(getTreatments({ splitNames: ['split2', 'split3'], attributes })); // list of split names with attributes
+      store.dispatch<any>(getTreatments({ splitNames: ['split2', 'split3'], attributes })); // list of feature flag names with attributes
 
       // getting the 1st evaluation result and validating it matches the results from SDK
       let action = store.getActions()[1]; // action 0 is SPLIT_READY_FROM_CACHE

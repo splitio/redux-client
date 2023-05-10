@@ -50,7 +50,7 @@ describe('getSplitNames', () => {
     expect(getSplitNames()).toHaveLength(0);
   });
 
-  it('should return an array with split names and invoke the `names` method from manager', () => {
+  it('should return an array with feature flag names and invoke the `names` method from manager', () => {
     initSplitSdk({ config: sdkNodeConfig });
     (splitSdk.factory as any).__names__.mockReturnValue(featureFlagNames);
 

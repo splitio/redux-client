@@ -41,16 +41,16 @@ export interface ISplitState {
   lastUpdate: number;
 
   /**
-   * This property contains the evaluations of Splits.
-   * Each evaluation is associated with an Split name and a key (e.g., user id or organization name).
-   * Thus the property has 3 levels: split name, user key, and finally the treatment that was evaluated for that split and key.
+   * This property contains the evaluations of feature flags.
+   * Each evaluation is associated with an feature flag name and a key (e.g., user id or organization name).
+   * Thus the property has 3 levels: feature flag name, user key, and finally the treatment that was evaluated for that split and key.
    */
   treatments: ISplitTreatments;
 }
 
 /**
  * First level of the `treatments` property.
- * It consists of the list of evaluated splits.
+ * It consists of the list of evaluated feature flags.
  */
 export interface ISplitTreatments {
   [splitName: string]: IKeyTreatments;

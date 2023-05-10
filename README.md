@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-redux.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-redux) [![Build Status](https://github.com/splitio/redux-client/actions/workflows/ci.yml/badge.svg)](https://github.com/splitio/redux-client/actions/workflows/ci.yml)
 
 ## Overview
-This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via a Split feature flag to manage your complete customer experience.
+This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flags to manage your complete customer experience.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/splitsoftware.svg?style=social&label=Follow&maxAge=1529000)](https://twitter.com/intent/follow?screen_name=splitsoftware)
 
@@ -35,7 +35,7 @@ const store = createStore(
 // Define your config object and dispatch `initSplitSdk` action to init the SDK
 const CONFIG = {
   core: {
-    authorizationKey: 'YOUR_BROWSER_API_KEY',
+    authorizationKey: 'YOUR_BROWSER_SDK_KEY',
     key: 'CUSTOMER_ID'
   }
 };

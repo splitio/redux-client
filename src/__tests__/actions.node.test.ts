@@ -165,7 +165,7 @@ describe('getTreatments', () => {
         const store = mockStore(STATE_INITIAL);
         store.dispatch<any>(initSplitSdkAction);
 
-        // Invoke with a Split name string and no attributes
+        // Invoke with a feature flag name string and no attributes
         store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1' }));
 
         let action = store.getActions()[1]; // action 0 is SPLIT_READY
