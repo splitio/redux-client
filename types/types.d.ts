@@ -36,20 +36,20 @@ export interface ISplitState {
     /**
      * This property contains the evaluations of Splits.
      * Each evaluation is associated with an Split name and a key (e.g., user id or organization name).
-     * Thus the property has 3 levels: feature flag name, user key, and finally the treatment that was evaluated for that feature flag and key.
+     * Thus the property has 3 levels: split name, user key, and finally the treatment that was evaluated for that split and key.
      */
     treatments: ISplitTreatments;
 }
 /**
  * First level of the `treatments` property.
- * It consists of the list of evaluated feature flags.
+ * It consists of the list of evaluated splits.
  */
 export interface ISplitTreatments {
     [splitName: string]: IKeyTreatments;
 }
 /**
  * Second level of the `treatments` property.
- * It consists of the list of evaluated keys for the container feature flag.
+ * It consists of the list of evaluated keys for the container split.
  */
 export interface IKeyTreatments {
     [key: string]: SplitIO.TreatmentWithConfig;
