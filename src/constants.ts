@@ -15,8 +15,8 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   config: null,
 };
 
-export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.TreatmentsWithConfig => {
-  return splitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+export const getControlTreatmentsWithConfig = (featureFlagNames: string[]): SplitIO.TreatmentsWithConfig => {
+  return featureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});
