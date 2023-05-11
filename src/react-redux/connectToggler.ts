@@ -34,7 +34,7 @@ const toggler = (ComponentOn: React.ComponentType, ComponentDefault: React.Compo
  * Looks on the features of the Split piece of state, and maps to isFeatureOn
  * depending if this feature is ON or not
  *
- * @param {string} featureFlagName featureFlag name
+ * @param {string} featureFlagName feature flag name
  * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
@@ -51,7 +51,7 @@ export function mapIsFeatureOnToProps(featureFlagName: string, key?: SplitIO.Spl
  * Looks on the features of the Split piece of state, and maps to feature
  * the value of this feature
  *
- * @param {string} featureFlagName featureFlag name
+ * @param {string} featureFlagName feature flag name
  * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
@@ -71,7 +71,7 @@ export function mapTreatmentToProps(featureFlagName: string, key?: SplitIO.Split
  *
  * So connect send the global state and the toggler decide which to render
  *
- * @param {string} featureFlagtName featureFlag name
+ * @param {string} featureFlagtName feature flag name
  * @param {SplitIO.SplitKey} key user key
  * @param {IGetSplitState} getSplitState function that extract the Split piece of state from the Redux state.
  */
