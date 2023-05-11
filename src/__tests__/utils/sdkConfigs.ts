@@ -1,12 +1,12 @@
 export const sdkBrowserConfig: SplitIO.IBrowserSettings = {
   core: {
-    authorizationKey: 'API KEY',
+    authorizationKey: 'SDK KEY',
     key: 'customer-key',
   },
 };
 
 export const sdkNodeConfig: SplitIO.INodeSettings = {
   core: {
-    authorizationKey: 'API KEY',
+    authorizationKey: 'SDK KEY',
   },
 };

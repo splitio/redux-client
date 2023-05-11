@@ -108,7 +108,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     return () => { };
   }
 
-  // Convert string split name to a one item array.
+  // Convert string feature flag name to a one item array.
   if (typeof params.splitNames === 'string') {
     params.splitNames = [params.splitNames];
   }
