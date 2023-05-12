@@ -38,7 +38,7 @@ interface IClientNotDetached extends SplitIO.IClient {
      * want to change the evaluation parameters (i.e. attributes) per each feature flag name.
      */
     evalOnUpdate: {
-        [splitName: string]: IGetTreatmentsParams;
+        [featureFlagName: string]: IGetTreatmentsParams;
     };
     /**
      * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations

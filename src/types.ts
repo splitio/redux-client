@@ -53,7 +53,7 @@ export interface ISplitState {
  * It consists of the list of evaluated feature flags.
  */
 export interface ISplitTreatments {
-  [splitName: string]: IKeyTreatments;
+  [featureFlagName: string]: IKeyTreatments;
 }
 
 /**
