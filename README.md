@@ -35,7 +35,7 @@ const store = createStore(
 // Define your config object and dispatch `initSplitSdk` action to init the SDK
 const CONFIG = {
   core: {
-    authorizationKey: 'YOUR_BROWSER_SDK_KEY',
+    authorizationKey: 'YOUR_SDK_KEY',
     key: 'CUSTOMER_ID'
   }
 };
