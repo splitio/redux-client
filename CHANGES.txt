@@ -1,3 +1,8 @@
+1.7.3 (May 16, 2023)
+ - Updated @splitsoftware/splitio package to version 10.22.5 that includes:
+      - Updated terminology on the SDKs codebase to be more aligned with current standard without causing a breaking change. The core change is the term split for feature flag on things like logs and IntelliSense comments.
+      - Updated some transitive dependencies for vulnerability fixes.
+
 1.7.2 (April 3, 2023)
  - Updated linter dependencies and rules. The deprecated TSLint package was replaced by ESLint.
  - Updated some transitive dependencies for vulnerability fixes.
@@ -55,12 +60,12 @@
  - Updated Split's SDK dependency to fix vulnerabilities.
 
 1.3.0 (December 9, 2020)
- - Added a new parameter to `getTreatments` actions creator: `evalOnReadyFromCache` to evaluate splits when the SDK_READY_FROM_CACHE event is emitted. Learn more in our Redux SDK documentation.
- - Updated how splits evaluations are handled on SDK_READY, SDK_READY_FROM_CACHE and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple store notifications.
+ - Added a new parameter to `getTreatments` actions creator: `evalOnReadyFromCache` to evaluate feature flags when the SDK_READY_FROM_CACHE event is emitted. Learn more in our Redux SDK documentation.
+ - Updated how feature flag evaluations are handled on SDK_READY, SDK_READY_FROM_CACHE and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple store notifications.
  - Updated some NPM dependencies for vulnerability fixes.
 
 1.2.1 (Oct 7, 2020)
- - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the splits to be synced. Learn more in our javascript-client changelog or documentation.
+ - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the feature flags to be synced. Learn more in our javascript-client changelog or documentation.
 
 1.2.0 (Jul 7, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
@@ -69,7 +74,7 @@
  - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
 
 1.1.0 (May 11, 2020)
- - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
+ - Bugfixing - incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
  - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 

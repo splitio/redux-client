@@ -47,17 +47,17 @@ function setUpdated(state: ISplitState, timestamp: number) {
  */
 function assignTreatments(result: ISplitState, key: string, treatments: SplitIO.TreatmentsWithConfig): ISplitState {
   result.treatments = { ...result.treatments };
-  Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([splitName, treatment]) => {
-    if (result.treatments[splitName]) {
-      const splitTreatments = result.treatments[splitName];
+  Object.entries<SplitIO.TreatmentWithConfig>(treatments).forEach(([featureFlagName, treatment]) => {
+    if (result.treatments[featureFlagName]) {
+      const splitTreatments = result.treatments[featureFlagName];
       if (!splitTreatments[key] || splitTreatments[key].treatment !== treatment.treatment || splitTreatments[key].config !== treatment.config) {
-        result.treatments[splitName] = {
-          ...(result.treatments[splitName]),
+        result.treatments[featureFlagName] = {
+          ...(result.treatments[featureFlagName]),
           [key]: treatment,
         };
       }
     } else {
-      result.treatments[splitName] = { [key]: treatment };
+      result.treatments[featureFlagName] = { [key]: treatment };
     }
   });
   return result;

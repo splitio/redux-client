@@ -17,17 +17,17 @@ describe('selectTreatmentValue', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1)).toBe(ON);
   });
 
-  it('returns the treatment value of the given split name and key', () => {
+  it('returns the treatment value of the given feature flag name and key', () => {
     /** The treatment value for the USER_1 key for SPLIT_1 is 'off' */
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_2, USER_1)).toBe(OFF);
   });
 
-  it('returns "control" value if the given split name or key are invalid (were not evaluated with getTreatment, or returned "control"', () => {
+  it('returns "control" value if the given feature flag name or key are invalid (were not evaluated with getTreatment, or returned "control"', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID)).toBe(CONTROL);
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1)).toBe(CONTROL);
   });
 
-  it('returns the passed default treatment value insteaad of "control" if the given split name or key are invalid', () => {
+  it('returns the passed default treatment value insteaad of "control" if the given feature flag name or key are invalid', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID, 'some_value')).toBe('some_value');
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1, 'some_value')).toBe('some_value');
   });
@@ -44,16 +44,16 @@ describe('selectTreatmentWithConfig', () => {
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_1)).toBe(STATE_READY.splitio.treatments[SPLIT_1][USER_1]);
   });
 
-  it('returns the treatment of the given split name and key', () => {
+  it('returns the treatment of the given feature flag name and key', () => {
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_2, USER_1)).toBe(STATE_READY.splitio.treatments[SPLIT_2][USER_1]);
   });
 
-  it('returns "control" treatment if the given split name or key are invalid (were not evaluated with getTreatment, or returned "control")', () => {
+  it('returns "control" treatment if the given feature flag name or key are invalid (were not evaluated with getTreatment, or returned "control")', () => {
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_1, USER_INVALID)).toBe(CONTROL_WITH_CONFIG);
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_INVALID, USER_1)).toBe(CONTROL_WITH_CONFIG);
   });
 
-  it('returns the passed default treatment insteaad of "control" if the given split name or key are invalid', () => {
+  it('returns the passed default treatment insteaad of "control" if the given feature flag name or key are invalid', () => {
     const DEFAULT_TREATMENT = {treatment: 'some_value', config: 'some_config'};
 
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_1, USER_INVALID, DEFAULT_TREATMENT)).toBe(DEFAULT_TREATMENT);

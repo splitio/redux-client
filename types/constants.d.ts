@@ -4,7 +4,7 @@ export declare const ON: SplitIO.Treatment;
 export declare const OFF: SplitIO.Treatment;
 export declare const CONTROL: SplitIO.Treatment;
 export declare const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig;
-export declare const getControlTreatmentsWithConfig: (splitNames: string[]) => SplitIO.TreatmentsWithConfig;
+export declare const getControlTreatmentsWithConfig: (featureFlagNames: string[]) => SplitIO.TreatmentsWithConfig;
 export declare const SPLIT_READY = "SPLIT_READY";
 export declare const SPLIT_READY_WITH_EVALUATIONS = "SPLIT_READY_WITH_EVALUATIONS";
 export declare const SPLIT_READY_FROM_CACHE = "SPLIT_READY_FROM_CACHE";
