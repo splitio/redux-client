@@ -1,3 +1,6 @@
+1.8.0 (June 26, 2023)
+ - Added `ISplitState` TypeScript interface to the library exports, which is the type for the Split reducer's slice of state.
+
 1.7.3 (May 16, 2023)
  - Updated @splitsoftware/splitio package to version 10.22.5 that includes:
       - Updated terminology on the SDKs codebase to be more aligned with current standard without causing a breaking change. The core change is the term split for feature flag on things like logs and IntelliSense comments.

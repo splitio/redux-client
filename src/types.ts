@@ -49,7 +49,7 @@ export interface ISplitState {
 }
 
 /**
- * First level of the `treatments` property.
+ * First level of the `treatments` property in the Split reducer's slice of state.
  * It consists of the list of evaluated feature flags.
  */
 export interface ISplitTreatments {
@@ -57,7 +57,7 @@ export interface ISplitTreatments {
 }
 
 /**
- * Second level of the `treatments` property.
+ * Second level of the `treatments` property in the Split reducer's slice of state.
  * It consists of the list of evaluated keys for the container split.
  */
 export interface IKeyTreatments {
