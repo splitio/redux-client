@@ -3,6 +3,8 @@ on:
   pull_request:
     branches:
       - master
+  pull_request_target:
+    branches:
       - development
   push:
     branches:
@@ -53,7 +55,7 @@ jobs:
             -Dsonar.branch.name=${{ github.ref_name }}
 
       - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         uses: SonarSource/sonarcloud-github-action@v1.9
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
