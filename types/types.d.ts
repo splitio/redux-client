@@ -34,25 +34,15 @@ export interface ISplitState {
      */
     lastUpdate: number;
     /**
-     * This property contains the evaluations of feature flags.
-     * Each evaluation is associated with an feature flag name and a key (e.g., user id or organization name).
-     * Thus the property has 3 levels: feature flag name, user key, and finally the treatment that was evaluated for that split and key.
+     * `treatments` is a nested object property that contains the evaluations of feature flags.
+     * Each evaluation (treatment) is associated with a feature flag name and a key (e.g., unique user identifier, such as a user id).
+     * Thus the property has 3 levels: feature flag name, key, and finally the treatment that was evaluated for that specific feature flag and key.
      */
-    treatments: ISplitTreatments;
-}
-/**
- * First level of the `treatments` property.
- * It consists of the list of evaluated feature flags.
- */
-export interface ISplitTreatments {
-    [featureFlagName: string]: IKeyTreatments;
-}
-/**
- * Second level of the `treatments` property.
- * It consists of the list of evaluated keys for the container split.
- */
-export interface IKeyTreatments {
-    [key: string]: SplitIO.TreatmentWithConfig;
+    treatments: {
+        [featureFlagName: string]: {
+            [key: string]: SplitIO.TreatmentWithConfig;
+        };
+    };
 }
 export declare type IGetSplitState = (state: any) => ISplitState;
 /**
