@@ -1,4 +1,4 @@
-1.8.0 (June 26, 2023)
+1.8.0 (June 27, 2023)
  - Added `ISplitState` TypeScript interface to the library exports, which is the type for the Split reducer's slice of state.
 
 1.7.3 (May 16, 2023)

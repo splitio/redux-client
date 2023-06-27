@@ -4,4 +4,4 @@ export { track, getSplitNames, getSplit, getSplits } from './helpers';
 export { selectTreatmentValue, selectTreatmentWithConfig } from './selectors';
 export { connectSplit } from './react-redux/connectSplit';
 export { connectToggler, mapTreatmentToProps, mapIsFeatureOnToProps } from './react-redux/connectToggler';
-export { ISplitState, ISplitTreatments, IKeyTreatments } from './types';
+export { ISplitState } from './types';
