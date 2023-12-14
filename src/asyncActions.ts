@@ -4,7 +4,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, getStatus } from './utils';
+import { matching, getStatus, validateGetTreatmentsParams } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -108,10 +108,8 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     return () => { };
   }
 
-  // Convert string feature flag name to a one item array.
-  if (typeof params.splitNames === 'string') {
-    params.splitNames = [params.splitNames];
-  }
+  params = validateGetTreatmentsParams(params);
+  const splitNames = params.splitNames as string[];
 
   if (!splitSdk.isDetached) { // Split SDK running in Browser
 
@@ -119,11 +117,11 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      params.splitNames.forEach((featureFlagName) => {
+      splitNames.forEach((featureFlagName) => {
         client.evalOnUpdate[featureFlagName] = { ...params, splitNames: [featureFlagName] };
       });
     } else {
-      params.splitNames.forEach((featureFlagName) => {
+      splitNames.forEach((featureFlagName) => {
         delete client.evalOnUpdate[featureFlagName];
       });
     }
@@ -147,14 +145,14 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     } else {
       // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
       // @TODO remove eventually to minimize state changes
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
+      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(splitNames));
     }
 
   } else { // Split SDK running in Node
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client();
-    const treatments = client.getTreatmentsWithConfig(params.key, params.splitNames, params.attributes);
+    const treatments = client.getTreatmentsWithConfig(params.key, splitNames, params.attributes);
     return addTreatments(params.key, treatments);
 
   }
