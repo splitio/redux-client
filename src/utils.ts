@@ -37,7 +37,7 @@ export function getStatus(client: SplitIO.IClient): IClientStatus {
  *
  * @returns {IGetTreatmentsParams} The returned object is a copy of the passed one, with the "splitNames" property converted to an array of strings.
  */
-export function validateGetTreatmentsParams(params: unknown) {
+export function validateGetTreatmentsParams(params: unknown): IGetTreatmentsParams {
   if (!isObject(params)) {
     console.log('[ERROR] "getTreatments" must be called with a param object.');
     params = {};
