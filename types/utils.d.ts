@@ -1,4 +1,3 @@
-import { IGetTreatmentsParams } from './types';
 /**
  * Validates if a value is an object.
  */
@@ -23,7 +22,7 @@ export declare function getStatus(client: SplitIO.IClient): IClientStatus;
  *
  * @returns {IGetTreatmentsParams} The returned object is a copy of the passed one, with the "splitNames" property converted to an array of strings.
  */
-export declare function validateGetTreatmentsParams(params: IGetTreatmentsParams): {
+export declare function validateGetTreatmentsParams(params: unknown): {
     splitNames: string[];
     key?: import("@splitsoftware/splitio/types/splitio").SplitKey;
     attributes?: import("@splitsoftware/splitio/types/splitio").Attributes;

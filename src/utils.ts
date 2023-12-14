@@ -37,14 +37,18 @@ export function getStatus(client: SplitIO.IClient): IClientStatus {
  *
  * @returns {IGetTreatmentsParams} The returned object is a copy of the passed one, with the "splitNames" property converted to an array of strings.
  */
-export function validateGetTreatmentsParams(params: IGetTreatmentsParams) {
-  let { splitNames } = params;
-  if (typeof splitNames === 'string') splitNames = [splitNames];
-  if (!validateFeatureFlags(splitNames)) splitNames = [];
+export function validateGetTreatmentsParams(params: unknown) {
+  if (!isObject(params)) {
+    console.log('[ERROR] "getTreatments" must be called with a param object.');
+    params = {};
+  }
+
+  let { splitNames } = params as IGetTreatmentsParams;
+  splitNames = validateFeatureFlags(typeof splitNames === 'string' ? [splitNames] : splitNames) || [];
 
   return {
-    ...params,
-    splitNames: splitNames,
+    ...params as IGetTreatmentsParams,
+    splitNames,
   };
 }
 

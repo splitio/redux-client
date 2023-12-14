@@ -1,3 +1,6 @@
+1.10.0 (December 19, 2023)
+ - Updated `getTreatments` actions creator to validate the provided params object, in order to log a descriptive error when an invalid object is provided rather than throwing a cryptic error.
+
 1.9.0 (July 18, 2023)
  - Updated some transitive dependencies for vulnerability fixes.
  - Updated @splitsoftware/splitio package to version 10.23.0 that includes:
