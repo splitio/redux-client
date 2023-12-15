@@ -60,6 +60,12 @@ export function mockSdk() {
           return acc;
         }, {});
       });
+      const getTreatmentsWithConfigByFlagSets: jest.Mock = jest.fn((flagSets) => {
+        return flagSets.reduce((acc: SplitIO.TreatmentsWithConfig, flagSet: string) => {
+          acc[flagSet + '_feature_flag'] = { treatment: 'fakeTreatment', config: null };
+          return acc;
+        }, {});
+      });
       const setAttributes: jest.Mock = jest.fn(() => {
         return true;
       });
@@ -89,6 +95,7 @@ export function mockSdk() {
 
       return Object.assign(Object.create(__emitter__), {
         getTreatmentsWithConfig,
+        getTreatmentsWithConfigByFlagSets,
         track,
         ready,
         destroy,
