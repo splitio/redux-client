@@ -1,5 +1,7 @@
 1.10.0 (December 19, 2023)
- - Updated `getTreatments` actions creator to validate the provided params object, in order to log a descriptive error when an invalid object is provided rather than throwing a cryptic error.
+ - Added `defaultTreatment` property to the `SplitView` object returned by the `getSplit` and `getSplits` helper functions (Related to issue https://github.com/splitio/javascript-commons/issues/225).
+ - Updated `getTreatments` action creator to validate the provided params object, in order to log a descriptive error when an invalid object is provided rather than throwing a cryptic error.
+ - Updated @splitsoftware/splitio package to version 10.24.1 that includes flag sets support, vulnerability fixes and other improvements.
 
 1.9.0 (July 18, 2023)
  - Updated some transitive dependencies for vulnerability fixes.

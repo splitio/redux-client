@@ -87,7 +87,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  * Util that reduce the results of multiple calls to `client.getTreatmentsWithConfig` method into a single `SplitIO.TreatmentsWithConfig` object.
  *
  * @param client Sdk client to call
- * @param evalParams list of evaluation params, i.e. the list of feature flag names and attributes passed when calling `client.getTreatmentsWithConfig` method.
+ * @param evalParams validated list of evaluation params
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
@@ -118,7 +118,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
       splitNames.forEach((featureFlagName) => {
-        client.evalOnUpdate[featureFlagName] = { ...params, splitNames: [featureFlagName] };
+        client.evalOnUpdate[featureFlagName] = { ...params, splitNames: [featureFlagName] } as IGetTreatmentsParams;
       });
     } else {
       splitNames.forEach((featureFlagName) => {
