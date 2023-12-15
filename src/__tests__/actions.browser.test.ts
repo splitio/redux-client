@@ -13,7 +13,7 @@ import { sdkBrowserConfig } from './utils/sdkConfigs';
 import {
   SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
-  ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig,
+  ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, ERROR_GETT_NO_PARAM_OBJECT,
 } from '../constants';
 
 /** Test targets */
@@ -158,6 +158,24 @@ describe('getTreatments', () => {
 
     expect(errorSpy).toBeCalledWith(ERROR_GETT_NO_INITSPLITSDK);
     expect(store.getActions().length).toBe(0);
+  });
+
+  it('logs error and dispatches a no-op async action if the provided param is invalid', async () => {
+    // Init SDK and set ready
+    const store = mockStore(STATE_INITIAL);
+    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+    await actionResult;
+
+    const consoleLogSpy = jest.spyOn(console, 'log');
+    store.clearActions();
+
+    // @ts-expect-error testing invalid input
+    store.dispatch<any>(getTreatments());
+
+    expect(store.getActions().length).toBe(0);
+    expect(consoleLogSpy).toBeCalledWith(ERROR_GETT_NO_PARAM_OBJECT);
+    consoleLogSpy.mockRestore();
   });
 
   it('dispatches an ADD_TREATMENTS action if Split SDK is ready', (done) => {

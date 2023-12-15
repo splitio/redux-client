@@ -108,7 +108,9 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     return () => { };
   }
 
-  params = validateGetTreatmentsParams(params);
+  params = validateGetTreatmentsParams(params) as IGetTreatmentsParams;
+  if (!params) return () => { };
+
   const splitNames = params.splitNames as string[];
 
   if (!splitSdk.isDetached) { // Split SDK running in Browser

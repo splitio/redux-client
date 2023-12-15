@@ -42,9 +42,9 @@ export const SPLIT_DESTROY = 'SPLIT_DESTROY';
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
 
 // Warning and error messages
-export const ERROR_GETT_NO_INITSPLITSDK = '[ERROR] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
+export const ERROR_GETT_NO_INITSPLITSDK = '[ERROR] To use "getTreatments" the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_DESTROY_NO_INITSPLITSDK = '[ERROR] To use "destroySplitSdk" the SDK must be first initialized with a "initSplitSdk" action';
+export const ERROR_DESTROY_NO_INITSPLITSDK = '[ERROR] To use "destroySplitSdk" the SDK must be first initialized with an "initSplitSdk" action';
 
 export const ERROR_TRACK_NO_INITSPLITSDK = '[ERROR] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
 
@@ -52,4 +52,6 @@ export const ERROR_MANAGER_NO_INITSPLITSDK = '[ERROR] To use the manager, the SD
 
 export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] When using selectors, "splitState" value must be a proper splitio piece of state';
 
-export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored.';
+export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing either splitNames or flagSets properties';
+
+export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored';

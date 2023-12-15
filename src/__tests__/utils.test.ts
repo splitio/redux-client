@@ -49,32 +49,26 @@ describe('validateGetTreatmentsParams', () => {
   it('should ignore flagSets if both splitNames and flagSets are provided', () => {
     const consoleSpy = jest.spyOn(console, 'log');
 
-    expect(validateGetTreatmentsParams({ splitNames: ['some split', null], flagSets: ['flag set', null] })).toStrictEqual({ splitNames: ['some split'], flagSets: undefined });
-    expect(validateGetTreatmentsParams({ splitNames: true, flagSets: ['flag set', null] })).toStrictEqual({ splitNames: [], flagSets: undefined });
+    expect(validateGetTreatmentsParams({ splitNames: ['some split'], flagSets: ['flag set', null] })).toStrictEqual({ splitNames: ['some split'], flagSets: undefined });
 
-    expect(consoleSpy.mock.calls).toEqual([
-      [WARN_FEATUREFLAGS_AND_FLAGSETS],
-      ['[ERROR] you passed a null or undefined feature flag name, feature flag name must be a non-empty string.'],
-      [WARN_FEATUREFLAGS_AND_FLAGSETS],
-      ['[ERROR] feature flag names must be a non-empty array.']
-    ]);
+    expect(consoleSpy.mock.calls).toEqual([[WARN_FEATUREFLAGS_AND_FLAGSETS]]);
     consoleSpy.mockRestore();
   });
 
-  it('should return a valid object if splitNames and flagSets values are invalid', () => {
+  it('should return false if splitNames and flagSets values are invalid', () => {
     // Invalid values for splitNames and flagSets are converted to empty arrays
-    expect(validateGetTreatmentsParams({ splitNames: {} })).toStrictEqual({ splitNames: [], flagSets: undefined });
-    expect(validateGetTreatmentsParams({ flagSets: {} })).toStrictEqual({ splitNames: undefined, flagSets: [] });
-    expect(validateGetTreatmentsParams({ splitNames: true })).toStrictEqual({ splitNames: [], flagSets: undefined });
-    expect(validateGetTreatmentsParams({ flagSets: true })).toStrictEqual({ splitNames: undefined, flagSets: [] });
-    expect(validateGetTreatmentsParams({ splitNames: null, flagSets: null })).toStrictEqual({ splitNames: undefined, flagSets: [] });
-    expect(validateGetTreatmentsParams({})).toStrictEqual({ splitNames: undefined, flagSets: [] });
+    expect(validateGetTreatmentsParams({ splitNames: {} })).toStrictEqual(false);
+    expect(validateGetTreatmentsParams({ flagSets: {} })).toStrictEqual(false);
+    expect(validateGetTreatmentsParams({ splitNames: true })).toStrictEqual(false);
+    expect(validateGetTreatmentsParams({ flagSets: true })).toStrictEqual(false);
+    expect(validateGetTreatmentsParams({ splitNames: null, flagSets: null })).toStrictEqual(false);
+    expect(validateGetTreatmentsParams({})).toStrictEqual(false);
   });
 
-  it('should return a valid object if the provided param is not an object', () => { // @ts-expect-error testing invalid input
-    expect(validateGetTreatmentsParams()).toStrictEqual({ splitNames: undefined, flagSets: [] });
-    expect(validateGetTreatmentsParams([])).toStrictEqual({ splitNames: undefined, flagSets: [] });
-    expect(validateGetTreatmentsParams('invalid')).toStrictEqual({ splitNames: undefined, flagSets: [] });
+  it('should return false if the provided param is not an object', () => { // @ts-expect-error testing invalid input
+    expect(validateGetTreatmentsParams()).toStrictEqual(false);
+    expect(validateGetTreatmentsParams([])).toStrictEqual(false);
+    expect(validateGetTreatmentsParams('invalid')).toStrictEqual(false);
   });
 
 });
