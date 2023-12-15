@@ -20,7 +20,6 @@ export interface IClientStatus {
 export declare function getStatus(client: SplitIO.IClient): IClientStatus;
 /**
  * Validates and sanitizes the parameters passed to the "getTreatments" action creator.
- *
- * @returns {IGetTreatmentsParams} The returned object is a copy of the passed one, with the "splitNames" property converted to an array of strings.
+ * The returned object is a copy of the passed one, with the "splitNames" and "flagSets" properties converted to an array of strings.
  */
 export declare function validateGetTreatmentsParams(params: unknown): IGetTreatmentsParams;

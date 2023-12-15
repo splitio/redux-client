@@ -1,3 +1,4 @@
+import { WARN_FEATUREFLAGS_AND_FLAGSETS } from './constants';
 import { IGetTreatmentsParams } from './types';
 
 /**
@@ -34,22 +35,28 @@ export function getStatus(client: SplitIO.IClient): IClientStatus {
 
 /**
  * Validates and sanitizes the parameters passed to the "getTreatments" action creator.
- *
- * @returns {IGetTreatmentsParams} The returned object is a copy of the passed one, with the "splitNames" property converted to an array of strings.
+ * The returned object is a copy of the passed one, with the "splitNames" and "flagSets" properties converted to an array of strings.
  */
-export function validateGetTreatmentsParams(params: unknown): IGetTreatmentsParams {
+export function validateGetTreatmentsParams(params: unknown) {
   if (!isObject(params)) {
     console.log('[ERROR] "getTreatments" must be called with a param object.');
     params = {};
   }
 
-  let { splitNames } = params as IGetTreatmentsParams;
-  splitNames = validateFeatureFlags(typeof splitNames === 'string' ? [splitNames] : splitNames) || [];
+  const { splitNames, flagSets } = params as IGetTreatmentsParams;
+  if (splitNames && flagSets) console.log(WARN_FEATUREFLAGS_AND_FLAGSETS);
 
   return {
     ...params as IGetTreatmentsParams,
-    splitNames,
-  };
+    splitNames: splitNames ?
+      // Feature flag names are sanitized because they are passed to the getControlTreatmentsWithConfig function.
+      validateFeatureFlags(typeof splitNames === 'string' ? [splitNames] : splitNames) || [] :
+      undefined,
+    flagSets: splitNames ?
+      undefined :
+      // Flag set names are not sanitized, because they are not used by Redux SDK directly. We just make sure it is an array.
+      typeof flagSets === 'string' ? [flagSets] : Array.isArray(flagSets) ? flagSets : [],
+  } as IGetTreatmentsParams;
 }
 
 // The following input validation utils are based on the ones in the React SDK. They might be replaced by utils from the JS SDK in the future.
