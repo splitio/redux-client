@@ -35,10 +35,10 @@ interface IClientNotDetached extends SplitIO.IClient {
     _trackingStatus?: boolean;
     /**
      * stored evaluations to execute on SDK update. It is an object because we might
-     * want to change the evaluation parameters (i.e. attributes) per each feature flag name.
+     * want to change the evaluation parameters (i.e. attributes) per each feature flag name or flag set.
      */
     evalOnUpdate: {
-        [featureFlagName: string]: IGetTreatmentsParams;
+        [name: string]: IGetTreatmentsParams;
     };
     /**
      * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations

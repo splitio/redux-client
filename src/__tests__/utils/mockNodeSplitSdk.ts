@@ -27,6 +27,12 @@ function mockClient() {
       return acc;
     }, {});
   });
+  const getTreatmentsWithConfigByFlagSets: jest.Mock = jest.fn((key, flagSets) => {
+    return flagSets.reduce((acc: SplitIO.TreatmentsWithConfig, flagSet: string) => {
+      acc[flagSet + '_feature_flag'] = { treatment: 'fakeTreatment', config: null };
+      return acc;
+    }, {});
+  });
   const ready: jest.Mock = jest.fn(() => {
     return promiseWrapper(new Promise<void>((res, rej) => {
       __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
@@ -47,6 +53,7 @@ function mockClient() {
 
   return Object.assign(Object.create(__emitter__), {
     getTreatmentsWithConfig,
+    getTreatmentsWithConfigByFlagSets,
     track,
     ready,
     destroy,
