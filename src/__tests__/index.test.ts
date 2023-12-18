@@ -14,7 +14,7 @@ import {
   connectToggler as exportedConnectToggler,
   mapTreatmentToProps as exportedMapTreatmentToProps,
   mapIsFeatureOnToProps as exportedMapIsFeatureOnToProps,
-  // Checks that types are exported. Otherwise, the test would fail with a TS error.
+  /* eslint-disable @typescript-eslint/no-unused-vars */ // Checks that types are exported. Otherwise, the test would fail with a TS error.
   ISplitState,
 } from '../index';
 

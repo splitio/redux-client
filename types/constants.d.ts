@@ -19,5 +19,5 @@ export declare const ERROR_DESTROY_NO_INITSPLITSDK = "[ERROR] To use \"destroySp
 export declare const ERROR_TRACK_NO_INITSPLITSDK = "[ERROR] To use \"track\" the SDK must be first initialized with an \"initSplitSdk\" action";
 export declare const ERROR_MANAGER_NO_INITSPLITSDK = "[ERROR] To use the manager, the SDK must be first initialized with an \"initSplitSdk\" action";
 export declare const ERROR_SELECTOR_NO_SPLITSTATE = "[ERROR] When using selectors, \"splitState\" value must be a proper splitio piece of state";
-export declare const ERROR_GETT_NO_PARAM_OBJECT = "[ERROR] \"getTreatments\" must be called with a param object containing either splitNames or flagSets properties";
+export declare const ERROR_GETT_NO_PARAM_OBJECT = "[ERROR] \"getTreatments\" must be called with a param object containing a valid splitNames or flagSets properties";
 export declare const WARN_FEATUREFLAGS_AND_FLAGSETS = "[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored";

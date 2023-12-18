@@ -52,6 +52,6 @@ export const ERROR_MANAGER_NO_INITSPLITSDK = '[ERROR] To use the manager, the SD
 
 export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] When using selectors, "splitState" value must be a proper splitio piece of state';
 
-export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing either splitNames or flagSets properties';
+export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing a valid splitNames or flagSets properties';
 
 export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored';
