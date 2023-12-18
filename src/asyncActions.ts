@@ -91,7 +91,9 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
-    return { ...acc, ...client.getTreatmentsWithConfig((params.splitNames as string[]), params.attributes) };
+    return params.splitNames ?
+      { ...acc, ...client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes) } :
+      { ...acc, ...client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes) };
   }, {});
 }
 
@@ -112,6 +114,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
   if (!params) return () => { };
 
   const splitNames = params.splitNames as string[];
+  const flagSets = params.flagSets as string[];
 
   if (!splitSdk.isDetached) { // Split SDK running in Browser
 
@@ -119,12 +122,18 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      splitNames.forEach((featureFlagName) => {
-        client.evalOnUpdate[featureFlagName] = { ...params, splitNames: [featureFlagName] } as IGetTreatmentsParams;
+      splitNames && splitNames.forEach((featureFlagName) => {
+        client.evalOnUpdate[`flag::${featureFlagName}`] = { ...params, splitNames: [featureFlagName] } as IGetTreatmentsParams;
+      });
+      flagSets && flagSets.forEach((flagSetName) => {
+        client.evalOnUpdate[`set::${flagSetName}`] = { ...params, flagSets: [flagSetName] } as IGetTreatmentsParams;
       });
     } else {
-      splitNames.forEach((featureFlagName) => {
-        delete client.evalOnUpdate[featureFlagName];
+      splitNames && splitNames.forEach((featureFlagName) => {
+        delete client.evalOnUpdate[`flag::${featureFlagName}`];
+      });
+      flagSets && flagSets.forEach((flagSetName) => {
+        delete client.evalOnUpdate[`set::${flagSetName}`];
       });
     }
 
@@ -146,15 +155,18 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
     } else {
       // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
+      // With flag sets, an empty object is passed since we don't know their feature flag names
       // @TODO remove eventually to minimize state changes
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(splitNames));
+      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, splitNames ? getControlTreatmentsWithConfig(splitNames) : {});
     }
 
   } else { // Split SDK running in Node
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client();
-    const treatments = client.getTreatmentsWithConfig(params.key, splitNames, params.attributes);
+    const treatments = splitNames ?
+      client.getTreatmentsWithConfig(params.key, splitNames, params.attributes) :
+      client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes);
     return addTreatments(params.key, treatments);
 
   }
@@ -167,9 +179,9 @@ interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   /**
    * stored evaluations to execute on SDK update. It is an object because we might
-   * want to change the evaluation parameters (i.e. attributes) per each feature flag name.
+   * want to change the evaluation parameters (i.e. attributes) per each feature flag name or flag set.
    */
-  evalOnUpdate: { [featureFlagName: string]: IGetTreatmentsParams };
+  evalOnUpdate: { [name: string]: IGetTreatmentsParams };
   /**
    * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations
    * are set with the same feature flag name, the result (i.e. treatment) of the last one is the stored one.
