@@ -91,9 +91,13 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
-    return params.splitNames ?
-      { ...acc, ...client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes) } :
-      { ...acc, ...client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes) };
+    return {
+      ...acc,
+      ...(params.splitNames ?
+        client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes) :
+        client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes)
+      )
+    };
   }, {});
 }
 
