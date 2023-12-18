@@ -1,4 +1,4 @@
-1.10.0 (December 19, 2023)
+1.10.0 (December 18, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
       - Added a new optional `flagSets` property to the param object of the `getTreatments` action creator, to support evaluating flags in given flag set/s. Either `splitNames` or `flagSets` must be provided to the function. If both are provided, `splitNames` will be used.
       - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
