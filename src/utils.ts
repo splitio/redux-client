@@ -48,7 +48,10 @@ export function validateGetTreatmentsParams(params: any): IGetTreatmentsParams |
   if (splitNames) {
     // Feature flag names are sanitized because they are passed to the getControlTreatmentsWithConfig function.
     splitNames = validateFeatureFlags(typeof splitNames === 'string' ? [splitNames] : splitNames);
-    if (!splitNames) return false;
+    if (!splitNames) {
+      console.log(ERROR_GETT_NO_PARAM_OBJECT);
+      return false;
+    }
 
     // Ignore flagSets if splitNames are provided
     if (flagSets) console.log(WARN_FEATUREFLAGS_AND_FLAGSETS);
@@ -56,7 +59,10 @@ export function validateGetTreatmentsParams(params: any): IGetTreatmentsParams |
   } else {
     // Flag set names are not sanitized, because they are not used by Redux SDK directly. We just make sure it is an array.
     flagSets = typeof flagSets === 'string' ? [flagSets] : flagSets;
-    if (!Array.isArray(flagSets)) return false;
+    if (!Array.isArray(flagSets)) {
+      console.log(ERROR_GETT_NO_PARAM_OBJECT);
+      return false;
+    }
   }
 
   return {
