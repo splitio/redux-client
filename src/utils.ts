@@ -51,10 +51,8 @@ export function validateGetTreatmentsParams(params: any): IGetTreatmentsParams |
     if (!splitNames) return false;
 
     // Ignore flagSets if splitNames are provided
-    if (flagSets) {
-      console.log(WARN_FEATUREFLAGS_AND_FLAGSETS);
-      flagSets = undefined;
-    }
+    if (flagSets) console.log(WARN_FEATUREFLAGS_AND_FLAGSETS);
+    flagSets = undefined;
   } else {
     // Flag set names are not sanitized, because they are not used by Redux SDK directly. We just make sure it is an array.
     flagSets = typeof flagSets === 'string' ? [flagSets] : flagSets;
