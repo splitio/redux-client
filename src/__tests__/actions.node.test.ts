@@ -167,22 +167,27 @@ describe('getTreatments', () => {
 
         // Invoke with a feature flag name string and no attributes
         store.dispatch<any>(getTreatments({ key: splitKey, splitNames: 'split1' }));
+        store.dispatch<any>(getTreatments({ key: splitKey, flagSets: ['set1'] }));
 
-        let action = store.getActions()[1]; // action 0 is SPLIT_READY
-        expect(action.type).toBe(ADD_TREATMENTS);
-        expect(action.payload.key).toBe(splitKey);
+        const actions = [store.getActions()[1], store.getActions()[2]]; // action 0 is SPLIT_READY
+        actions.forEach(action => {
+          expect(action.type).toBe(ADD_TREATMENTS);
+          expect(action.payload.key).toBe(splitKey);
+        });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[0].payload.treatments);
+        expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(splitKey, ['set1'], undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveLastReturnedWith(actions[1].payload.treatments);
 
         // Invoke with a list of feature flag names and a attributes object
         const featureFlagNames = ['split1', 'split2'];
         const attributes = { att1: 'att1' };
-        store.dispatch<any>(getTreatments({ key: splitKey, splitNames: featureFlagNames, attributes }));
+        store.dispatch<any>(getTreatments({ key: 'other_user', splitNames: featureFlagNames, attributes }));
 
-        action = store.getActions()[2];
+        const action = store.getActions()[3];
         expect(action.type).toBe(ADD_TREATMENTS);
-        expect(action.payload.key).toBe(splitKey);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, featureFlagNames, attributes);
+        expect(action.payload.key).toBe('other_user');
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
 

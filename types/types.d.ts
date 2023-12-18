@@ -79,16 +79,12 @@ export interface IInitSplitSdkParams {
 /**
  * Type of the param object passed to `getTreatments` action creator.
  */
-export interface IGetTreatmentsParams {
+export declare type IGetTreatmentsParams = {
     /**
      * user key used to evaluate. It is mandatory for node but optional for browser. If not provided in browser,
      * it defaults to the key defined in the SDK config, i.e., the config object passed to `initSplitSdk`.
      */
     key?: SplitIO.SplitKey;
-    /**
-     * feature flag name or array of feature flag names to evaluate.
-     */
-    splitNames: string[] | string;
     /**
      * optional map of attributes passed to the actual `client.getTreatment*` methods.
      * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
@@ -108,7 +104,19 @@ export interface IGetTreatmentsParams {
      * @default false
      */
     evalOnReadyFromCache?: boolean;
-}
+} & ({
+    /**
+     * Feature flag name or array of feature flag names to evaluate. Either this or the `flagSets` property must be provided. If both are provided, the `flagSets` option is ignored.
+     */
+    splitNames: string[] | string;
+    flagSets?: undefined;
+} | {
+    /**
+     * Feature flag set or array of feature flag sets to evaluate. Either this or the `splitNames` property must be provided. If both are provided, the `flagSets` option is ignored.
+     */
+    flagSets: string[] | string;
+    splitNames?: undefined;
+});
 /**
  * Type of the param object passed to `destroySplitSdk` action creator.
  */
