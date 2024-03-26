@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/splitio/redux-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "10.24.1"
+    "@splitsoftware/splitio": "10.25.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
