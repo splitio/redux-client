@@ -1,5 +1,6 @@
 1.10.1 (March 26, 2023)
- - Updated @splitsoftware/splitio package to version 10.25.2 that includes vulnerability fixes and other improvements.
+- Updated the build process and added the `tslib` package as an explicit dependency to import TypeScript helpers, thereby avoiding duplicated helper code in the output files.
+- Updated @splitsoftware/splitio package to version 10.25.2, which includes vulnerability fixes and other improvements.
 
 1.10.0 (December 18, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
