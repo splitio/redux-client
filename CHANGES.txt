@@ -1,6 +1,7 @@
 1.10.1 (March 27, 2023)
-- Updated the build process and added the `tslib` package as an explicit dependency to import TypeScript helpers, thereby avoiding duplicated helper code in the output files.
-- Updated @splitsoftware/splitio package to version 10.25.2, which includes vulnerability fixes and other improvements.
+ - Updated the build process and added the `tslib` package as an explicit dependency to import TypeScript helpers, thereby avoiding duplicated helper code in the output files.
+ - Updated @splitsoftware/splitio package to version 10.25.2, which includes vulnerability fixes and other improvements.
+ - Updated Redux-Thunk peer dependency range to include redux-thunk@3.x.x.
 
 1.10.0 (December 18, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
