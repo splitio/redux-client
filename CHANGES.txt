@@ -1,3 +1,9 @@
+1.11.0 (April 3, 2024)
+ - Added `sideEffects: false` property in the package.json file to allow tree shaking.
+ - Updated Redux-Thunk peer dependency range to include redux-thunk@3.x.x.
+ - Updated the build process and added the `tslib` package as an explicit dependency to import TypeScript helpers, thereby avoiding duplicated helper code in the output files.
+ - Updated @splitsoftware/splitio package to version 10.25.2, which includes vulnerability fixes and other improvements.
+
 1.10.0 (December 18, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
       - Added a new optional `flagSets` property to the param object of the `getTreatments` action creator, to support evaluating flags in given flag set/s. Either `splitNames` or `flagSets` must be provided to the function. If both are provided, `splitNames` will be used.
