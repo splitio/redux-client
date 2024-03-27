@@ -1,9 +1,10 @@
 import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitFactory as SplitFactoryForLocalhost } from '@splitsoftware/splitio/client';
 import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, getStatus } from './utils';
+import { matching, getStatus, validateGetTreatmentsParams } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -36,10 +37,15 @@ export const splitSdk: ISplitSdk = {
 export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
 
   splitSdk.config = params.config;
-  splitSdk.splitio = params.splitio || (SplitFactory as ISplitFactoryBuilder);
+
+  splitSdk.splitio = params.splitio ||
+    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in NodeJS
+    (splitSdk.config?.core?.authorizationKey === 'localhost' && typeof splitSdk.config?.features === 'object' ?
+      SplitFactoryForLocalhost :
+      SplitFactory) as ISplitFactoryBuilder;
 
   // SDK factory and client initialization
-  // @ts-ignore. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
+  // @ts-expect-error. 2nd param is not part of type definitions. Used to overwrite the version of the SDK for correct tracking.
   splitSdk.factory = splitSdk.splitio(splitSdk.config, (modules) => {
     // `nodejs-x.x.x` => server-side/detached client, `javascript-x.x.x` => client-side/no detached client
     splitSdk.isDetached = modules.settings.version.includes('nodejs');
@@ -81,11 +87,17 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  * Util that reduce the results of multiple calls to `client.getTreatmentsWithConfig` method into a single `SplitIO.TreatmentsWithConfig` object.
  *
  * @param client Sdk client to call
- * @param evalParams list of evaluation params, i.e. the list of split names and attributes passed when calling `client.getTreatmentsWithConfig` method.
+ * @param evalParams validated list of evaluation params
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
-    return { ...acc, ...client.getTreatmentsWithConfig((params.splitNames as string[]), params.attributes) };
+    return {
+      ...acc,
+      ...(params.splitNames ?
+        client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes) :
+        client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes)
+      )
+    };
   }, {});
 }
 
@@ -102,10 +114,11 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     return () => { };
   }
 
-  // Convert string split name to a one item array.
-  if (typeof params.splitNames === 'string') {
-    params.splitNames = [params.splitNames];
-  }
+  params = validateGetTreatmentsParams(params) as IGetTreatmentsParams;
+  if (!params) return () => { };
+
+  const splitNames = params.splitNames as string[];
+  const flagSets = params.flagSets as string[];
 
   if (!splitSdk.isDetached) { // Split SDK running in Browser
 
@@ -113,12 +126,18 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Register or unregister the current `getTreatments` action from being re-executed on SDK_UPDATE.
     if (params.evalOnUpdate) {
-      params.splitNames.forEach((splitName) => {
-        client.evalOnUpdate[splitName] = { ...params, splitNames: [splitName] };
+      splitNames && splitNames.forEach((featureFlagName) => {
+        client.evalOnUpdate[`flag::${featureFlagName}`] = { ...params, splitNames: [featureFlagName] } as IGetTreatmentsParams;
+      });
+      flagSets && flagSets.forEach((flagSetName) => {
+        client.evalOnUpdate[`set::${flagSetName}`] = { ...params, flagSets: [flagSetName] } as IGetTreatmentsParams;
       });
     } else {
-      params.splitNames.forEach((splitName) => {
-        delete client.evalOnUpdate[splitName];
+      splitNames && splitNames.forEach((featureFlagName) => {
+        delete client.evalOnUpdate[`flag::${featureFlagName}`];
+      });
+      flagSets && flagSets.forEach((flagSetName) => {
+        delete client.evalOnUpdate[`set::${flagSetName}`];
       });
     }
 
@@ -140,15 +159,18 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
     } else {
       // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
+      // With flag sets, an empty object is passed since we don't know their feature flag names
       // @TODO remove eventually to minimize state changes
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, getControlTreatmentsWithConfig(params.splitNames));
+      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, splitNames ? getControlTreatmentsWithConfig(splitNames) : {});
     }
 
   } else { // Split SDK running in Node
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client();
-    const treatments = client.getTreatmentsWithConfig(params.key, params.splitNames, params.attributes);
+    const treatments = splitNames ?
+      client.getTreatmentsWithConfig(params.key, splitNames, params.attributes) :
+      client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes);
     return addTreatments(params.key, treatments);
 
   }
@@ -161,12 +183,12 @@ interface IClientNotDetached extends SplitIO.IClient {
   _trackingStatus?: boolean;
   /**
    * stored evaluations to execute on SDK update. It is an object because we might
-   * want to change the evaluation parameters (i.e. attributes) per each split name.
+   * want to change the evaluation parameters (i.e. attributes) per each feature flag name or flag set.
    */
-  evalOnUpdate: { [splitName: string]: IGetTreatmentsParams };
+  evalOnUpdate: { [name: string]: IGetTreatmentsParams };
   /**
    * stored evaluations to execute when the SDK is ready. It is an array, so if multiple evaluations
-   * are set with the same split name, the result (i.e. treatment) of the last one is the stored one.
+   * are set with the same feature flag name, the result (i.e. treatment) of the last one is the stored one.
    */
   evalOnReady: IGetTreatmentsParams[];
   /**
@@ -177,7 +199,7 @@ interface IClientNotDetached extends SplitIO.IClient {
 
 /**
  * Used in not detached version (browser). It gets an SDK client and enhances it with `evalOnUpdate`, `evalOnReady` and `evalOnReadyFromCache` lists.
- * These lists are used by `getTreatments` action creator to schedule evaluation of splits on SDK_UPDATE, SDK_READY and SDK_READY_FROM_CACHE events.
+ * These lists are used by `getTreatments` action creator to schedule evaluation of feature flags on SDK_UPDATE, SDK_READY and SDK_READY_FROM_CACHE events.
  * It is exported for testing purposes only.
  *
  * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
@@ -284,7 +306,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     dispatched = true;
-    return Promise.all(destroyPromises).then(function() {
+    return Promise.all(destroyPromises).then(function () {
       dispatch(splitDestroy());
       if (params.onDestroy) params.onDestroy();
     });

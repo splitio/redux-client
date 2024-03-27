@@ -27,19 +27,18 @@ export function track(params: ITrackParams): boolean {
     client = getClient(splitSdk, params.key);
 
     // TT is required if the key is provided (shared client) or if not present in config (main client)
-    if (params.key || !(splitSdk.config.core as any).trafficType) {
+    if (params.key || !(splitSdk.config.core as SplitIO.IBrowserSettings['core']).trafficType) {
       trackParams.unshift(params.trafficType);
     }
   }
 
-  // Spread operator type issue workaround.
-  return client.track.apply(client, trackParams as [string, any]);
+  return client.track(...trackParams as [string, any]);
 }
 
 /**
- * Get the array of Split names.
+ * Get the array of feature flag names.
  *
- * @returns {string[]} The list of Split names. The list might be empty if the SDK was not initialized or if it's not ready yet.
+ * @returns {string[]} The list of feature flag names. The list might be empty if the SDK was not initialized or if it's not ready yet.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
  */
@@ -55,22 +54,22 @@ export function getSplitNames(): string[] {
 /**
  * Get the data of a split in SplitView format.
  *
- * @param {string} splitName The name of the split we wan't to get info of.
+ * @param {string} featureFlagName The name of the split we wan't to get info of.
  * @returns {SplitView} The SplitIO.SplitView of the given split, or null if split does not exist or the SDK was not initialized or is not ready.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
  */
-export function getSplit(splitName: string): SplitIO.SplitView {
+export function getSplit(featureFlagName: string): SplitIO.SplitView {
   if (!splitSdk.factory) {
     console.error(ERROR_MANAGER_NO_INITSPLITSDK);
     return null;
   }
 
-  return splitSdk.factory.manager().split(splitName);
+  return splitSdk.factory.manager().split(featureFlagName);
 }
 
 /**
- * Get the array of splits data in SplitView format.
+ * Get the array of feature flags data in SplitView format.
  *
  * @returns {SplitViews} The list of SplitIO.SplitView. The list might be empty if the SDK was not initialized or if it's not ready yet
  *

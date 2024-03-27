@@ -1,3 +1,61 @@
+1.11.0 (March 27, 2023)
+ - Added `sideEffects: false` property in the package.json file to allow tree shaking.
+ - Updated Redux-Thunk peer dependency range to include redux-thunk@3.x.x.
+ - Updated the build process and added the `tslib` package as an explicit dependency to import TypeScript helpers, thereby avoiding duplicated helper code in the output files.
+ - Updated @splitsoftware/splitio package to version 10.25.2, which includes vulnerability fixes and other improvements.
+
+1.10.0 (December 18, 2023)
+ - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
+      - Added a new optional `flagSets` property to the param object of the `getTreatments` action creator, to support evaluating flags in given flag set/s. Either `splitNames` or `flagSets` must be provided to the function. If both are provided, `splitNames` will be used.
+      - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
+      - Added `sets` property to the `SplitView` object returned by the `getSplit` and `getSplits` helper functions to expose flag sets on flag views.
+ - Added `defaultTreatment` property to the `SplitView` object returned by the `getSplit` and `getSplits` helper functions (Related to issue https://github.com/splitio/javascript-commons/issues/225).
+ - Updated `getTreatments` action creator to validate the provided params object, in order to log a descriptive error when an invalid object is provided rather than throwing a cryptic error.
+ - Updated @splitsoftware/splitio package to version 10.24.1 that includes flag sets support, vulnerability fixes and other improvements.
+
+1.9.0 (July 18, 2023)
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Updated @splitsoftware/splitio package to version 10.23.0 that includes:
+      - Updated streaming architecture implementation to apply feature flag updates from the notification received which is now enhanced, improving efficiency and reliability of the whole update system.
+
+1.8.0 (June 27, 2023)
+ - Added `ISplitState` TypeScript interface to the library exports, which is the type for the Split reducer's slice of state.
+
+1.7.3 (May 16, 2023)
+ - Updated @splitsoftware/splitio package to version 10.22.5 that includes:
+      - Updated terminology on the SDKs codebase to be more aligned with current standard without causing a breaking change. The core change is the term split for feature flag on things like logs and IntelliSense comments.
+      - Updated some transitive dependencies for vulnerability fixes.
+
+1.7.2 (April 3, 2023)
+ - Updated linter dependencies and rules. The deprecated TSLint package was replaced by ESLint.
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Updated @splitsoftware/splitio package to version 10.22.4 that includes minor improvements.
+ - Bugfixing - Fixed error when using the SDK in localhost mode for testing with NodeJS test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
+
+1.7.1 (November 15, 2022)
+ - Updated React Redux peer dependency range to include React-redux@8.x.x and React@18.x.x.
+ - Updated @splitsoftware/splitio dependency to version 10.22.2, which includes vulnerability and bug fixes.
+
+1.7.0 (October 5, 2022)
+ - Updated @splitsoftware/splitio dependency to version 10.22.0, which includes:
+      - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
+      - Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
+      - Updated default value of `scheduler.featuresRefreshRate` config parameter from 30 seconds to 60 seconds.
+      - Updated storage implementations to improve the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory.
+      - Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
+      - Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
+      - Updated some dependencies for vulnerability fixes.
+
+1.6.0 (Jul 7, 2022)
+ - Updated @splitsoftware/splitio dependency to version 10.20.0, which includes:
+      - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
+      - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
+      - Updated submitters logic, to avoid duplicating the post of impressions to Split cloud when the SDK is destroyed while its periodic post of impressions is running.
+      - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
+      - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
+      - Updated eventsource dependency range to ^1.1.2 to avoid a vulnerability and dependency resolution to a vulnerable version of url-parse transitive dependency.
+      - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
+
 1.5.0 (April 20, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.18.1, which includes:
       - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
@@ -25,12 +83,12 @@
  - Updated Split's SDK dependency to fix vulnerabilities.
 
 1.3.0 (December 9, 2020)
- - Added a new parameter to `getTreatments` actions creator: `evalOnReadyFromCache` to evaluate splits when the SDK_READY_FROM_CACHE event is emitted. Learn more in our Redux SDK documentation.
- - Updated how splits evaluations are handled on SDK_READY, SDK_READY_FROM_CACHE and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple store notifications.
+ - Added a new parameter to `getTreatments` action creator: `evalOnReadyFromCache` to evaluate feature flags when the SDK_READY_FROM_CACHE event is emitted. Learn more in our Redux SDK documentation.
+ - Updated how feature flag evaluations are handled on SDK_READY, SDK_READY_FROM_CACHE and SDK_UPDATE events, to dispatch a single action with evaluations that results in all treatments updates in the state at once, instead of having multiple actions that might lead to multiple store notifications.
  - Updated some NPM dependencies for vulnerability fixes.
 
 1.2.1 (Oct 7, 2020)
- - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the splits to be synced. Learn more in our javascript-client changelog or documentation.
+ - Updated @splitsoftware/splitio dependency to version 10.15.0, which uses the optimized impressions sending and supports filtering the feature flags to be synced. Learn more in our javascript-client changelog or documentation.
 
 1.2.0 (Jul 7, 2020)
  - Updated @splitsoftware/splitio dependency to version 10.13.0, which uses streaming synchronization by default, amongst other updates. Learn more in our javascript-client changelog or documentation.
@@ -39,7 +97,7 @@
  - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
 
 1.1.0 (May 11, 2020)
- - Bugfixing - incorrect evaluation of splits on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
+ - Bugfixing - incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
  - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 

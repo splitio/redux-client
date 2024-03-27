@@ -1,9 +1,12 @@
 name: ci
 on:
-  push:
-    branches:
-      - '*'
   pull_request:
+    branches:
+      - master
+  pull_request_target:
+    branches:
+      - development
+  push:
     branches:
       - '*'
 
@@ -13,10 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up nodejs
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -28,7 +33,38 @@ jobs:
         run: npm run check
 
       - name: npm Test
-        run: npm run test
+        run: npm run test -- --coverage
 
       - name: npm Build
         run: npm run build
+
+      - name: Set VERSION env
+        run: echo "VERSION=$(cat package.json | jq -r .version)" >> $GITHUB_ENV
+
+      - name: SonarQube Scan (Push)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
+        uses: SonarSource/sonarcloud-github-action@v1.9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+            -Dsonar.projectVersion=${{ env.VERSION }}
+            -Dsonar.branch.name=${{ github.ref_name }}
+
+      - name: SonarQube Scan (Pull Request)
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+        uses: SonarSource/sonarcloud-github-action@v1.9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+            -Dsonar.projectVersion=${{ env.VERSION }}
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+            -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
+            -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}

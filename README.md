@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-redux.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio-redux) [![Build Status](https://github.com/splitio/redux-client/actions/workflows/ci.yml/badge.svg)](https://github.com/splitio/redux-client/actions/workflows/ci.yml)
 
 ## Overview
-This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via a Split feature flag to manage your complete customer experience.
+This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via feature flags to manage your complete customer experience.
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/splitsoftware.svg?style=social&label=Follow&maxAge=1529000)](https://twitter.com/intent/follow?screen_name=splitsoftware)
 
@@ -35,15 +35,15 @@ const store = createStore(
 // Define your config object and dispatch `initSplitSdk` action to init the SDK
 const CONFIG = {
   core: {
-    authorizationKey: 'YOUR_BROWSER_API_KEY',
+    authorizationKey: 'YOUR_SDK_KEY',
     key: 'CUSTOMER_ID'
   }
 };
 store.dispatch(initSplitSdk({ config: CONFIG }))
 
-// Dispach a `getTreatments` action to evaluate one or more splits.
+// Dispach a `getTreatments` action to evaluate one or more feature flags.
 // The evaluation is done asynchronously when the SDK is ready.
-store.dispatch(getTreatments({ splitNames: 'SPLIT_NAME' }))
+store.dispatch(getTreatments({ splitNames: 'FEATURE_FLAG_NAME' }))
 
 // Connect your component to splitio's piece of state
 const MyComponent = connectSplit()(({ splitio }) => {
@@ -52,7 +52,7 @@ const MyComponent = connectSplit()(({ splitio }) => {
     return <div>Loading SDK ...</div>;
 
   // Select a treatment value
-  const treatment = selectTreatmentValue(splitio, 'SPLIT_NAME')
+  const treatment = selectTreatmentValue(splitio, 'FEATURE_FLAG_NAME')
   if (treatment === 'on') {
     // return JSX for 'on' treatment
   } else if (treatment === 'off') {
@@ -92,13 +92,16 @@ Split has built and maintains SDKs for:
 
 * .NET [Github](https://github.com/splitio/dotnet-client) [Docs](https://help.split.io/hc/en-us/articles/360020240172--NET-SDK)
 * Android [Github](https://github.com/splitio/android-client) [Docs](https://help.split.io/hc/en-us/articles/360020343291-Android-SDK)
+* Angular [Github](https://github.com/splitio/angular-sdk-plugin) [Docs](https://help.split.io/hc/en-us/articles/6495326064397-Angular-utilities)
+* Flutter [Github](https://github.com/splitio/flutter-sdk-plugin) [Docs](https://help.split.io/hc/en-us/articles/8096158017165-Flutter-plugin)
 * GO [Github](https://github.com/splitio/go-client) [Docs](https://help.split.io/hc/en-us/articles/360020093652-Go-SDK)
 * iOS [Github](https://github.com/splitio/ios-client) [Docs](https://help.split.io/hc/en-us/articles/360020401491-iOS-SDK)
 * Java [Github](https://github.com/splitio/java-client) [Docs](https://help.split.io/hc/en-us/articles/360020405151-Java-SDK)
-* Javascript [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK)
-* Javascript for Browser [Github](https://github.com/splitio/javascript-browser-client) [Docs](https://help.split.io/hc/en-us/articles/360058730852-Browser-SDK)
+* JavaScript [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK)
+* JavaScript for Browser [Github](https://github.com/splitio/javascript-browser-client) [Docs](https://help.split.io/hc/en-us/articles/360058730852-Browser-SDK)
 * Node [Github](https://github.com/splitio/javascript-client) [Docs](https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK)
 * PHP [Github](https://github.com/splitio/php-client) [Docs](https://help.split.io/hc/en-us/articles/360020350372-PHP-SDK)
+* PHP thin-client [Github](https://github.com/splitio/php-thin-client) [Docs](https://help.split.io/hc/en-us/articles/18305128673933-PHP-Thin-Client-SDK)
 * Python [Github](https://github.com/splitio/python-client) [Docs](https://help.split.io/hc/en-us/articles/360020359652-Python-SDK)
 * React [Github](https://github.com/splitio/react-client) [Docs](https://help.split.io/hc/en-us/articles/360038825091-React-SDK)
 * React Native [Github](https://github.com/splitio/react-native-client) [Docs](https://help.split.io/hc/en-us/articles/4406066357901-React-Native-SDK)

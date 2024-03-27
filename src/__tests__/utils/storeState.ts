@@ -1,5 +1,5 @@
 /** Constants */
-import { ON, OFF, CONTROL } from '../../constants';
+import { ON, OFF } from '../../constants';
 import { ISplitState } from '../../types';
 
 export const SPLIT_1 = 'split_1';

@@ -54,9 +54,15 @@ export function mockSdk() {
           (typeof v === 'number' || typeof v === 'undefined') &&
           (typeof p === 'object' || typeof p === 'undefined');
       });
-      const getTreatmentsWithConfig: jest.Mock = jest.fn((splitNames) => {
-        return splitNames.reduce((acc: SplitIO.TreatmentsWithConfig, splitName: string) => {
-          acc[splitName] = { treatment: 'fakeTreatment', config: null };
+      const getTreatmentsWithConfig: jest.Mock = jest.fn((featureFlagNames) => {
+        return featureFlagNames.reduce((acc: SplitIO.TreatmentsWithConfig, featureFlagName: string) => {
+          acc[featureFlagName] = { treatment: 'fakeTreatment', config: null };
+          return acc;
+        }, {});
+      });
+      const getTreatmentsWithConfigByFlagSets: jest.Mock = jest.fn((flagSets) => {
+        return flagSets.reduce((acc: SplitIO.TreatmentsWithConfig, flagSet: string) => {
+          acc[flagSet + '_feature_flag'] = { treatment: 'fakeTreatment', config: null };
           return acc;
         }, {});
       });
@@ -84,11 +90,12 @@ export function mockSdk() {
       });
       const destroy: jest.Mock = jest.fn(() => {
         __isDestroyed__ = true;
-        return new Promise((res, rej) => { setTimeout(res, 100); });
+        return new Promise((res) => { setTimeout(res, 100); });
       });
 
       return Object.assign(Object.create(__emitter__), {
         getTreatmentsWithConfig,
+        getTreatmentsWithConfigByFlagSets,
         track,
         ready,
         destroy,

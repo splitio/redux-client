@@ -1,4 +1,4 @@
-import reducer from '../reducer';
+import { splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
@@ -19,7 +19,7 @@ const key = 'userkey';
 const treatments: SplitIO.TreatmentsWithConfig = {
   test_split: {
     treatment: 'on',
-    config: '{\"color\": \"green\"}',
+    config: '{"color": "green"}',
   },
 };
 
@@ -34,13 +34,13 @@ const stateWithTreatments: ISplitState = {
 
 describe('Split reducer', () => {
   it('should return the initial state', () => {
-    expect(reducer(undefined, ({} as any))).toEqual(initialState);
+    expect(splitReducer(undefined, ({} as any))).toEqual(initialState);
   });
 
   it('should handle SPLIT_READY', () => {
     const readyAction = splitReady();
     expect(
-      reducer(initialState, readyAction),
+      splitReducer(initialState, readyAction),
     ).toEqual({
       ...initialState,
       isReady: true,
@@ -51,7 +51,7 @@ describe('Split reducer', () => {
   it('should handle SPLIT_READY_FROM_CACHE', () => {
     const readyAction = splitReadyFromCache();
     expect(
-      reducer(initialState, readyAction),
+      splitReducer(initialState, readyAction),
     ).toEqual({
       ...initialState,
       isReadyFromCache: true,
@@ -62,7 +62,7 @@ describe('Split reducer', () => {
   it('should handle SPLIT_TIMEDOUT', () => {
     const timedoutAction = splitTimedout();
     expect(
-      reducer(initialState, timedoutAction),
+      splitReducer(initialState, timedoutAction),
     ).toEqual({
       ...initialState,
       isTimedout: true,
@@ -75,7 +75,7 @@ describe('Split reducer', () => {
     const timedoutAction = splitTimedout();
     const readyAction = splitReady();
     expect(
-      reducer(reducer(initialState, timedoutAction), readyAction),
+      splitReducer(splitReducer(initialState, timedoutAction), readyAction),
     ).toEqual({
       ...initialState,
       isReady: true,
@@ -88,7 +88,7 @@ describe('Split reducer', () => {
   it('should handle SPLIT_UPDATE', () => {
     const updateAction = splitUpdate();
     expect(
-      reducer(initialState, updateAction),
+      splitReducer(initialState, updateAction),
     ).toEqual({
       ...initialState,
       lastUpdate: updateAction.payload.timestamp,
@@ -98,7 +98,7 @@ describe('Split reducer', () => {
   it('should handle SPLIT_DESTROY', () => {
     const destroyAction = splitDestroy();
     expect(
-      reducer(initialState, destroyAction),
+      splitReducer(initialState, destroyAction),
     ).toEqual({
       ...initialState,
       isDestroyed: true,
@@ -119,7 +119,7 @@ describe('Split reducer', () => {
 
     // control assertion - reduced state has the expected shape
     expect(
-      reducer(initialState, action),
+      splitReducer(initialState, action),
     ).toEqual({
       ...initialState,
       isReady,
@@ -136,14 +136,14 @@ describe('Split reducer', () => {
     expect(initialState.treatments).toEqual({}); // control-assert initialState treatments object shouldn't be modified
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should not override a treatment for an existing key and split name, if the treatment is the same', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should not override a treatment for an existing key and feature flag name, if the treatment is the same', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with same value and config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: { ...previousTreatment },
     };
     const action = actionCreator(key, newTreatments);
-    const reduxState = reducer(stateWithTreatments, action);
+    const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was not replaced in the state
     expect(reduxState.treatments.test_split[key]).toBe(previousTreatment);
@@ -164,7 +164,7 @@ describe('Split reducer', () => {
     });
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and split name, if the treatment is different (different treatment value)', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and feature flag name, if the treatment is different (different treatment value)', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with different value but same config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
@@ -174,7 +174,7 @@ describe('Split reducer', () => {
       },
     };
     const action = actionCreator(key, newTreatments);
-    const reduxState = reducer(stateWithTreatments, action);
+    const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
     expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
@@ -194,18 +194,18 @@ describe('Split reducer', () => {
     });
   });
 
-  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and split name, if the treatment is different (different config value)', (_, actionCreator, isReady, isReadyFromCache) => {
+  it.each(actionCreatorsWithEvaluations)('%s should override a treatment for an existing key and feature flag name, if the treatment is different (different config value)', (_, actionCreator, isReady, isReadyFromCache) => {
     // apply an action with a treatment with same value but different config
     const previousTreatment = stateWithTreatments.treatments.test_split[key];
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: {
         treatment: previousTreatment.treatment,
-        config: previousTreatment.config === '{\"color\": \"green\"}' ? null : '{\"color\": \"green\"}',
+        config: previousTreatment.config === '{"color": "green"}' ? null : '{"color": "green"}',
       },
     };
     // const action = addTreatments(key, newTreatments);
     const action = actionCreator(key, newTreatments);
-    const reduxState = reducer(stateWithTreatments, action);
+    const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
     expect(reduxState.treatments.test_split[key]).not.toBe(previousTreatment);
