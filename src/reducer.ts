@@ -73,49 +73,49 @@ export const splitReducer: Reducer<ISplitState> = function (
 ) {
   switch (action.type) {
     case SPLIT_READY:
-      return setReady(state, action.payload.timestamp);
+      return setReady(state, (action as any).payload.timestamp);
 
     case SPLIT_READY_FROM_CACHE:
-      return setReadyFromCache(state, action.payload.timestamp);
+      return setReadyFromCache(state, (action as any).payload.timestamp);
 
     case SPLIT_TIMEDOUT:
       return {
         ...state,
         isTimedout: true,
         hasTimedout: true,
-        lastUpdate: action.payload.timestamp,
+        lastUpdate: (action as any).payload.timestamp,
       };
 
     case SPLIT_UPDATE:
-      return setUpdated(state, action.payload.timestamp);
+      return setUpdated(state, (action as any).payload.timestamp);
 
     case SPLIT_DESTROY:
       return {
         ...state,
         isDestroyed: true,
-        lastUpdate: action.payload.timestamp,
+        lastUpdate: (action as any).payload.timestamp,
       };
 
     case ADD_TREATMENTS: {
-      const { key, treatments } = action.payload;
+      const { key, treatments } = (action as any).payload;
       const result = { ...state };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = action.payload;
+      const { key, treatments, timestamp } = (action as any).payload;
       const result = setReady(state, timestamp);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = action.payload;
+      const { key, treatments, timestamp } = (action as any).payload;
       const result = setReadyFromCache(state, timestamp);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = action.payload;
+      const { key, treatments, timestamp } = (action as any).payload;
       const result = setUpdated(state, timestamp);
       return assignTreatments(result, key, treatments);
     }
