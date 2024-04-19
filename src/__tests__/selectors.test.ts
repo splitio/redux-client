@@ -20,6 +20,9 @@ describe('selectTreatmentValue', () => {
   it('returns the treatment value of the given feature flag name and key', () => {
     /** The treatment value for the USER_1 key for SPLIT_1 is 'off' */
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_2, USER_1)).toBe(OFF);
+    // Using a key object
+    expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_2, { matchingKey: USER_1, bucketingKey: 'some_bucket' })).toBe(OFF); // @ts-expect-error bucketingKey is not in SplitKey type, but it's not used in the selector
+    expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_2, { matchingKey: USER_1 })).toBe(OFF);
   });
 
   it('returns "control" value if the given feature flag name or key are invalid (were not evaluated with getTreatment, or returned "control"', () => {
@@ -46,6 +49,8 @@ describe('selectTreatmentWithConfig', () => {
 
   it('returns the treatment of the given feature flag name and key', () => {
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_2, USER_1)).toBe(STATE_READY.splitio.treatments[SPLIT_2][USER_1]);
+    // Using a key object
+    expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_2, { matchingKey: USER_1, bucketingKey: 'some_bucket' })).toBe(STATE_READY.splitio.treatments[SPLIT_2][USER_1]);
   });
 
   it('returns "control" treatment if the given feature flag name or key are invalid (were not evaluated with getTreatment, or returned "control")', () => {
@@ -54,7 +59,7 @@ describe('selectTreatmentWithConfig', () => {
   });
 
   it('returns the passed default treatment insteaad of "control" if the given feature flag name or key are invalid', () => {
-    const DEFAULT_TREATMENT = {treatment: 'some_value', config: 'some_config'};
+    const DEFAULT_TREATMENT = { treatment: 'some_value', config: 'some_config' };
 
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_1, USER_INVALID, DEFAULT_TREATMENT)).toBe(DEFAULT_TREATMENT);
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_INVALID, USER_1, DEFAULT_TREATMENT)).toBe(DEFAULT_TREATMENT);
