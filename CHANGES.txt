@@ -1,3 +1,6 @@
+1.11.1 (May XX, 2024)
+ - Bugfixing - Fixed error when calling `selectTreatmentValue` and `selectTreatmentWithConfig` selectors with an object as a key, caused by the key being stringified rather than using the `matchingKey` property of the object.
+
 1.11.0 (April 3, 2024)
  - Added `sideEffects: false` property in the package.json file to allow tree shaking.
  - Updated Redux-Thunk peer dependency range to include redux-thunk@3.x.x.
