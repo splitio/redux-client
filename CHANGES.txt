@@ -1,8 +1,8 @@
 1.12.0 (May 8, 2024)
  - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
-    - Added support for targeting rules based on semantic versions (https://semver.org/).
-    - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
-    - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
+      - Added support for targeting rules based on semantic versions (https://semver.org/).
+      - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
+      - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
  - Bugfixing - Fixed error when calling `selectTreatmentValue` and `selectTreatmentWithConfig` selectors with an object as a key, caused by the key being stringified rather than using the `matchingKey` property of the object.
 
 1.11.0 (April 3, 2024)
