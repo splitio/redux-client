@@ -1,5 +1,4 @@
-/** Type for Split reducer's slice of state */
-export interface ISplitState {
+export interface ISplitStatus {
 
   /**
    * isReady indicates if Split SDK is ready, i.e., if it has emitted an SDK_READY event.
@@ -39,6 +38,10 @@ export interface ISplitState {
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
+}
+
+/** Type for Split reducer's slice of state */
+export interface ISplitState extends ISplitStatus {
 
   /**
    * `treatments` is a nested object property that contains the evaluations of feature flags.

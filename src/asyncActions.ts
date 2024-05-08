@@ -206,14 +206,19 @@ interface IClientNotDetached extends SplitIO.IClient {
  * @param key optional user key
  * @returns SDK client with `evalOnUpdate`, `evalOnReady` and `evalOnReadyFromCache` action lists.
  */
-export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
+export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey, doNotCreate?: boolean): IClientNotDetached {
 
   const stringKey = matching(key);
   const isMainClient = !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
   // we cannot simply use `stringKey` to get the client, since the main one could have been created with a bucketing key and/or a traffic type.
-  const client = (isMainClient ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
+  const client = (isMainClient ?
+    splitSdk.factory.client() :
+    doNotCreate ?
+      splitSdk.sharedClients[stringKey] :
+      splitSdk.factory.client(stringKey)
+  ) as IClientNotDetached;
 
-  if (client._trackingStatus) return client;
+  if (!client || client._trackingStatus) return client;
 
   if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
