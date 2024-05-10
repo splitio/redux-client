@@ -1,5 +1,6 @@
 import { ISplitState } from './types';
 import { CONTROL, CONTROL_WITH_CONFIG, DEFAULT_SPLIT_STATE_SLICE, ERROR_SELECTOR_NO_SPLITSTATE } from './constants';
+import { matching } from './utils';
 
 export const getStateSlice = (sliceName: string) => (state: any) => state[sliceName];
 
@@ -30,7 +31,7 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
   const treatment =
     splitTreatments ?
       key ?
-        splitTreatments[key.toString()] :
+        splitTreatments[matching(key)] :
         Object.values(splitTreatments)[0] :
       undefined;
 
