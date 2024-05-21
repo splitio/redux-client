@@ -10,7 +10,8 @@ export const defaultGetSplitState = getStateSlice(DEFAULT_SPLIT_STATE_SLICE);
 
 /**
  * This function extracts a treatment evaluation from the Split state. It returns the treatment string value.
- * If a treatment is not found, for example, due to passing an invalid Split state or a nonexistent feature flag name or key, it returns the default value, which is `'control'` if not provided.
+ * If a treatment is not found, it returns the default value, which is `'control'` if not specified.
+ * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
  * @param {ISplitState} splitState
  * @param {string} featureFlagName
@@ -23,7 +24,8 @@ export function selectTreatmentValue(splitState: ISplitState, featureFlagName: s
 
 /**
  * This function extracts a treatment evaluation from the Split state. It returns a treatment object containing its value and configuration.
- * If a treatment is not found, for example, due to passing an invalid Split state or a nonexistent feature flag name or key, it returns the default value, which is `{ treatment: 'control', configuration: null }` if not provided.
+ * If a treatment is not found, it returns the default value, which is `{ treatment: 'control', configuration: null }` if not specified.
+ * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
  * @param {string} featureFlagName
  * @param {SplitIO.SplitKey} key
@@ -43,7 +45,8 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
 
 /**
  * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment string value and the status properties of the client: `isReady`, `isReadyFromCache`, `hasTimedout`, `isDestroyed`.
- * If a treatment is not found, for example, due to passing an invalid Split state or a nonexistent feature flag name or key, it returns the default value, which is `'control'` if not provided.
+ * If a treatment is not found, it returns the default value, which is `'control'` if not specified.
+ * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
  * @param {ISplitState} splitState
  * @param {string} featureFlagName
@@ -60,7 +63,8 @@ export function selectSplitTreatment(splitState: ISplitState, featureFlagName: s
 
 /**
  * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment object and the status properties of the client: `isReady`, `isReadyFromCache`, `hasTimedout`, `isDestroyed`.
- * If a treatment is not found, for example, due to passing an invalid Split state or a nonexistent feature flag name or key, it returns the default value as treatment, which is `{ treatment: 'control', configuration: null }` if not provided.
+ * If a treatment is not found, it returns the default value as treatment, which is `{ treatment: 'control', configuration: null }` if not specified.
+ * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
  * @param {ISplitState} splitState
  * @param {string} featureFlagName
