@@ -21,7 +21,7 @@ import React from 'react';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import { splitReducer, initSplitSdk, getTreatments,
-  selectTreatmentValue, connectSplit } from '@splitsoftware/splitio-redux'
+  selectSplitTreatment, connectSplit } from '@splitsoftware/splitio-redux'
 
 // Init Redux store
 const store = createStore(
@@ -47,12 +47,12 @@ store.dispatch(getTreatments({ splitNames: 'FEATURE_FLAG_NAME' }))
 
 // Connect your component to splitio's piece of state
 const MyComponent = connectSplit()(({ splitio }) => {
-  // Check SDK readiness using isReady property
-  if (!splitio.isReady)
-    return <div>Loading SDK ...</div>;
-
   // Select a treatment value
-  const treatment = selectTreatmentValue(splitio, 'FEATURE_FLAG_NAME')
+  const { treatment, isReady } = selectSplitTreatment(splitio, 'FEATURE_FLAG_NAME')
+
+  // Check SDK client readiness using isReady property
+  if (!isReady) return <div>Loading SDK ...</div>;
+
   if (treatment === 'on') {
     // return JSX for 'on' treatment
   } else if (treatment === 'off') {
