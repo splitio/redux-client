@@ -1,4 +1,4 @@
-1.13.0 (May XX, 2024)
+1.13.0 (May 23, 2024)
  - Added new `selectSplitTreatment` and `selectSplitTreatmentWithConfig` selectors as a replacement for the now deprecated `selectTreatmentValue` and `selectTreatmentWithConfig` selectors. The new selectors retrieves  more advanced use cases.
  The old selectors will be removed in a future major version.
 
