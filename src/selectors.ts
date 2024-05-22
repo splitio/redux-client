@@ -54,7 +54,7 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
 }
 
 /**
- * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment string value and the status properties of the client: `isReady`, `isReadyFromCache`, `hasTimedout`, `isDestroyed`.
+ * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment string value and the status properties of the client: `isReady`, `isReadyFromCache`, `isTimedout`, `hasTimedout`, `isDestroyed`, and `lastUpdate`.
  * If a treatment is not found, it returns the default value, which is `'control'` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
@@ -72,7 +72,7 @@ export function selectSplitTreatment(splitState: ISplitState, featureFlagName: s
 }
 
 /**
- * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment object and the status properties of the client: `isReady`, `isReadyFromCache`, `hasTimedout`, `isDestroyed`.
+ * This function extracts a treatment evaluation from the Split state. It returns an object that contains the treatment object and the status properties of the client: `isReady`, `isReadyFromCache`, `isTimedout`, `hasTimedout`, `isDestroyed`, and `lastUpdate`.
  * If a treatment is not found, it returns the default value as treatment, which is `{ treatment: 'control', configuration: null }` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *

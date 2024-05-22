@@ -36,9 +36,9 @@ describe('selectTreatmentValue', () => {
   });
 
   it('returns "control" and log error if the given splitState is invalid', () => {
-    const errorSpy = jest.spyOn(console, 'error');
+    const logSpy = jest.spyOn(console, 'log');
     expect(selectTreatmentValue((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL);
-    expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
+    expect(logSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
   });
 });
 
@@ -66,8 +66,8 @@ describe('selectTreatmentWithConfig', () => {
   });
 
   it('returns "control" and log error if the given splitState is invalid', () => {
-    const errorSpy = jest.spyOn(console, 'error');
+    const logSpy = jest.spyOn(console, 'log');
     expect(selectTreatmentWithConfig((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL_WITH_CONFIG);
-    expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
+    expect(logSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
   });
 });
