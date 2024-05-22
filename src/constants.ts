@@ -50,7 +50,9 @@ export const ERROR_TRACK_NO_INITSPLITSDK = '[ERROR] To use "track" the SDK must 
 
 export const ERROR_MANAGER_NO_INITSPLITSDK = '[ERROR] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] When using selectors, "splitState" value must be a proper splitio piece of state';
+export const ERROR_SELECTOR_NO_INITSPLITSDK = '[ERROR] To use selectors, the SDK must be first initialized with an "initSplitSdk" action';
+
+export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] To use selectors, "splitState" param must be a proper splitio piece of state';
 
 export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing a valid splitNames or flagSets properties';
 
