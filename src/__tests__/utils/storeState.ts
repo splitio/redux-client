@@ -9,6 +9,23 @@ export const USER_1 = 'user_1';
 export const USER_2 = 'user_2';
 export const USER_INVALID = 'user_invalid';
 
+export const STATUS_INITIAL = {
+  isReady: false,
+  isReadyFromCache: false,
+  isTimedout: false,
+  hasTimedout: false,
+  isDestroyed: false,
+  lastUpdate: 0,
+}
+
+export const STATE_INITIAL: { splitio: ISplitState } = {
+  splitio: {
+    ...STATUS_INITIAL,
+    treatments: {
+    },
+  },
+};
+
 export const STATE_READY: { splitio: ISplitState } = {
   splitio: {
     isReady: true,
@@ -24,19 +41,6 @@ export const STATE_READY: { splitio: ISplitState } = {
       [SPLIT_2]: {
         [USER_1]: { treatment: OFF, config: null },
       },
-    },
-  },
-};
-
-export const STATE_INITIAL: { splitio: ISplitState } = {
-  splitio: {
-    isReady: false,
-    isReadyFromCache: false,
-    isTimedout: false,
-    hasTimedout: false,
-    isDestroyed: false,
-    lastUpdate: 0,
-    treatments: {
     },
   },
 };
