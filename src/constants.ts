@@ -42,15 +42,17 @@ export const SPLIT_DESTROY = 'SPLIT_DESTROY';
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
 
 // Warning and error messages
-export const ERROR_GETT_NO_INITSPLITSDK = '[ERROR] To use "getTreatments" the SDK must be first initialized with an "initSplitSdk" action';
+const errorNoInitSplitSdk = (action: string) => `[ERROR] To use "${action}" the SDK must be first initialized with an "initSplitSdk" action`;
 
-export const ERROR_DESTROY_NO_INITSPLITSDK = '[ERROR] To use "destroySplitSdk" the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_GETT_NO_INITSPLITSDK = errorNoInitSplitSdk('getTreatments');
 
-export const ERROR_TRACK_NO_INITSPLITSDK = '[ERROR] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_DESTROY_NO_INITSPLITSDK = errorNoInitSplitSdk('destroySplitSdk');
 
-export const ERROR_MANAGER_NO_INITSPLITSDK = '[ERROR] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_TRACK_NO_INITSPLITSDK = errorNoInitSplitSdk('track');
 
-export const ERROR_SELECTOR_NO_INITSPLITSDK = '[ERROR] To use selectors, the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_MANAGER_NO_INITSPLITSDK = errorNoInitSplitSdk('the manager');
+
+export const ERROR_SELECTOR_NO_INITSPLITSDK = errorNoInitSplitSdk('selectors');
 
 export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] To use selectors, "splitState" param must be a proper splitio piece of state';
 
