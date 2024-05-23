@@ -28,29 +28,9 @@ export interface IClientStatus {
   isDestroyed: boolean;
 }
 
-export function getStatus(client: SplitIO.IClient): IClientStatus {
+export function __getStatus(client: SplitIO.IClient): IClientStatus {
   // @ts-expect-error, function exists but it is not part of JS SDK type definitions
   return client.__getStatus();
-}
-
-export function getIsReady(client: SplitIO.IClient): boolean {
-  return getStatus(client).isReady;
-}
-
-export function getIsReadyFromCache(client: SplitIO.IClient): boolean {
-  return getStatus(client).isReadyFromCache;
-}
-
-export function getIsOperational(client: SplitIO.IClient): boolean {
-  return getIsReady(client) || getIsReadyFromCache(client);
-}
-
-export function getHasTimedout(client: SplitIO.IClient): boolean {
-  return getStatus(client).hasTimedout;
-}
-
-export function getIsDestroyed(client: SplitIO.IClient): boolean {
-  return getStatus(client).isDestroyed;
 }
 
 /**
