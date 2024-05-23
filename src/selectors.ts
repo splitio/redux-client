@@ -62,10 +62,10 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
  * @param {SplitIO.SplitKey} key
  * @param {string} defaultValue
  */
-export function selectSplitTreatment(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: string = CONTROL): {
+export function selectTreatmentAndStatus(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: string = CONTROL): {
   treatment: string
 } & IStatus {
-  const result: any = selectSplitTreatmentWithConfig(splitState, featureFlagName, key, { treatment: defaultValue, config: null });
+  const result: any = selectTreatmentWithConfigAndStatus(splitState, featureFlagName, key, { treatment: defaultValue, config: null });
   result.treatment = result.treatment.treatment;
   return result;
 }
@@ -80,7 +80,7 @@ export function selectSplitTreatment(splitState: ISplitState, featureFlagName: s
  * @param {SplitIO.SplitKey} key
  * @param {TreatmentWithConfig} defaultValue
  */
-export function selectSplitTreatmentWithConfig(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): {
+export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): {
   treatment: SplitIO.TreatmentWithConfig
 } & IStatus {
   const treatment = selectTreatmentWithConfig(splitState, featureFlagName, key, defaultValue);

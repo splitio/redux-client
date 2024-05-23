@@ -1,6 +1,7 @@
-1.13.0 (May 23, 2024)
- - Added new `selectSplitTreatment` and `selectSplitTreatmentWithConfig` selectors as an alternative to `selectTreatmentValue` and `selectTreatmentWithConfig` selectors respectively.
- The new selectors retrieve an object with the treatment and the status properties of the client (`isReady`, `isReadyFromCache`, `isTimedout`, `hasTimedout`, `isDestroyed`, and `lastUpdate`) for conditional rendering based on the SDK status.
+1.13.0 (May 24, 2024)
+ - Added a new `getStatus` helper function to retrieve the status properties of the SDK manager and clients: `isReady`, `isReadyFromCache`, `hasTimedout`, and `isDestroyed`.
+ - Added new `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors as alternatives to the `selectTreatmentValue` and `selectTreatmentWithConfig` selectors, respectively.
+   The new selectors retrieve an object with the treatment and the status properties of the client associated with the provided key, allowing conditional rendering based on the SDK status.
 
 1.12.0 (May 10, 2024)
  - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
