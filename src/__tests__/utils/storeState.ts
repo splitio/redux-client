@@ -12,15 +12,15 @@ export const USER_INVALID = 'user_invalid';
 export const STATUS_INITIAL = {
   isReady: false,
   isReadyFromCache: false,
-  isTimedout: false,
   hasTimedout: false,
   isDestroyed: false,
-  lastUpdate: 0,
 }
 
 export const STATE_INITIAL: { splitio: ISplitState } = {
   splitio: {
     ...STATUS_INITIAL,
+    isTimedout: false,
+    lastUpdate: 0,
     treatments: {
     },
   },

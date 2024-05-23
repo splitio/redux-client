@@ -1,8 +1,7 @@
-import { ISplitState, ISplitStatus } from './types';
-import { CONTROL, CONTROL_WITH_CONFIG, DEFAULT_SPLIT_STATE_SLICE, ERROR_SELECTOR_NO_INITSPLITSDK, ERROR_SELECTOR_NO_SPLITSTATE } from './constants';
-import { getClient } from './asyncActions';
-import { splitSdk } from './asyncActions';
-import { getStatus, matching } from './utils';
+import { ISplitState, IStatus } from './types';
+import { CONTROL, CONTROL_WITH_CONFIG, DEFAULT_SPLIT_STATE_SLICE, ERROR_SELECTOR_NO_SPLITSTATE } from './constants';
+import { matching } from './utils';
+import { getStatus } from './helpers';
 
 export const getStateSlice = (sliceName: string) => (state: any) => state[sliceName];
 
@@ -65,7 +64,7 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
  */
 export function selectSplitTreatment(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: string = CONTROL): {
   treatment: string
-} & ISplitStatus {
+} & IStatus {
   const result: any = selectSplitTreatmentWithConfig(splitState, featureFlagName, key, { treatment: defaultValue, config: null });
   result.treatment = result.treatment.treatment;
   return result;
@@ -82,26 +81,14 @@ export function selectSplitTreatment(splitState: ISplitState, featureFlagName: s
  * @param {TreatmentWithConfig} defaultValue
  */
 export function selectSplitTreatmentWithConfig(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): {
-  treatment?: SplitIO.TreatmentWithConfig
-} & ISplitStatus {
+  treatment: SplitIO.TreatmentWithConfig
+} & IStatus {
   const treatment = selectTreatmentWithConfig(splitState, featureFlagName, key, defaultValue);
 
-  const client = splitSdk.factory ? getClient(splitSdk, key, true) : console.log(ERROR_SELECTOR_NO_INITSPLITSDK);
-
-  const status = client ?
-    getStatus(client) :
-    {
-      isReady: false,
-      isReadyFromCache: false,
-      hasTimedout: false,
-      isDestroyed: false,
-    }
+  const status = getStatus(key);
 
   return {
     ...status,
     treatment,
-    isTimedout: status.hasTimedout && !status.isReady,
-    // @TODO using main client lastUpdate for now
-    lastUpdate: client ? splitState.lastUpdate : 0
   };
 }
