@@ -14,7 +14,7 @@ export const STATUS_INITIAL = {
   isReadyFromCache: false,
   hasTimedout: false,
   isDestroyed: false,
-}
+};
 
 export const STATE_INITIAL: { splitio: ISplitState } = {
   splitio: {
