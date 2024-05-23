@@ -1,6 +1,6 @@
 1.13.0 (May 23, 2024)
- - Added new `selectSplitTreatment` and `selectSplitTreatmentWithConfig` selectors as a replacement for the now deprecated `selectTreatmentValue` and `selectTreatmentWithConfig` selectors. The new selectors retrieves  more advanced use cases.
- The old selectors will be removed in a future major version.
+ - Added new `selectSplitTreatment` and `selectSplitTreatmentWithConfig` selectors as an alternative to `selectTreatmentValue` and `selectTreatmentWithConfig` selectors respectively.
+ The new selectors retrieve an object with the treatment and the status properties of the client (`isReady`, `isReadyFromCache`, `isTimedout`, `hasTimedout`, `isDestroyed`, and `lastUpdate`) for conditional rendering based on the SDK status.
 
 1.12.0 (May 10, 2024)
  - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
@@ -80,7 +80,7 @@
       - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
       - Updated streaming logic to use the newest version of our streaming service, including:
             - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
-            - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
+            - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded).
             - New control notification for environment scoped streaming reset.
  - Updated Enzyme and Jest development dependencies to fix vulnerabilities.
 
@@ -108,13 +108,13 @@
  - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
 
 1.1.0 (May 11, 2020)
- - Bugfixing - incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
+ - Bugfixing - Incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments (Related to issue https://github.com/splitio/redux-client/issues/9).
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
  - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 
 1.0.1 (April 6, 2020)
- - Updated dependencies to fix vulnerabilities
- - Bugfixing - support numbers as user keys
+ - Updated dependencies to fix vulnerabilities.
+ - Bugfixing - Support numbers as user keys.
 
 1.0.0 (January 24, 2020)
  - Initial public release!
