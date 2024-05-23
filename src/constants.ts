@@ -60,4 +60,4 @@ export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be calle
 
 export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored';
 
-export const WARN_GETSTATUS_NO_CLIENT = '[Warn] No client was found with the given user key';
+export const WARN_GETSTATUS_NO_CLIENT = '[WARN] No client found for the provided key';

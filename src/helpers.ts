@@ -102,7 +102,10 @@ export function getSplits(): SplitIO.SplitViews {
  */
 export function getStatus(key?: SplitIO.SplitKey): IStatus {
   if (splitSdk.factory) {
-    const client = !splitSdk.isDetached && key ? splitSdk.sharedClients[matching(key)] : splitSdk.factory.client();
+    const stringKey = matching(key);
+    const isMainClient = splitSdk.isDetached || !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
+    const client = isMainClient ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
+
     if (client) {
       return __getStatus(client);
     } else {

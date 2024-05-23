@@ -1,11 +1,12 @@
 /** Mocks */
-import { mockSdk } from './utils/mockNodeSplitSdk';
+import { mockSdk, Event } from './utils/mockNodeSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 
 /** Constants, types, utils */
 import { sdkNodeConfig } from './utils/sdkConfigs';
+import { STATUS_INITIAL } from './utils/storeState';
 import {
   initSplitSdk,
   splitSdk,
@@ -18,6 +19,7 @@ import {
   getSplit,
   getSplits,
   track,
+  getStatus,
 } from '../helpers';
 
 const featureFlagNames: string[] = ['split_1', 'split_2'];
@@ -142,4 +144,24 @@ describe('track', () => {
     expect((splitSdk.factory as any).__client__.track.mock.calls[0][2]).toBe('event');
   });
 
+});
+
+describe('getStatus', () => {
+
+  beforeEach(() => {
+    splitSdk.factory = null;
+  });
+
+  it('should return the default status if the SDK was not initialized', () => {
+    expect(getStatus()).toEqual(STATUS_INITIAL);
+  });
+
+  it('should return the status of the main client', () => {
+    initSplitSdk({ config: sdkNodeConfig });
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+
+    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true };
+    expect(getStatus()).toEqual(MAIN_CLIENT_STATUS);
+    expect(getStatus('ignored_key_in_server_side')).toEqual(MAIN_CLIENT_STATUS);
+  });
 });

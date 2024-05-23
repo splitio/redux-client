@@ -1,16 +1,18 @@
 /** Mocks */
-import { mockSdk } from './utils/mockBrowserSplitSdk';
+import { mockSdk, Event } from './utils/mockBrowserSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
 
 /** Constants, types, utils */
 import { sdkBrowserConfig } from './utils/sdkConfigs';
+import { STATUS_INITIAL } from './utils/storeState';
 import {
+  getTreatments,
   initSplitSdk,
   splitSdk,
 } from '../asyncActions';
-import { ERROR_TRACK_NO_INITSPLITSDK } from '../constants';
+import { ERROR_GETSTATUS_NO_INITSPLITSDK, ERROR_TRACK_NO_INITSPLITSDK, WARN_GETSTATUS_NO_CLIENT } from '../constants';
 
 /** Test targets */
 import {
@@ -18,6 +20,7 @@ import {
   getSplit,
   getSplits,
   track,
+  getStatus,
 } from '../helpers';
 
 const featureFlagNames: string[] = ['split_1', 'split_2'];
@@ -170,4 +173,48 @@ describe('track', () => {
     expect(track({ eventType: 'event', key: 'user1' })).toBe(false);
   });
 
+});
+
+describe('getStatus', () => {
+
+  beforeEach(() => {
+    splitSdk.factory = null;
+  });
+
+  it('should return the default status if the SDK was not initialized', () => {
+    const errorSpy = jest.spyOn(console, 'error');
+
+    expect(getStatus()).toEqual(STATUS_INITIAL);
+    expect(errorSpy).toBeCalledWith(ERROR_GETSTATUS_NO_INITSPLITSDK);
+
+    errorSpy.mockRestore();
+  });
+
+  it('should return the status of the client associated to the provided key', () => {
+    const logSpy = jest.spyOn(console, 'log');
+
+    initSplitSdk({ config: sdkBrowserConfig });
+    getTreatments({ key: 'user_2', splitNames: ['split_1'] });
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
+    (splitSdk.factory as any).client('user_2').__emitter__.emit(Event.SDK_READY_FROM_CACHE);
+
+    // Main client
+    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true };
+    expect(getStatus()).toEqual(MAIN_CLIENT_STATUS);
+    expect(getStatus(sdkBrowserConfig.core.key)).toEqual(MAIN_CLIENT_STATUS);
+    expect(getStatus({ matchingKey: sdkBrowserConfig.core.key as string, bucketingKey: '' })).toEqual(MAIN_CLIENT_STATUS);
+
+    // Client for user_2
+    const USER_2_STATUS = { ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true };
+    expect(getStatus('user_2')).toEqual(USER_2_STATUS);
+    expect(getStatus({ matchingKey: 'user_2', bucketingKey: '' })).toEqual(USER_2_STATUS);
+
+    expect(logSpy).not.toBeCalled();
+
+    // Non-existing client
+    expect(getStatus('non_existing_key')).toEqual(STATUS_INITIAL);
+    expect(logSpy).toBeCalledWith(WARN_GETSTATUS_NO_CLIENT);
+
+    logSpy.mockRestore();
+  });
 });
