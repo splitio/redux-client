@@ -20,7 +20,7 @@ export default function promiseWrapper(customPromise: Promise<any>, defaultOnRej
     const newPromise: Promise<any> = new Promise((res, rej) => {
       return promise.then(
         res,
-        function(value: any) {
+        function (value: any) {
           if (hasOnRejected) {
             rej(value);
           } else {
@@ -32,7 +32,7 @@ export default function promiseWrapper(customPromise: Promise<any>, defaultOnRej
 
     const originalThen = newPromise.then;
 
-    newPromise.then = function(onfulfilled?: any, onrejected?: any) {
+    newPromise.then = function (onfulfilled?: any, onrejected?: any) {
       const result: Promise<any> = originalThen.call(newPromise, onfulfilled, onrejected);
       if (typeof onrejected === 'function') {
         hasOnRejected = true;

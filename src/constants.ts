@@ -15,8 +15,8 @@ export const CONTROL_WITH_CONFIG: SplitIO.TreatmentWithConfig = {
   config: null,
 };
 
-export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.TreatmentsWithConfig => {
-  return splitNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
+export const getControlTreatmentsWithConfig = (featureFlagNames: string[]): SplitIO.TreatmentsWithConfig => {
+  return featureFlagNames.reduce((pValue: SplitIO.TreatmentsWithConfig, cValue: string) => {
     pValue[cValue] = CONTROL_WITH_CONFIG;
     return pValue;
   }, {});
@@ -25,9 +25,15 @@ export const getControlTreatmentsWithConfig = (splitNames: string[]): SplitIO.Tr
 // Action types
 export const SPLIT_READY = 'SPLIT_READY';
 
+export const SPLIT_READY_WITH_EVALUATIONS = 'SPLIT_READY_WITH_EVALUATIONS';
+
 export const SPLIT_READY_FROM_CACHE = 'SPLIT_READY_FROM_CACHE';
 
+export const SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS = 'SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS';
+
 export const SPLIT_UPDATE = 'SPLIT_UPDATE';
+
+export const SPLIT_UPDATE_WITH_EVALUATIONS = 'SPLIT_UPDATE_WITH_EVALUATIONS';
 
 export const SPLIT_TIMEDOUT = 'SPLIT_TIMEDOUT';
 
@@ -36,14 +42,18 @@ export const SPLIT_DESTROY = 'SPLIT_DESTROY';
 export const ADD_TREATMENTS = 'ADD_TREATMENTS';
 
 // Warning and error messages
-export const ERROR_GETT_NO_INITSPLITSDK = '[Error] To use "getTreatments" the SDK must be first initialized with a "initSplitSdk" action';
+export const ERROR_GETT_NO_INITSPLITSDK = '[ERROR] To use "getTreatments" the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_DESTROY_NO_INITSPLITSDK = '[Error] To use "destroySplitSdk" the SDK must be first initialized with a "initSplitSdk" action';
+export const ERROR_DESTROY_NO_INITSPLITSDK = '[ERROR] To use "destroySplitSdk" the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_TRACK_NO_INITSPLITSDK = '[Error] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_TRACK_NO_INITSPLITSDK = '[ERROR] To use "track" the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_MANAGER_NO_INITSPLITSDK = '[Error] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
+export const ERROR_MANAGER_NO_INITSPLITSDK = '[ERROR] To use the manager, the SDK must be first initialized with an "initSplitSdk" action';
 
-export const ERROR_SELECTOR_NO_SPLITSTATE = '[Error] When using selectors, "splitState" value must be a proper splitio piece of state';
+export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] When using selectors, "splitState" value must be a proper splitio piece of state';
+
+export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing a valid splitNames or flagSets properties';
+
+export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored';
 
 export const WARN_GETSTATUS_NO_CLIENT = '[Warn] No client was found with the given user key';

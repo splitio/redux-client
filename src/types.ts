@@ -45,27 +45,15 @@ export interface ISplitState extends IStatus {
   lastUpdate: number;
 
   /**
-   * This property contains the evaluations of Splits.
-   * Each evaluation is associated with an Split name and a key (e.g., user id or organization name).
-   * Thus the property has 3 levels: split name, user key, and finally the treatment that was evaluated for that split and key.
+   * `treatments` is a nested object property that contains the evaluations of feature flags.
+   * Each evaluation (treatment) is associated with a feature flag name and a key (e.g., unique user identifier, such as a user id).
+   * Thus the property has 3 levels: feature flag name, key, and finally the treatment that was evaluated for that specific feature flag and key.
    */
-  treatments: ISplitTreatments;
-}
-
-/**
- * First level of the `treatments` property.
- * It consists of the list of evaluated splits.
- */
-export interface ISplitTreatments {
-  [splitName: string]: IKeyTreatments;
-}
-
-/**
- * Second level of the `treatments` property.
- * It consists of the list of evaluated keys for the container split.
- */
-export interface IKeyTreatments {
-  [key: string]: SplitIO.TreatmentWithConfig;
+  treatments: {
+    [featureFlagName: string]: {
+      [key: string]: SplitIO.TreatmentWithConfig;
+    };
+  };
 }
 
 export type IGetSplitState = (state: any) => ISplitState;
@@ -111,7 +99,7 @@ export interface IInitSplitSdkParams {
 /**
  * Type of the param object passed to `getTreatments` action creator.
  */
-export interface IGetTreatmentsParams {
+export type IGetTreatmentsParams = {
 
   /**
    * user key used to evaluate. It is mandatory for node but optional for browser. If not provided in browser,
@@ -120,25 +108,41 @@ export interface IGetTreatmentsParams {
   key?: SplitIO.SplitKey;
 
   /**
-   * split name or array of split names to evaluate.
-   */
-  splitNames: string[] | string;
-
-  /**
    * optional map of attributes passed to the actual `client.getTreatment*` methods.
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
    */
   attributes?: SplitIO.Attributes;
 
   /**
-   * This param indicates to re-evaluate the splits if the SDK is updated. For example, a `true` value might be
+   * This param indicates to re-evaluate the feature flags if the SDK is updated. For example, a `true` value might be
    * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
    * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
    * you want to keep the treatment unchanged during the sesion of the user.
-   * The param is `false` by default.
+   * @default false
    */
   evalOnUpdate?: boolean;
-}
+
+  /**
+   * This param indicates to evaluate the feature flags if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
+   * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
+   * @default false
+   */
+  evalOnReadyFromCache?: boolean;
+} & ({
+
+  /**
+   * Feature flag name or array of feature flag names to evaluate. Either this or the `flagSets` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  splitNames: string[] | string;
+  flagSets?: undefined;
+} | {
+
+  /**
+   * Feature flag set or array of feature flag sets to evaluate. Either this or the `splitNames` property must be provided. If both are provided, the `flagSets` option is ignored.
+   */
+  flagSets: string[] | string;
+  splitNames?: undefined;
+})
 
 /**
  * Type of the param object passed to `destroySplitSdk` action creator.
