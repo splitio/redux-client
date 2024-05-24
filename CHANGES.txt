@@ -1,3 +1,8 @@
+1.13.0 (May 24, 2024)
+ - Added a new `getStatus` helper function to retrieve the status properties of the SDK manager and clients: `isReady`, `isReadyFromCache`, `hasTimedout`, and `isDestroyed`.
+ - Added new `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors as alternatives to the `selectTreatmentValue` and `selectTreatmentWithConfig` selectors, respectively.
+   The new selectors retrieve an object with the treatment and the status properties of the client associated with the provided key, allowing conditional rendering based on the SDK status.
+
 1.12.0 (May 10, 2024)
  - Updated @splitsoftware/splitio package to version 10.26.0 that includes minor updates:
       - Added support for targeting rules based on semantic versions (https://semver.org/).
@@ -55,7 +60,7 @@
 
 1.6.0 (Jul 7, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.20.0, which includes:
-      - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
+      - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config `sync.enabled`. Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
       - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
       - Updated submitters logic, to avoid duplicating the post of impressions to Split cloud when the SDK is destroyed while its periodic post of impressions is running.
       - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
@@ -76,7 +81,7 @@
       - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
       - Updated streaming logic to use the newest version of our streaming service, including:
             - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
-            - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
+            - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded).
             - New control notification for environment scoped streaming reset.
  - Updated Enzyme and Jest development dependencies to fix vulnerabilities.
 
@@ -104,13 +109,13 @@
  - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
 
 1.1.0 (May 11, 2020)
- - Bugfixing - incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments.
+ - Bugfixing - Incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments (Related to issue https://github.com/splitio/redux-client/issues/9).
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
  - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 
 1.0.1 (April 6, 2020)
- - Updated dependencies to fix vulnerabilities
- - Bugfixing - support numbers as user keys
+ - Updated dependencies to fix vulnerabilities.
+ - Bugfixing - Support numbers as user keys.
 
 1.0.0 (January 24, 2020)
  - Initial public release!

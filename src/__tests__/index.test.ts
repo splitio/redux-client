@@ -10,6 +10,8 @@ import {
   getSplits as exportedGetSplits,
   selectTreatmentValue as exportedSelectTreatmentValue,
   selectTreatmentWithConfig as exportedSelectTreatmentWithConfig,
+  selectTreatmentAndStatus as exportedSelectTreatmentAndStatus,
+  selectTreatmentWithConfigAndStatus as exportedSelectTreatmentWithConfigAndStatus,
   connectSplit as exportedConnectSplit,
   connectToggler as exportedConnectToggler,
   mapTreatmentToProps as exportedMapTreatmentToProps,
@@ -21,7 +23,7 @@ import {
 import { splitReducer } from '../reducer';
 import { initSplitSdk, getTreatments, destroySplitSdk, splitSdk } from '../asyncActions';
 import { track, getSplitNames, getSplit, getSplits } from '../helpers';
-import { selectTreatmentValue, selectTreatmentWithConfig } from '../selectors';
+import { selectTreatmentValue, selectTreatmentWithConfig, selectTreatmentAndStatus, selectTreatmentWithConfigAndStatus } from '../selectors';
 import { connectSplit } from '../react-redux/connectSplit';
 import { connectToggler, mapTreatmentToProps, mapIsFeatureOnToProps } from '../react-redux/connectToggler';
 
@@ -38,6 +40,8 @@ it('index should export modules', () => {
   expect(exportedGetSplits).toBe(getSplits);
   expect(exportedSelectTreatmentValue).toBe(selectTreatmentValue);
   expect(exportedSelectTreatmentWithConfig).toBe(selectTreatmentWithConfig);
+  expect(exportedSelectTreatmentAndStatus).toBe(selectTreatmentAndStatus);
+  expect(exportedSelectTreatmentWithConfigAndStatus).toBe(selectTreatmentWithConfigAndStatus);
   expect(exportedConnectSplit).toBe(connectSplit);
   expect(exportedConnectToggler).toBe(connectToggler);
   expect(exportedMapTreatmentToProps).toBe(mapTreatmentToProps);

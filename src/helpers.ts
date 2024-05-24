@@ -109,7 +109,7 @@ export function getStatus(key?: SplitIO.SplitKey): IStatus {
     if (client) return __getStatus(client);
   }
 
-  // Default status if SDK is not initialized or client is not found
+  // Default status if SDK is not initialized or client is not found. No warning logs for now, in case the helper is used before actions are dispatched
   return {
     isReady: false,
     isReadyFromCache: false,
