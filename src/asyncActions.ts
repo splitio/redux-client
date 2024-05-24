@@ -4,7 +4,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, getStatus, validateGetTreatmentsParams } from './utils';
+import { matching, __getStatus, validateGetTreatmentsParams } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -64,7 +64,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
 
-    const status = getStatus(defaultClient);
+    const status = __getStatus(defaultClient);
 
     if (status.hasTimedout) dispatch(splitTimedout()); // dispatched before `splitReady`, since it overwrites `isTimedout` property
     if (status.isReady) dispatch(splitReady());
@@ -141,7 +141,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       });
     }
 
-    const status = getStatus(client);
+    const status = __getStatus(client);
 
     // If the SDK is not ready, it stores the action to execute when ready
     if (!status.isReady) {

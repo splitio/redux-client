@@ -1,14 +1,15 @@
-/** Type for Split reducer's slice of state */
-export interface ISplitState {
+// @TODO Reuse IStatus and IClientStatus when interfaces are aligned (breaking change)
+/** Type for Split client and manager status */
+export interface IStatus {
 
   /**
-   * isReady indicates if Split SDK is ready, i.e., if it has emitted an SDK_READY event.
+   * isReady indicates if Split client is ready, i.e., if it has emitted an SDK_READY event.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isReady: boolean;
 
   /**
-   * isReadyFromCache indicates if Split SDK has emitted an SDK_READY_FROM_CACHE event, what means that the SDK is ready to
+   * isReadyFromCache indicates if Split client has emitted an SDK_READY_FROM_CACHE event, what means that the SDK is ready to
    * evaluate using LocalStorage cached data (which might be stale).
    * This flag only applies for the Browser if using LOCALSTORAGE as storage type.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
@@ -16,26 +17,30 @@ export interface ISplitState {
   isReadyFromCache: boolean;
 
   /**
-   * isTimedout indicates if the Split SDK has emitted an SDK_READY_TIMED_OUT event and is not ready.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
-   */
-  isTimedout: boolean;
-
-  /**
-   * hasTimedout indicates if the Split SDK has ever emitted an SDK_READY_TIMED_OUT event.
+   * hasTimedout indicates if the Split client has ever emitted an SDK_READY_TIMED_OUT event.
    * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   hasTimedout: boolean;
 
   /**
-   * isDestroyed indicates if the Split SDK has been destroyed by dispatching a `destroySplitSdk` action.
+   * isDestroyed indicates if the Split client has been destroyed by dispatching a `destroySplitSdk` action.
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
    */
   isDestroyed: boolean;
+}
+
+/** Type for Split reducer's slice of state */
+export interface ISplitState extends IStatus {
 
   /**
-   * lastUpdate is the timestamp of the last Split SDK event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
+   * isTimedout indicates if the Split client has emitted an SDK_READY_TIMED_OUT event and is not ready.
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   */
+  isTimedout: boolean;
+
+  /**
+   * lastUpdate is the timestamp of the last Split client event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
