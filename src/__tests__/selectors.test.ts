@@ -35,7 +35,7 @@ describe('selectTreatmentValue', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1, 'some_value')).toBe('some_value');
   });
 
-  it('returns "control" and log error if the given splitState is invalid', () => {
+  it('returns "control" and logs error if the given splitState is invalid', () => {
     const errorSpy = jest.spyOn(console, 'error');
     expect(selectTreatmentValue((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL);
     expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
@@ -58,14 +58,14 @@ describe('selectTreatmentWithConfig', () => {
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_INVALID, USER_1)).toBe(CONTROL_WITH_CONFIG);
   });
 
-  it('returns the passed default treatment insteaad of "control" if the given feature flag name or key are invalid', () => {
+  it('returns the passed default treatment instead of "control" if the given feature flag name or key are invalid', () => {
     const DEFAULT_TREATMENT = { treatment: 'some_value', config: 'some_config' };
 
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_1, USER_INVALID, DEFAULT_TREATMENT)).toBe(DEFAULT_TREATMENT);
     expect(selectTreatmentWithConfig(STATE_READY.splitio, SPLIT_INVALID, USER_1, DEFAULT_TREATMENT)).toBe(DEFAULT_TREATMENT);
   });
 
-  it('returns "control" and log error if the given splitState is invalid', () => {
+  it('returns "control" and logs error if the given splitState is invalid', () => {
     const errorSpy = jest.spyOn(console, 'error');
     expect(selectTreatmentWithConfig((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL_WITH_CONFIG);
     expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
