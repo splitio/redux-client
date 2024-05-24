@@ -32,25 +32,15 @@ export function selectTreatmentValue(splitState: ISplitState, featureFlagName: s
  * @param {SplitIO.TreatmentWithConfig} defaultValue
  */
 export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): SplitIO.TreatmentWithConfig {
-  if (!splitState || !splitState.treatments) {
-    console.error(ERROR_SELECTOR_NO_SPLITSTATE);
-    return defaultValue;
-  }
+  const splitTreatments = splitState && splitState.treatments ? splitState.treatments[featureFlagName] : console.error(ERROR_SELECTOR_NO_SPLITSTATE);
+  const treatment =
+    splitTreatments ?
+      key ?
+        splitTreatments[matching(key)] :
+        Object.values(splitTreatments)[0] :
+      undefined;
 
-  const splitTreatments = splitState.treatments[featureFlagName];
-
-  const treatment = splitTreatments ?
-    key ?
-      splitTreatments[matching(key)] :
-      Object.values(splitTreatments)[0] :
-    undefined;
-
-  if (!treatment) {
-    console.log(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${featureFlagName}" ${key ? `and key "${matching(key)}"` : ''}`);
-    return defaultValue;
-  }
-
-  return treatment;
+  return treatment ? treatment : defaultValue;
 }
 
 /**

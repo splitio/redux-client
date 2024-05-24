@@ -25,20 +25,14 @@ describe('selectTreatmentValue', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_2, { matchingKey: USER_1 })).toBe(OFF);
   });
 
-  it('returns "control" value and logs error if the given feature flag name or key are invalid (were not evaluated with getTreatment action)', () => {
-    const logSpy = jest.spyOn(console, 'log');
+  it('returns "control" value if the given feature flag name or key are invalid (were not evaluated with getTreatment, or returned "control"', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID)).toBe(CONTROL);
-    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1)).toBe(CONTROL);
-    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
   });
 
-  it('returns the passed default treatment value and logs error if the given feature flag name or key are invalid', () => {
-    const logSpy = jest.spyOn(console, 'log');
+  it('returns the passed default treatment value insteaad of "control" if the given feature flag name or key are invalid', () => {
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID, 'some_value')).toBe('some_value');
-    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1, 'some_value')).toBe('some_value');
-    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
   });
 
   it('returns "control" and logs error if the given splitState is invalid', () => {
