@@ -26,13 +26,14 @@ export function selectTreatmentValue(splitState: ISplitState, featureFlagName: s
  * If a treatment is not found, it returns the default value, which is `{ treatment: 'control', configuration: null }` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
+ * @param {ISplitState} splitState
  * @param {string} featureFlagName
  * @param {SplitIO.SplitKey} key
- * @param {TreatmentWithConfig} defaultValue
+ * @param {SplitIO.TreatmentWithConfig} defaultValue
  */
 export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): SplitIO.TreatmentWithConfig {
   if (!splitState || !splitState.treatments) {
-    console.log(ERROR_SELECTOR_NO_SPLITSTATE);
+    console.error(ERROR_SELECTOR_NO_SPLITSTATE);
     return defaultValue;
   }
 
@@ -45,7 +46,7 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
     undefined;
 
   if (!treatment) {
-    console.log(`[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${featureFlagName}" ${key ? `and key "${matching(key)}"` : ''}`);
+    console.log(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${featureFlagName}" ${key ? `and key "${matching(key)}"` : ''}`);
     return defaultValue;
   }
 
@@ -78,7 +79,7 @@ export function selectTreatmentAndStatus(splitState: ISplitState, featureFlagNam
  * @param {ISplitState} splitState
  * @param {string} featureFlagName
  * @param {SplitIO.SplitKey} key
- * @param {TreatmentWithConfig} defaultValue
+ * @param {SplitIO.TreatmentWithConfig} defaultValue
  */
 export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): {
   treatment: SplitIO.TreatmentWithConfig

@@ -28,23 +28,23 @@ describe('selectTreatmentValue', () => {
   it('returns "control" value and logs error if the given feature flag name or key are invalid (were not evaluated with getTreatment action)', () => {
     const logSpy = jest.spyOn(console, 'log');
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID)).toBe(CONTROL);
-    expect(logSpy).toHaveBeenLastCalledWith(`[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
+    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1)).toBe(CONTROL);
-    expect(logSpy).toHaveBeenLastCalledWith(`[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
+    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
   });
 
   it('returns the passed default treatment value and logs error if the given feature flag name or key are invalid', () => {
     const logSpy = jest.spyOn(console, 'log');
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_1, USER_INVALID, 'some_value')).toBe('some_value');
-    expect(logSpy).toHaveBeenLastCalledWith(`[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
+    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_1}" and key "${USER_INVALID}"`);
     expect(selectTreatmentValue(STATE_READY.splitio, SPLIT_INVALID, USER_1, 'some_value')).toBe('some_value');
-    expect(logSpy).toHaveBeenLastCalledWith(`[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
+    expect(logSpy).toHaveBeenLastCalledWith(`[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "${SPLIT_INVALID}" and key "${USER_1}"`);
   });
 
   it('returns "control" and logs error if the given splitState is invalid', () => {
-    const logSpy = jest.spyOn(console, 'log');
+    const errorSpy = jest.spyOn(console, 'error');
     expect(selectTreatmentValue((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL);
-    expect(logSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
+    expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
   });
 });
 
@@ -72,8 +72,8 @@ describe('selectTreatmentWithConfig', () => {
   });
 
   it('returns "control" and logs error if the given splitState is invalid', () => {
-    const logSpy = jest.spyOn(console, 'log');
+    const errorSpy = jest.spyOn(console, 'error');
     expect(selectTreatmentWithConfig((STATE_READY as unknown as ISplitState), SPLIT_1, USER_INVALID)).toBe(CONTROL_WITH_CONFIG);
-    expect(logSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
+    expect(errorSpy).toBeCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
   });
 });

@@ -26,6 +26,7 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
 
   beforeEach(() => {
     logSpy.mockClear();
+    errorSpy.mockClear();
   });
 
   it('if Split SDK was not initialized, logs error and returns default treatment and initial status', () => {
@@ -35,7 +36,7 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
       treatment: DEFAULT_TREATMENT,
       ...STATUS_INITIAL,
     });
-    expect(logSpy).toHaveBeenCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
+    expect(errorSpy).toHaveBeenCalledWith(ERROR_SELECTOR_NO_SPLITSTATE);
 
     expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1, USER_1, 'default_value')).toEqual({
       treatment: 'default_value',
@@ -54,14 +55,14 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
       // status of main client:
       ...STATUS_INITIAL, isReady: true, isOperational: true,
     });
-    expect(logSpy).toHaveBeenCalledWith('[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_1" ');
+    expect(logSpy).toHaveBeenCalledWith('[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_1" ');
 
     expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1, USER_1, 'some_value')).toEqual({
       treatment: 'some_value',
       // USER_1 client has not been initialized yet:
       ...STATUS_INITIAL,
     });
-    expect(logSpy).toHaveBeenCalledWith('[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_1" and key "user_1"');
+    expect(logSpy).toHaveBeenCalledWith('[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_1" and key "user_1"');
 
     store.dispatch<any>(getTreatments({ key: USER_1, splitNames: [SPLIT_2] }));
     (splitSdk.factory as any).client(USER_1).__emitter__.emit(Event.SDK_READY_FROM_CACHE);
@@ -71,10 +72,10 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
       // status of shared client:
       ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true,
     });
-    expect(logSpy).toHaveBeenCalledWith('[ERROR] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_2" and key "user_1"');
+    expect(logSpy).toHaveBeenCalledWith('[WARN] Treatment not found by selector. Check you have dispatched a "getTreatments" action for the feature flag "split_2" and key "user_1"');
   });
 
-  it('happy path: returns the treatment value and status of the client', async () => {
+  it('happy path: returns the treatment value and status of the client', () => {
     // The following actions result in STATE_READY state:
     const store = mockStore();
     store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
@@ -96,6 +97,7 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
     });
 
     expect(logSpy).not.toHaveBeenCalled();
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 
 });
