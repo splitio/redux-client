@@ -34,13 +34,13 @@ export interface IStatus {
 export interface ISplitState extends IStatus {
 
   /**
-   * isTimedout indicates if the Split main client has emitted an SDK_READY_TIMED_OUT event and is not ready.
+   * isTimedout indicates if the Split client has emitted an SDK_READY_TIMED_OUT event and is not ready.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
    */
   isTimedout: boolean;
 
   /**
-   * lastUpdate is the timestamp of the last Split main client event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
+   * lastUpdate is the timestamp of the last Split client event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
