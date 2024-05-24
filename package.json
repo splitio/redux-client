@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-redux",
-  "version": "1.12.1-rc.0",
+  "version": "1.12.1-rc.1",
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
   "main": "lib/index.js",
   "module": "es/index.js",
