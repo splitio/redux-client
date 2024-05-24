@@ -1,6 +1,6 @@
 import { splitSdk, getClient } from './asyncActions';
 import { IStatus, ITrackParams } from './types';
-import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK, ERROR_GETSTATUS_NO_INITSPLITSDK, WARN_GETSTATUS_NO_CLIENT } from './constants';
+import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
 import { __getStatus, matching } from './utils';
 
 /**
@@ -106,13 +106,7 @@ export function getStatus(key?: SplitIO.SplitKey): IStatus {
     const isMainClient = splitSdk.isDetached || !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
     const client = isMainClient ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
 
-    if (client) {
-      return __getStatus(client);
-    } else {
-      console.log(WARN_GETSTATUS_NO_CLIENT);
-    }
-  } else {
-    console.error(ERROR_GETSTATUS_NO_INITSPLITSDK);
+    if (client) return __getStatus(client);
   }
 
   // Default status if SDK is not initialized or client is not found
