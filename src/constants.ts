@@ -52,12 +52,8 @@ export const ERROR_TRACK_NO_INITSPLITSDK = errorNoInitSplitSdk('"track"');
 
 export const ERROR_MANAGER_NO_INITSPLITSDK = errorNoInitSplitSdk('the manager');
 
-export const ERROR_GETSTATUS_NO_INITSPLITSDK = errorNoInitSplitSdk('"getStatus"');
-
 export const ERROR_SELECTOR_NO_SPLITSTATE = '[ERROR] To use selectors, "splitState" param must be a proper splitio piece of state';
 
 export const ERROR_GETT_NO_PARAM_OBJECT = '[ERROR] "getTreatments" must be called with a param object containing a valid splitNames or flagSets properties';
 
 export const WARN_FEATUREFLAGS_AND_FLAGSETS = '[WARN]  Both splitNames and flagSets properties were provided. flagSets will be ignored';
-
-export const WARN_GETSTATUS_NO_CLIENT = '[WARN] No client found for the provided key';

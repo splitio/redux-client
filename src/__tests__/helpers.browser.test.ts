@@ -12,7 +12,7 @@ import {
   initSplitSdk,
   splitSdk,
 } from '../asyncActions';
-import { ERROR_GETSTATUS_NO_INITSPLITSDK, ERROR_TRACK_NO_INITSPLITSDK, WARN_GETSTATUS_NO_CLIENT } from '../constants';
+import { ERROR_TRACK_NO_INITSPLITSDK } from '../constants';
 
 /** Test targets */
 import {
@@ -182,17 +182,10 @@ describe('getStatus', () => {
   });
 
   it('should return the default status if the SDK was not initialized', () => {
-    const errorSpy = jest.spyOn(console, 'error');
-
     expect(getStatus()).toEqual(STATUS_INITIAL);
-    expect(errorSpy).toBeCalledWith(ERROR_GETSTATUS_NO_INITSPLITSDK);
-
-    errorSpy.mockRestore();
   });
 
   it('should return the status of the client associated to the provided key', () => {
-    const logSpy = jest.spyOn(console, 'log');
-
     initSplitSdk({ config: sdkBrowserConfig });
     getTreatments({ key: 'user_2', splitNames: ['split_1'] });
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
@@ -209,12 +202,7 @@ describe('getStatus', () => {
     expect(getStatus('user_2')).toEqual(USER_2_STATUS);
     expect(getStatus({ matchingKey: 'user_2', bucketingKey: '' })).toEqual(USER_2_STATUS);
 
-    expect(logSpy).not.toBeCalled();
-
     // Non-existing client
     expect(getStatus('non_existing_key')).toEqual(STATUS_INITIAL);
-    expect(logSpy).toBeCalledWith(WARN_GETSTATUS_NO_CLIENT);
-
-    logSpy.mockRestore();
   });
 });
