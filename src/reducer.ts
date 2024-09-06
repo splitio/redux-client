@@ -20,49 +20,62 @@ export const initialStatus = {
 const initialState: ISplitState = {
   ...initialStatus,
   treatments: {},
+  status: {},
 };
 
-function setStatus(state: ISplitState, patch: Partial<IStatus>) {
-  return {
+function setStatus(state: ISplitState, patch: Partial<IStatus>, key?: string) {
+  return key ? {
+    ...state,
+    status: {
+      ...state.status,
+      [key]: state.status[key] ? {
+        ...state.status[key],
+        ...patch,
+      } : {
+        ...initialStatus,
+        ...patch,
+      }
+    },
+  } : {
     ...state,
     ...patch,
   };
 }
 
-function setReady(state: ISplitState, timestamp: number) {
+function setReady(state: ISplitState, timestamp: number, key?: string) {
   return setStatus(state, {
     isReady: true,
     isTimedout: false,
     lastUpdate: timestamp,
-  });
+  }, key);
 }
 
-function setReadyFromCache(state: ISplitState, timestamp: number) {
+function setReadyFromCache(state: ISplitState, timestamp: number, key?: string) {
   return setStatus(state, {
     isReadyFromCache: true,
     lastUpdate: timestamp,
-  });
+  }, key);
 }
 
-function setTimedout(state: ISplitState, timestamp: number) {
+function setTimedout(state: ISplitState, timestamp: number, key?: string) {
   return setStatus(state, {
     isTimedout: true,
     hasTimedout: true,
     lastUpdate: timestamp,
-  });
+  }, key);
 }
 
-function setUpdated(state: ISplitState, timestamp: number) {
+function setUpdated(state: ISplitState, timestamp: number, key?: string) {
   return setStatus(state, {
     lastUpdate: timestamp,
-  });
+  }, key);
 }
 
-function setDestroyed(state: ISplitState, timestamp: number) {
+function setDestroyed(state: ISplitState, timestamp: number, key?: string) {
   return setStatus(state, {
     isDestroyed: true,
     lastUpdate: timestamp,
-  });
+  }, key);
 }
 
 /**
@@ -98,19 +111,19 @@ export const splitReducer: Reducer<ISplitState> = function (
 
   switch (type) {
     case SPLIT_READY:
-      return setReady(state, timestamp);
+      return setReady(state, timestamp, key);
 
     case SPLIT_READY_FROM_CACHE:
-      return setReadyFromCache(state, timestamp);
+      return setReadyFromCache(state, timestamp, key);
 
     case SPLIT_TIMEDOUT:
-      return setTimedout(state, timestamp);
+      return setTimedout(state, timestamp, key);
 
     case SPLIT_UPDATE:
-      return setUpdated(state, timestamp);
+      return setUpdated(state, timestamp, key);
 
     case SPLIT_DESTROY:
-      return setDestroyed(state, timestamp);
+      return setDestroyed(state, timestamp, key);
 
     case ADD_TREATMENTS: {
       const result = { ...state };
@@ -118,17 +131,17 @@ export const splitReducer: Reducer<ISplitState> = function (
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
-      const result = setReady(state, timestamp);
+      const result = setReady(state, timestamp, key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
-      const result = setReadyFromCache(state, timestamp);
+      const result = setReadyFromCache(state, timestamp, key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
-      const result = setUpdated(state, timestamp);
+      const result = setUpdated(state, timestamp, key);
       return assignTreatments(result, key, treatments);
     }
 

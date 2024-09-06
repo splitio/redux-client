@@ -55,6 +55,12 @@ export interface ISplitState extends IStatus {
       [key: string]: SplitIO.TreatmentWithConfig;
     };
   };
+  /**
+   * `status` is a nested object property that contains the readiness status of the non-default clients.
+   */
+  status: {
+    [key: string]: IStatus;
+  };
 }
 
 export type IGetSplitState = (state: any) => ISplitState;

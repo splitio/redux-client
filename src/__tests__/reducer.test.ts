@@ -1,4 +1,4 @@
-import { splitReducer } from '../reducer';
+import { initialStatus, splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
@@ -12,6 +12,7 @@ const initialState: ISplitState = {
   isDestroyed: false,
   lastUpdate: 0,
   treatments: {},
+  status: {}
 };
 
 const key = 'userkey';
@@ -122,14 +123,19 @@ describe('Split reducer', () => {
       splitReducer(initialState, action),
     ).toEqual({
       ...initialState,
-      isReady,
-      isReadyFromCache,
-      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: treatments.test_split,
         },
       },
+      status: action.type === 'ADD_TREATMENTS' ? {} : {
+        [key]: {
+          ...initialStatus,
+          isReady,
+          isReadyFromCache,
+          lastUpdate: 1000,
+        }
+      }
     });
 
     expect(initialState.treatments).toBe(initialTreatments); // control-assert initialState treatments object shouldn't be replaced
@@ -153,14 +159,19 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
-      isReady,
-      isReadyFromCache,
-      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
+      status: action.type === 'ADD_TREATMENTS' ? {} : {
+        [key]: {
+          ...initialStatus,
+          isReady,
+          isReadyFromCache,
+          lastUpdate: 1000,
+        }
+      }
     });
   });
 
@@ -183,14 +194,19 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
-      isReady,
-      isReadyFromCache,
-      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
+      status: action.type === 'ADD_TREATMENTS' ? {} : {
+        [key]: {
+          ...initialStatus,
+          isReady,
+          isReadyFromCache,
+          lastUpdate: 1000,
+        }
+      }
     });
   });
 
@@ -214,14 +230,19 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
-      isReady,
-      isReadyFromCache,
-      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
+      status: action.type === 'ADD_TREATMENTS' ? {} : {
+        [key]: {
+          ...initialStatus,
+          isReady,
+          isReadyFromCache,
+          lastUpdate: 1000,
+        }
+      }
     });
   });
 
