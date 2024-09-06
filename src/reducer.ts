@@ -5,16 +5,20 @@ import {
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
 } from './constants';
 
-/**
- * Initial default state for Split reducer
- */
-const initialState: ISplitState = {
+export const initialStatus = {
   isReady: false,
   isReadyFromCache: false,
   isTimedout: false,
   hasTimedout: false,
   isDestroyed: false,
   lastUpdate: 0,
+}
+
+/**
+ * Initial default state for Split reducer
+ */
+const initialState: ISplitState = {
+  ...initialStatus,
   treatments: {},
 };
 

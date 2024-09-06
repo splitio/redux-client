@@ -23,9 +23,11 @@ export function matching(key: SplitIO.SplitKey): string {
 export interface IClientStatus {
   isReady: boolean;
   isReadyFromCache: boolean;
-  isOperational: boolean;
+  isTimedout: boolean;
   hasTimedout: boolean;
   isDestroyed: boolean;
+  isOperational: boolean;
+  lastUpdate: number;
 }
 
 export function __getStatus(client: SplitIO.IClient): IClientStatus {

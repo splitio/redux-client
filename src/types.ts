@@ -17,6 +17,13 @@ export interface IStatus {
   isReadyFromCache: boolean;
 
   /**
+   * isTimedout indicates if the Split client has emitted an SDK_READY_TIMED_OUT event and is not ready.
+   * In other words, `isTimedout` is equivalent to `hasTimeout && !isReady`.
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
+   */
+  isTimedout: boolean;
+
+  /**
    * hasTimedout indicates if the Split client has ever emitted an SDK_READY_TIMED_OUT event.
    * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
@@ -28,23 +35,16 @@ export interface IStatus {
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
    */
   isDestroyed: boolean;
-}
-
-/** Type for Split reducer's slice of state */
-export interface ISplitState extends IStatus {
-
-  /**
-   * isTimedout indicates if the Split client has emitted an SDK_READY_TIMED_OUT event and is not ready.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#advanced-subscribe-to-events-and-changes}
-   */
-  isTimedout: boolean;
 
   /**
    * lastUpdate is the timestamp of the last Split client event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
    * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#advanced-subscribe-to-events-and-changes}
    */
   lastUpdate: number;
+}
 
+/** Type for Split reducer's slice of state */
+export interface ISplitState extends IStatus {
   /**
    * `treatments` is a nested object property that contains the evaluations of feature flags.
    * Each evaluation (treatment) is associated with a feature flag name and a key (e.g., unique user identifier, such as a user id).

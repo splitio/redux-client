@@ -52,7 +52,7 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
     expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1)).toEqual({
       treatment: CONTROL,
       // status of main client:
-      ...STATUS_INITIAL, isReady: true, isOperational: true,
+      ...STATUS_INITIAL, isReady: true, isOperational: true, lastUpdate: (splitSdk.factory.client() as any).__getStatus().lastUpdate,
     });
 
     expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1, USER_1, 'some_value')).toEqual({
@@ -67,7 +67,7 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
     expect(selectTreatmentWithConfigAndStatus(STATE_INITIAL.splitio, SPLIT_2, USER_1)).toEqual({
       treatment: CONTROL_WITH_CONFIG,
       // status of shared client:
-      ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true,
+      ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true,  lastUpdate: (splitSdk.factory.client(USER_1) as any).__getStatus().lastUpdate,
     });
 
     expect(errorSpy).not.toHaveBeenCalled();
@@ -85,13 +85,13 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
     expect(selectTreatmentAndStatus(STATE_READY.splitio, SPLIT_1)).toEqual({
       treatment: ON,
       ...STATUS_INITIAL,
-      isReady: true, isOperational: true,
+      isReady: true, isOperational: true, lastUpdate: (splitSdk.factory.client() as any).__getStatus().lastUpdate
     });
 
     expect(selectTreatmentWithConfigAndStatus(STATE_READY.splitio, SPLIT_2, USER_1)).toEqual({
       treatment: STATE_READY.splitio.treatments[SPLIT_2][USER_1],
       ...STATUS_INITIAL,
-      isReadyFromCache: true, isOperational: true,
+      isReadyFromCache: true, isOperational: true, lastUpdate: (splitSdk.factory.client(USER_1) as any).__getStatus().lastUpdate
     });
 
     expect(errorSpy).not.toHaveBeenCalled();

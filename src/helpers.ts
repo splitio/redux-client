@@ -2,6 +2,7 @@ import { splitSdk, getClient } from './asyncActions';
 import { IStatus, ITrackParams } from './types';
 import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
 import { __getStatus, matching } from './utils';
+import { initialStatus } from './reducer';
 
 /**
  * This function track events, i.e., it invokes the actual `client.track*` methods.
@@ -110,10 +111,5 @@ export function getStatus(key?: SplitIO.SplitKey): IStatus {
   }
 
   // Default status if SDK is not initialized or client is not found. No warning logs for now, in case the helper is used before actions are dispatched
-  return {
-    isReady: false,
-    isReadyFromCache: false,
-    hasTimedout: false,
-    isDestroyed: false,
-  };
+  return { ...initialStatus };
 }

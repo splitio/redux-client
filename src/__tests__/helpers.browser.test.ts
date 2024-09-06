@@ -192,13 +192,13 @@ describe('getStatus', () => {
     (splitSdk.factory as any).client('user_2').__emitter__.emit(Event.SDK_READY_FROM_CACHE);
 
     // Main client
-    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true };
+    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true, lastUpdate: (splitSdk.factory.client() as any).__getStatus().lastUpdate };
     expect(getStatus()).toEqual(MAIN_CLIENT_STATUS);
     expect(getStatus(sdkBrowserConfig.core.key)).toEqual(MAIN_CLIENT_STATUS);
     expect(getStatus({ matchingKey: sdkBrowserConfig.core.key as string, bucketingKey: '' })).toEqual(MAIN_CLIENT_STATUS);
 
     // Client for user_2
-    const USER_2_STATUS = { ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true };
+    const USER_2_STATUS = { ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true, lastUpdate: (splitSdk.factory.client('user_2') as any).__getStatus().lastUpdate };
     expect(getStatus('user_2')).toEqual(USER_2_STATUS);
     expect(getStatus({ matchingKey: 'user_2', bucketingKey: '' })).toEqual(USER_2_STATUS);
 

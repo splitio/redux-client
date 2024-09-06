@@ -160,7 +160,7 @@ describe('getStatus', () => {
     initSplitSdk({ config: sdkNodeConfig });
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 
-    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true };
+    const MAIN_CLIENT_STATUS = { ...STATUS_INITIAL, isReady: true, isOperational: true, lastUpdate: (splitSdk.factory.client() as any).__getStatus().lastUpdate };
     expect(getStatus()).toEqual(MAIN_CLIENT_STATUS);
     expect(getStatus('ignored_key_in_server_side')).toEqual(MAIN_CLIENT_STATUS);
   });
