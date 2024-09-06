@@ -11,8 +11,8 @@ export function isObject(obj: unknown) {
 /**
  * Verify type of key and return either its matchingKey or itself
  */
-export function matching(key: SplitIO.SplitKey): string {
-  return isObject(key) ? (key as SplitIO.SplitKeyObject).matchingKey : (key as string);
+export function matching(key?: SplitIO.SplitKey): string | undefined {
+  return isObject(key) ? (key as SplitIO.SplitKeyObject).matchingKey : (key as string | undefined);
 }
 
 // The following utils might be removed in the future, if the JS SDK extends its public API with a "getStatus" method

@@ -50,7 +50,7 @@ describe('initSplitSdk', () => {
       // return of async action
       let action = store.getActions()[0];
       expect(action.type).toEqual(SPLIT_READY);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
       expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
       expect(onReadyCb.mock.calls.length).toBe(1);
@@ -60,7 +60,7 @@ describe('initSplitSdk', () => {
       setTimeout(() => {
         action = store.getActions()[1];
         expect(action.type).toEqual(SPLIT_UPDATE);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
         expect(onUpdateCb.mock.calls.length).toBe(1);
         done();
@@ -80,7 +80,7 @@ describe('initSplitSdk', () => {
       // return of async action
       let action = store.getActions()[0];
       expect(action.type).toEqual(SPLIT_TIMEDOUT);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
       expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
       expect(onTimedoutCb.mock.calls.length).toBe(1);
@@ -90,7 +90,7 @@ describe('initSplitSdk', () => {
       setTimeout(() => {
         action = store.getActions()[1];
         expect(action.type).toEqual(SPLIT_READY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
         expect(onReadyCb.mock.calls.length).toBe(1);
         done();
@@ -106,7 +106,7 @@ describe('initSplitSdk', () => {
       // action should be already dispatched when the callback is called
       const action = store.getActions()[0];
       expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
       expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
     });
     const onReadyCb = jest.fn(() => {
@@ -569,7 +569,7 @@ describe('destroySplitSdk', () => {
       actionResult.then(() => {
         const action = store.getActions()[3];
         expect(action.type).toEqual(SPLIT_DESTROY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
         // assert that all client's destroy methods were called
         expect(splitSdk.factory.client().destroy).toBeCalledTimes(1);

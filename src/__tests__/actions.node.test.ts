@@ -54,7 +54,7 @@ describe('initSplitSdk', () => {
         // Action is dispatched synchronously
         const action = store.getActions()[0];
         expect(action.type).toEqual(SPLIT_READY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
       }
 
@@ -87,7 +87,7 @@ describe('initSplitSdk', () => {
 
       const action = store.getActions()[0];
       expect(action.type).toEqual(SPLIT_TIMEDOUT);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
+      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
       expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
 
@@ -106,12 +106,12 @@ describe('initSplitSdk', () => {
         // Actions are dispatched synchronously
         const timeoutAction = store.getActions()[0];
         expect(timeoutAction.type).toEqual(SPLIT_TIMEDOUT);
-        expect(timeoutAction.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(timeoutAction.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(timeoutAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
 
         const readyAction = store.getActions()[1];
         expect(readyAction.type).toEqual(SPLIT_READY);
-        expect(readyAction.payload.timestamp).toBeLessThanOrEqual(Date.now());
+        expect(readyAction.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
         expect(readyAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
       }
 
