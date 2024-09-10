@@ -183,8 +183,13 @@ describe('getTreatments', () => {
 
         const actions = [store.getActions()[1], store.getActions()[2]]; // action 0 is SPLIT_READY
         actions.forEach(action => {
-          expect(action.type).toBe(ADD_TREATMENTS);
-          expect(action.payload.key).toBe(splitKey);
+          expect(action).toEqual({
+            type: ADD_TREATMENTS,
+            payload: {
+              key: splitKey,
+              treatments: expect.any(Object)
+            }
+          });
         });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[0].payload.treatments);
@@ -197,8 +202,13 @@ describe('getTreatments', () => {
         store.dispatch<any>(getTreatments({ key: 'other_user', splitNames: featureFlagNames, attributes }));
 
         const action = store.getActions()[3];
-        expect(action.type).toBe(ADD_TREATMENTS);
-        expect(action.payload.key).toBe('other_user');
+        expect(action).toEqual({
+          type: ADD_TREATMENTS,
+          payload: {
+            key: 'other_user',
+            treatments: expect.any(Object)
+          }
+        });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
@@ -253,9 +263,19 @@ describe('destroySplitSdk', () => {
         newStoreAfterDestroy.dispatch<any>(initSplitSdkAction);
 
         let action = newStoreAfterDestroy.getActions()[0];
-        expect(action.type).toEqual(SPLIT_READY);
+        expect(action).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.any(Number),
+          }
+        });
         action = newStoreAfterDestroy.getActions()[1];
-        expect(action.type).toEqual(SPLIT_DESTROY);
+        expect(action).toEqual({
+          type: SPLIT_DESTROY,
+          payload: {
+            timestamp: expect.any(Number),
+          }
+        });
 
         done();
       }
