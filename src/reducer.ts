@@ -20,7 +20,6 @@ export const initialStatus = {
 const initialState: ISplitState = {
   ...initialStatus,
   treatments: {},
-  status: {},
 };
 
 function setStatus(state: ISplitState, patch: Partial<IStatus>, key?: string) {
@@ -28,7 +27,7 @@ function setStatus(state: ISplitState, patch: Partial<IStatus>, key?: string) {
     ...state,
     status: {
       ...state.status,
-      [key]: state.status[key] ? {
+      [key]: state.status && state.status[key] ? {
         ...state.status[key],
         ...patch,
       } : {

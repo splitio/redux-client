@@ -12,7 +12,6 @@ const initialState: ISplitState = {
   isDestroyed: false,
   lastUpdate: 0,
   treatments: {},
-  status: {}
 };
 
 const key = 'userkey';
@@ -128,7 +127,7 @@ describe('Split reducer', () => {
           [key]: treatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? {} : {
+      status: action.type === 'ADD_TREATMENTS' ? undefined : {
         [key]: {
           ...initialStatus,
           isReady,
@@ -164,7 +163,7 @@ describe('Split reducer', () => {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? {} : {
+      status: action.type === 'ADD_TREATMENTS' ? undefined : {
         [key]: {
           ...initialStatus,
           isReady,
@@ -199,7 +198,7 @@ describe('Split reducer', () => {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? {} : {
+      status: action.type === 'ADD_TREATMENTS' ? undefined : {
         [key]: {
           ...initialStatus,
           isReady,
@@ -235,7 +234,7 @@ describe('Split reducer', () => {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? {} : {
+      status: action.type === 'ADD_TREATMENTS' ? undefined : {
         [key]: {
           ...initialStatus,
           isReady,

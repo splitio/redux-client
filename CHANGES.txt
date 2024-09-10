@@ -1,4 +1,5 @@
 1.14.0 (September XX, 2024)
+ - Added `status` property to Split reducer's slice of state to track the readiness state of non-default clients (Related to https://github.com/splitio/redux-client/issues/113).
  - Added `lastUpdate` and `isTimedout` properties to the object returned by the `getStatus` helper and `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors, to expose the last event timestamp and the timedout status of the SDK clients (Related to https://github.com/splitio/redux-client/issues/113).
  - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
       - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.

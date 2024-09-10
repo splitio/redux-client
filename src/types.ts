@@ -58,7 +58,7 @@ export interface ISplitState extends IStatus {
   /**
    * `status` is a nested object property that contains the readiness status of the non-default clients.
    */
-  status: {
+  status?: {
     [key: string]: IStatus;
   };
 }
