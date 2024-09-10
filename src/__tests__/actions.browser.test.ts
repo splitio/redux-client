@@ -49,9 +49,12 @@ describe('initSplitSdk', () => {
     actionResult.then(() => {
       // return of async action
       let action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_READY);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+      expect(action).toEqual({
+        type: SPLIT_READY,
+        payload: {
+          timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+        }
+      });
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
       expect(onReadyCb.mock.calls.length).toBe(1);
 
@@ -59,9 +62,12 @@ describe('initSplitSdk', () => {
       (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_UPDATE);
       setTimeout(() => {
         action = store.getActions()[1];
-        expect(action.type).toEqual(SPLIT_UPDATE);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(action).toEqual({
+          type: SPLIT_UPDATE,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+          }
+        });
         expect(onUpdateCb.mock.calls.length).toBe(1);
         done();
       }, 0);
@@ -79,9 +85,12 @@ describe('initSplitSdk', () => {
     actionResult.catch(() => {
       // return of async action
       let action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_TIMEDOUT);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+      expect(action).toEqual({
+        type: SPLIT_TIMEDOUT,
+        payload: {
+          timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+        }
+      });
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
       expect(onTimedoutCb.mock.calls.length).toBe(1);
 
@@ -89,9 +98,12 @@ describe('initSplitSdk', () => {
       (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
       setTimeout(() => {
         action = store.getActions()[1];
-        expect(action.type).toEqual(SPLIT_READY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(action).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+          }
+        });
         expect(onReadyCb.mock.calls.length).toBe(1);
         done();
       }, 0);
@@ -105,9 +117,12 @@ describe('initSplitSdk', () => {
     const onReadyFromCacheCb = jest.fn(() => {
       // action should be already dispatched when the callback is called
       const action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_READY_FROM_CACHE);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+      expect(action).toEqual({
+        type: SPLIT_READY_FROM_CACHE,
+        payload: {
+          timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+        }
+      });
     });
     const onReadyCb = jest.fn(() => {
       const action = store.getActions()[1];
@@ -570,9 +585,12 @@ describe('destroySplitSdk', () => {
 
       actionResult.then(() => {
         const action = store.getActions()[3];
-        expect(action.type).toEqual(SPLIT_DESTROY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(action).toEqual({
+          type: SPLIT_DESTROY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1),
+          }
+        });
         // assert that all client's destroy methods were called
         expect(splitSdk.factory.client().destroy).toBeCalledTimes(1);
         expect(splitSdk.factory.client('other-user-key').destroy).toBeCalledTimes(1);

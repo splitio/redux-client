@@ -16,5 +16,8 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/__tests__/**',
-  ]
+  ],
+
+  // Custom jest matcher
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/utils/toBeWithinRange.ts'],
 };
