@@ -38,42 +38,42 @@ describe('Split reducer', () => {
   });
 
   it('should handle SPLIT_READY', () => {
-    const readyAction = splitReady();
+    const readyAction = splitReady(100);
     expect(
       splitReducer(initialState, readyAction),
     ).toEqual({
       ...initialState,
       isReady: true,
-      lastUpdate: readyAction.payload.timestamp,
+      lastUpdate: 100,
     });
   });
 
   it('should handle SPLIT_READY_FROM_CACHE', () => {
-    const readyAction = splitReadyFromCache();
+    const readyAction = splitReadyFromCache(200);
     expect(
       splitReducer(initialState, readyAction),
     ).toEqual({
       ...initialState,
       isReadyFromCache: true,
-      lastUpdate: readyAction.payload.timestamp,
+      lastUpdate: 200,
     });
   });
 
   it('should handle SPLIT_TIMEDOUT', () => {
-    const timedoutAction = splitTimedout();
+    const timedoutAction = splitTimedout(300);
     expect(
       splitReducer(initialState, timedoutAction),
     ).toEqual({
       ...initialState,
       isTimedout: true,
       hasTimedout: true,
-      lastUpdate: timedoutAction.payload.timestamp,
+      lastUpdate: 300,
     });
   });
 
   it('should handle SPLIT_READY after SPLIT_TIMEDOUT', () => {
-    const timedoutAction = splitTimedout();
-    const readyAction = splitReady();
+    const timedoutAction = splitTimedout(100);
+    const readyAction = splitReady(200);
     expect(
       splitReducer(splitReducer(initialState, timedoutAction), readyAction),
     ).toEqual({
@@ -81,32 +81,32 @@ describe('Split reducer', () => {
       isReady: true,
       isTimedout: false,
       hasTimedout: true,
-      lastUpdate: readyAction.payload.timestamp,
+      lastUpdate: 200,
     });
   });
 
   it('should handle SPLIT_UPDATE', () => {
-    const updateAction = splitUpdate();
+    const updateAction = splitUpdate(300);
     expect(
       splitReducer(initialState, updateAction),
     ).toEqual({
       ...initialState,
-      lastUpdate: updateAction.payload.timestamp,
+      lastUpdate: 300,
     });
   });
 
   it('should handle SPLIT_DESTROY', () => {
-    const destroyAction = splitDestroy();
+    const destroyAction = splitDestroy(400);
     expect(
       splitReducer(initialState, destroyAction),
     ).toEqual({
       ...initialState,
       isDestroyed: true,
-      lastUpdate: destroyAction.payload.timestamp,
+      lastUpdate: 400,
     });
   });
 
-  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) => AnyAction, boolean, boolean]> = [
+  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) => AnyAction, boolean, boolean]> = [
     ['ADD_TREATMENTS', addTreatments, false, false],
     ['SPLIT_READY_WITH_EVALUATIONS', splitReadyWithEvaluations, true, false],
     ['SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS', splitReadyFromCacheWithEvaluations, false, true],
@@ -115,7 +115,7 @@ describe('Split reducer', () => {
 
   it.each(actionCreatorsWithEvaluations)('should handle %s', (_, actionCreator, isReady, isReadyFromCache) => {
     const initialTreatments = initialState.treatments;
-    const action = actionCreator(key, treatments);
+    const action = actionCreator(key, treatments, 1000);
 
     // control assertion - reduced state has the expected shape
     expect(
@@ -124,7 +124,7 @@ describe('Split reducer', () => {
       ...initialState,
       isReady,
       isReadyFromCache,
-      lastUpdate: action.payload.timestamp || initialState.lastUpdate,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: treatments.test_split,
@@ -142,7 +142,7 @@ describe('Split reducer', () => {
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: { ...previousTreatment },
     };
-    const action = actionCreator(key, newTreatments);
+    const action = actionCreator(key, newTreatments, 1000);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was not replaced in the state
@@ -155,7 +155,7 @@ describe('Split reducer', () => {
       ...initialState,
       isReady,
       isReadyFromCache,
-      lastUpdate: action.payload.timestamp || initialState.lastUpdate,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
@@ -173,7 +173,7 @@ describe('Split reducer', () => {
         config: previousTreatment.config,
       },
     };
-    const action = actionCreator(key, newTreatments);
+    const action = actionCreator(key, newTreatments, 1000);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -185,7 +185,7 @@ describe('Split reducer', () => {
       ...initialState,
       isReady,
       isReadyFromCache,
-      lastUpdate: action.payload.timestamp || initialState.lastUpdate,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
@@ -204,7 +204,7 @@ describe('Split reducer', () => {
       },
     };
     // const action = addTreatments(key, newTreatments);
-    const action = actionCreator(key, newTreatments);
+    const action = actionCreator(key, newTreatments, 1000);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -216,7 +216,7 @@ describe('Split reducer', () => {
       ...initialState,
       isReady,
       isReadyFromCache,
-      lastUpdate: action.payload.timestamp || initialState.lastUpdate,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,

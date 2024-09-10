@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { ISplitState } from './types';
+import { ISplitState, IStatus } from './types';
 import {
   SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
@@ -22,28 +22,47 @@ const initialState: ISplitState = {
   treatments: {},
 };
 
-function setReady(state: ISplitState, timestamp: number) {
+function setStatus(state: ISplitState, patch: Partial<IStatus>) {
   return {
     ...state,
+    ...patch,
+  };
+}
+
+function setReady(state: ISplitState, timestamp: number) {
+  return setStatus(state, {
     isReady: true,
     isTimedout: false,
     lastUpdate: timestamp,
-  };
+  });
 }
 
 function setReadyFromCache(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
+  return setStatus(state, {
     isReadyFromCache: true,
     lastUpdate: timestamp,
-  };
+  });
+}
+
+function setTimedout(state: ISplitState, timestamp: number) {
+  return setStatus(state, {
+    isTimedout: true,
+    hasTimedout: true,
+    lastUpdate: timestamp,
+  });
 }
 
 function setUpdated(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
+  return setStatus(state, {
     lastUpdate: timestamp,
-  };
+  });
+}
+
+function setDestroyed(state: ISplitState, timestamp: number) {
+  return setStatus(state, {
+    isDestroyed: true,
+    lastUpdate: timestamp,
+  });
 }
 
 /**
@@ -75,51 +94,40 @@ export const splitReducer: Reducer<ISplitState> = function (
   state = initialState,
   action,
 ) {
-  switch (action.type) {
+  const { type, payload: { timestamp, key, treatments } = {} as any } = action as any;
+
+  switch (type) {
     case SPLIT_READY:
-      return setReady(state, (action as any).payload.timestamp);
+      return setReady(state, timestamp);
 
     case SPLIT_READY_FROM_CACHE:
-      return setReadyFromCache(state, (action as any).payload.timestamp);
+      return setReadyFromCache(state, timestamp);
 
     case SPLIT_TIMEDOUT:
-      return {
-        ...state,
-        isTimedout: true,
-        hasTimedout: true,
-        lastUpdate: (action as any).payload.timestamp,
-      };
+      return setTimedout(state, timestamp);
 
     case SPLIT_UPDATE:
-      return setUpdated(state, (action as any).payload.timestamp);
+      return setUpdated(state, timestamp);
 
     case SPLIT_DESTROY:
-      return {
-        ...state,
-        isDestroyed: true,
-        lastUpdate: (action as any).payload.timestamp,
-      };
+      return setDestroyed(state, timestamp);
 
     case ADD_TREATMENTS: {
-      const { key, treatments } = (action as any).payload;
       const result = { ...state };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
       const result = setReady(state, timestamp);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
       const result = setReadyFromCache(state, timestamp);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
       const result = setUpdated(state, timestamp);
       return assignTreatments(result, key, treatments);
     }

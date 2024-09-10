@@ -8,80 +8,80 @@ import {
 } from './constants';
 import { matching } from './utils';
 
-export function splitReady() {
+export function splitReady(timestamp: number) {
   return {
     type: SPLIT_READY,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
     },
   };
 }
 
-export function splitReadyWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+export function splitReadyWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
   return {
     type: SPLIT_READY_WITH_EVALUATIONS,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
       key: matching(key),
       treatments,
     },
   };
 }
 
-export function splitReadyFromCache() {
+export function splitReadyFromCache(timestamp: number) {
   return {
     type: SPLIT_READY_FROM_CACHE,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
     },
   };
 }
 
-export function splitReadyFromCacheWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+export function splitReadyFromCacheWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
   return {
     type: SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
       key: matching(key),
       treatments,
     },
   };
 }
 
-export function splitUpdate() {
+export function splitUpdate(timestamp: number) {
   return {
     type: SPLIT_UPDATE,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
     },
   };
 }
 
-export function splitUpdateWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig) {
+export function splitUpdateWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
   return {
     type: SPLIT_UPDATE_WITH_EVALUATIONS,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
       key: matching(key),
       treatments,
     },
   };
 }
 
-export function splitTimedout() {
+export function splitTimedout(timestamp: number) {
   return {
     type: SPLIT_TIMEDOUT,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
     },
   };
 }
 
-export function splitDestroy() {
+export function splitDestroy(timestamp: number) {
   return {
     type: SPLIT_DESTROY,
     payload: {
-      timestamp: Date.now(),
+      timestamp,
     },
   };
 }
