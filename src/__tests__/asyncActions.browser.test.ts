@@ -596,7 +596,8 @@ describe('getTreatments (providing a non-default user key)', () => {
         type: SPLIT_READY_WITH_EVALUATIONS,
         payload: {
           key: 'other-user-key',
-          treatments: expect.any(Object)
+          treatments: expect.any(Object),
+          timestamp: expect.any(Number)
         }
       });
 
@@ -628,7 +629,8 @@ describe('getTreatments (providing a non-default user key)', () => {
         type: SPLIT_UPDATE_WITH_EVALUATIONS,
         payload: {
           key: 'other-user-key',
-          treatments: expect.any(Object)
+          treatments: expect.any(Object),
+          timestamp: expect.any(Number)
         }
       });
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes);
