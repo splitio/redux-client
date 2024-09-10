@@ -53,9 +53,12 @@ describe('initSplitSdk', () => {
 
         // Action is dispatched synchronously
         const action = store.getActions()[0];
-        expect(action.type).toEqual(SPLIT_READY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(action).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now()),
+          }
+        });
       }
 
       // create multiple stores
@@ -86,9 +89,12 @@ describe('initSplitSdk', () => {
       store.dispatch<any>(initSplitSdkAction);
 
       const action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_TIMEDOUT);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+      expect(action).toEqual({
+        type: SPLIT_TIMEDOUT,
+        payload: {
+          timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+        }
+      });
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
 
       timestamp = Date.now();
@@ -105,14 +111,20 @@ describe('initSplitSdk', () => {
 
         // Actions are dispatched synchronously
         const timeoutAction = store.getActions()[0];
-        expect(timeoutAction.type).toEqual(SPLIT_TIMEDOUT);
-        expect(timeoutAction.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(timeoutAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(timeoutAction).toEqual({
+          type: SPLIT_TIMEDOUT,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+          }
+        });
 
         const readyAction = store.getActions()[1];
-        expect(readyAction.type).toEqual(SPLIT_READY);
-        expect(readyAction.payload.timestamp).toBeLessThanOrEqual(Date.now() + 1);
-        expect(readyAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(readyAction).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+          }
+        });
       }
 
       // create multiple stores
