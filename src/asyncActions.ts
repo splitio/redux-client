@@ -4,7 +4,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, __getStatus, validateGetTreatmentsParams } from './utils';
+import { matching, __getStatus, validateGetTreatmentsParams, isMainClient } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -209,13 +209,12 @@ interface IClientNotDetached extends SplitIO.IClient {
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
   const stringKey = matching(key);
-  const isMainClient = !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
   // we cannot simply use `stringKey` to get the client, since the main one could have been created with a bucketing key and/or a traffic type.
-  const client = (isMainClient ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
+  const client = (isMainClient(key) ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
 
   if (client._trackingStatus) return client;
 
-  if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
+  if (!isMainClient(key)) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
   client.evalOnReady = []; // getTreatment actions stored to execute when the SDK is ready

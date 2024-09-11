@@ -1,7 +1,7 @@
 import { splitSdk, getClient } from './asyncActions';
 import { IStatus, ITrackParams } from './types';
 import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
-import { __getStatus, matching } from './utils';
+import { __getStatus, isMainClient, matching } from './utils';
 import { initialStatus } from './reducer';
 
 /**
@@ -104,8 +104,7 @@ export function getSplits(): SplitIO.SplitViews {
 export function getStatus(key?: SplitIO.SplitKey): IStatus {
   if (splitSdk.factory) {
     const stringKey = matching(key);
-    const isMainClient = splitSdk.isDetached || !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
-    const client = isMainClient ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
+    const client = isMainClient(key) ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
 
     if (client) return __getStatus(client);
   }
