@@ -6,7 +6,7 @@ import { defaultGetSplitState } from '../selectors';
 /**
  * This decorator connects your components with:
  * - The Split state at Redux, under the prop key `split`.
- * - The action creator `getTreatments`, binded to the `dispatch` of your store.
+ * - The action creator `getTreatments`, bound to the `dispatch` of your store.
  *
  * @param {IGetSplitState} getSplitState optional function that takes the entire Redux state and returns
  * the state slice which corresponds to where the Split reducer was mounted. This functionality is rarely

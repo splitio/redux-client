@@ -16,7 +16,7 @@ export interface ISplitSdk {
   splitio: ISplitFactoryBuilder;
   factory: SplitIO.ISDK;
   sharedClients: { [stringKey: string]: SplitIO.IClient };
-  isDetached: boolean; // true: server-side, false: client-side (i.e., client with binded key)
+  isDetached: boolean; // true: server-side, false: client-side (i.e., client with bound key)
   dispatch: Dispatch<Action>;
 }
 
