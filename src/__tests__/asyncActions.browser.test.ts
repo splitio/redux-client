@@ -162,7 +162,7 @@ describe('initSplitSdk', () => {
 
 });
 
-describe('getTreatments (for default user key)', () => {
+describe('getTreatments', () => {
 
   beforeEach(clearSplitSdk);
 
@@ -207,9 +207,10 @@ describe('getTreatments (for default user key)', () => {
 
     actionResult.then(() => {
       store.dispatch<any>(getTreatments({ splitNames: 'split1' }));
+      store.dispatch<any>(getTreatments({ splitNames: ['split2'], key: sdkBrowserConfig.core.key }));
       store.dispatch<any>(getTreatments({ flagSets: 'set1', key: { matchingKey: sdkBrowserConfig.core.key as string, bucketingKey: 'bucket' } }));
 
-      const actions = [store.getActions()[1], store.getActions()[2]];
+      const actions = [store.getActions()[1], store.getActions()[2], store.getActions()[3]];
       actions.forEach(action => {
         expect(action).toEqual({
           type: ADD_TREATMENTS,
@@ -221,10 +222,12 @@ describe('getTreatments (for default user key)', () => {
       });
 
       // getting the evaluation result and validating it matches the results from SDK
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split1'], undefined);
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[0].payload.treatments);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenCalledWith(['split1'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveReturnedWith(actions[0].payload.treatments);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[1].payload.treatments);
       expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(['set1'], undefined);
-      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveLastReturnedWith(actions[1].payload.treatments);
+      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveLastReturnedWith(actions[2].payload.treatments);
 
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
       expect(getClient(splitSdk).evalOnReady.length).toEqual(0);
@@ -516,43 +519,7 @@ describe('getTreatments (for default user key)', () => {
     }
   });
 
-});
-
-describe('getTreatments (providing a non-default user key)', () => {
-
-  beforeEach(clearSplitSdk);
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('if Split SDK is ready and is provided with the same user key than the main client, it dispatches an ADD_TREATMENTS action as main client', (done) => {
-
-    // Init SDK and set ready
-    const store = mockStore(STATE_INITIAL);
-    const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
-    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
-
-    actionResult.then(() => {
-      store.dispatch<any>(getTreatments({ splitNames: 'split1', key: sdkBrowserConfig.core.key }));
-
-      const action = store.getActions()[1];
-      expect(action).toEqual({
-        type: ADD_TREATMENTS,
-        payload: {
-          key: sdkBrowserConfig.core.key,
-          treatments: expect.any(Object)
-        }
-      });
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
-      expect(getClient(splitSdk).evalOnUpdate).toEqual({});
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(0);
-
-      done();
-    });
-  });
-
-  it('for non-default clients, it stores control treatments (without calling SDK client), and registers pending evaluations if the client is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when the client timeouts)', (done) => {
+  it('for non-default clients, it stores control treatments (without calling SDK client) and registers pending evaluations if the client is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when the client timeouts)', (done) => {
 
     // Init SDK and set ready
     const store = mockStore(STATE_INITIAL);
@@ -573,8 +540,8 @@ describe('getTreatments (providing a non-default user key)', () => {
       // If SDK is ready for the main key and a getTreatment is dispatched for a different user key:
       // the item is added to the 'evalOnReady' list of the new client,
       store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key' }));
-      expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // control assertion - no evaluations were registeres for SDK_READY on main client
-      expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1); // control assertion - 1 evaluation was registeres for SDK_READY on the new client
+      expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // control assertion - no evaluations were registered for SDK_READY on main client
+      expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1); // control assertion - 1 evaluation was registered for SDK_READY on the new client
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
 
       // and an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client.
