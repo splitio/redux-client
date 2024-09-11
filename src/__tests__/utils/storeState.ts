@@ -44,3 +44,19 @@ export const STATE_READY: { splitio: ISplitState } = {
     },
   },
 };
+
+export const STATE_READY_USER_2: { splitio: ISplitState } = {
+  splitio: {
+    ...STATE_READY.splitio,
+    status: {
+      [USER_2]: {
+        isReady: true,
+        isReadyFromCache: false,
+        isTimedout: false,
+        hasTimedout: false,
+        isDestroyed: false,
+        lastUpdate: 1192838124,
+      },
+    },
+  },
+};

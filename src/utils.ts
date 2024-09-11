@@ -35,7 +35,7 @@ export function matching(key?: SplitIO.SplitKey): string | undefined {
 
 export function isMainClient(key?: SplitIO.SplitKey) {
   const stringKey = matching(key);
-  return splitSdk.isDetached || !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
+  return splitSdk.isDetached || !stringKey || stringKey === matching(splitSdk.config && (splitSdk.config as SplitIO.IBrowserSettings).core.key);
 }
 
 /**
