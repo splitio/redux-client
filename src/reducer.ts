@@ -106,7 +106,7 @@ export const splitReducer: Reducer<ISplitState> = function (
   state = initialState,
   action,
 ) {
-  const { type, payload: { timestamp, key, treatments } = {} as any } = action as any;
+  const { type, payload: { timestamp, key, treatments, nonDefaultKey } = {} as any } = action as any;
 
   switch (type) {
     case SPLIT_READY:
@@ -130,17 +130,17 @@ export const splitReducer: Reducer<ISplitState> = function (
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
-      const result = setReady(state, timestamp, key);
+      const result = setReady(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
-      const result = setReadyFromCache(state, timestamp, key);
+      const result = setReadyFromCache(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
-      const result = setUpdated(state, timestamp, key);
+      const result = setUpdated(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 

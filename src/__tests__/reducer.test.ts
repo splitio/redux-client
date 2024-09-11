@@ -179,7 +179,7 @@ describe('Split reducer', () => {
     });
   });
 
-  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) => AnyAction, boolean, boolean]> = [
+  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => AnyAction, boolean, boolean]> = [
     ['ADD_TREATMENTS', addTreatments, false, false],
     ['SPLIT_READY_WITH_EVALUATIONS', splitReadyWithEvaluations, true, false],
     ['SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS', splitReadyFromCacheWithEvaluations, false, true],
@@ -188,12 +188,23 @@ describe('Split reducer', () => {
 
   it.each(actionCreatorsWithEvaluations)('should handle %s', (_, actionCreator, isReady, isReadyFromCache) => {
     const initialTreatments = initialState.treatments;
-    const action = actionCreator(key, treatments, 1000);
 
-    // control assertion - reduced state has the expected shape
-    expect(
-      splitReducer(initialState, action),
-    ).toEqual({
+    // default key
+    const action = actionCreator(key, treatments, 1000);
+    expect(splitReducer(initialState, action)).toEqual({
+      ...initialState,
+      isReady,
+      isReadyFromCache,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
+      treatments: {
+        test_split: {
+          [key]: treatments.test_split,
+        },
+      },
+    });
+
+    // non-default key
+    expect(splitReducer(initialState, actionCreator(key, treatments, 1000, true))).toEqual({
       ...initialState,
       treatments: {
         test_split: {
@@ -231,19 +242,14 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
+      isReady,
+      isReadyFromCache,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? undefined : {
-        [key]: {
-          ...initialStatus,
-          isReady,
-          isReadyFromCache,
-          lastUpdate: 1000,
-        }
-      }
     });
   });
 
@@ -266,19 +272,14 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
+      isReady,
+      isReadyFromCache,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? undefined : {
-        [key]: {
-          ...initialStatus,
-          isReady,
-          isReadyFromCache,
-          lastUpdate: 1000,
-        }
-      }
     });
   });
 
@@ -302,19 +303,14 @@ describe('Split reducer', () => {
       reduxState,
     ).toEqual({
       ...initialState,
+      isReady,
+      isReadyFromCache,
+      lastUpdate: action.type === 'ADD_TREATMENTS' ? initialState.lastUpdate : 1000,
       treatments: {
         test_split: {
           [key]: newTreatments.test_split,
         },
       },
-      status: action.type === 'ADD_TREATMENTS' ? undefined : {
-        [key]: {
-          ...initialStatus,
-          isReady,
-          isReadyFromCache,
-          lastUpdate: 1000,
-        }
-      }
     });
   });
 

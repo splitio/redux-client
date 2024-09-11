@@ -597,7 +597,8 @@ describe('getTreatments (providing a non-default user key)', () => {
         payload: {
           key: 'other-user-key',
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: true
         }
       });
 
@@ -630,7 +631,8 @@ describe('getTreatments (providing a non-default user key)', () => {
         payload: {
           key: 'other-user-key',
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: true
         }
       });
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes);
@@ -654,7 +656,13 @@ describe('getTreatments (providing a non-default user key)', () => {
       // Now, SDK_UPDATE events do not trigger SPLIT_UPDATE_WITH_EVALUATIONS but SPLIT_UPDATE instead
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_UPDATE);
       action = store.getActions()[6];
-      expect(action.type).toBe(SPLIT_UPDATE);
+      expect(action).toEqual({
+        type: SPLIT_UPDATE,
+        payload: {
+          key: 'other-user-key',
+          timestamp: expect.any(Number)
+        }
+      });
 
       expect(store.getActions().length).toBe(7); // control assertion - no more actions after the update.
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(4); // control assertion - called 4 times, in actions SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.

@@ -18,13 +18,14 @@ export function splitReady(timestamp: number, key?: SplitIO.SplitKey) {
   };
 }
 
-export function splitReadyWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
+export function splitReadyWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) {
   return {
     type: SPLIT_READY_WITH_EVALUATIONS,
     payload: {
       timestamp,
       key: matching(key),
       treatments,
+      nonDefaultKey,
     },
   };
 }
@@ -39,13 +40,14 @@ export function splitReadyFromCache(timestamp: number, key?: SplitIO.SplitKey) {
   };
 }
 
-export function splitReadyFromCacheWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
+export function splitReadyFromCacheWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) {
   return {
     type: SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
     payload: {
       timestamp,
       key: matching(key),
       treatments,
+      nonDefaultKey,
     },
   };
 }
@@ -60,13 +62,14 @@ export function splitUpdate(timestamp: number, key?: SplitIO.SplitKey) {
   };
 }
 
-export function splitUpdateWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) {
+export function splitUpdateWithEvaluations(key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) {
   return {
     type: SPLIT_UPDATE_WITH_EVALUATIONS,
     payload: {
       timestamp,
       key: matching(key),
       treatments,
+      nonDefaultKey,
     },
   };
 }
