@@ -1,45 +1,80 @@
 import { Reducer } from 'redux';
-import { ISplitState } from './types';
+import { ISplitAction, ISplitState, IStatus } from './types';
 import {
   SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
 } from './constants';
 
-/**
- * Initial default state for Split reducer
- */
-const initialState: ISplitState = {
+export const initialStatus = {
   isReady: false,
   isReadyFromCache: false,
   isTimedout: false,
   hasTimedout: false,
   isDestroyed: false,
   lastUpdate: 0,
+}
+
+/**
+ * Initial default state for Split reducer
+ */
+const initialState: ISplitState = {
+  ...initialStatus,
   treatments: {},
 };
 
-function setReady(state: ISplitState, timestamp: number) {
-  return {
+function setStatus(state: ISplitState, patch: Partial<IStatus>, key?: string) {
+  return key ? {
     ...state,
+    status: {
+      ...state.status,
+      [key]: state.status && state.status[key] ? {
+        ...state.status[key],
+        ...patch,
+      } : {
+        ...initialStatus,
+        ...patch,
+      }
+    },
+  } : {
+    ...state,
+    ...patch,
+  };
+}
+
+function setReady(state: ISplitState, timestamp: number, key?: string) {
+  return setStatus(state, {
     isReady: true,
     isTimedout: false,
     lastUpdate: timestamp,
-  };
+  }, key);
 }
 
-function setReadyFromCache(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
+function setReadyFromCache(state: ISplitState, timestamp: number, key?: string) {
+  return setStatus(state, {
     isReadyFromCache: true,
     lastUpdate: timestamp,
-  };
+  }, key);
 }
 
-function setUpdated(state: ISplitState, timestamp: number) {
-  return {
-    ...state,
+function setTimedout(state: ISplitState, timestamp: number, key?: string) {
+  return setStatus(state, {
+    isTimedout: true,
+    hasTimedout: true,
     lastUpdate: timestamp,
-  };
+  }, key);
+}
+
+function setUpdated(state: ISplitState, timestamp: number, key?: string) {
+  return setStatus(state, {
+    lastUpdate: timestamp,
+  }, key);
+}
+
+function setDestroyed(state: ISplitState, timestamp: number, key?: string) {
+  return setStatus(state, {
+    isDestroyed: true,
+    lastUpdate: timestamp,
+  }, key);
 }
 
 /**
@@ -71,52 +106,41 @@ export const splitReducer: Reducer<ISplitState> = function (
   state = initialState,
   action,
 ) {
-  switch (action.type) {
+  const { type, payload: { timestamp, key, treatments, nonDefaultKey } = {} } = action as ISplitAction;
+
+  switch (type) {
     case SPLIT_READY:
-      return setReady(state, (action as any).payload.timestamp);
+      return setReady(state, timestamp, key);
 
     case SPLIT_READY_FROM_CACHE:
-      return setReadyFromCache(state, (action as any).payload.timestamp);
+      return setReadyFromCache(state, timestamp, key);
 
     case SPLIT_TIMEDOUT:
-      return {
-        ...state,
-        isTimedout: true,
-        hasTimedout: true,
-        lastUpdate: (action as any).payload.timestamp,
-      };
+      return setTimedout(state, timestamp, key);
 
     case SPLIT_UPDATE:
-      return setUpdated(state, (action as any).payload.timestamp);
+      return setUpdated(state, timestamp, key);
 
     case SPLIT_DESTROY:
-      return {
-        ...state,
-        isDestroyed: true,
-        lastUpdate: (action as any).payload.timestamp,
-      };
+      return setDestroyed(state, timestamp, key);
 
     case ADD_TREATMENTS: {
-      const { key, treatments } = (action as any).payload;
       const result = { ...state };
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
-      const result = setReady(state, timestamp);
+      const result = setReady(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
-      const result = setReadyFromCache(state, timestamp);
+      const result = setReadyFromCache(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 
     case SPLIT_UPDATE_WITH_EVALUATIONS: {
-      const { key, treatments, timestamp } = (action as any).payload;
-      const result = setUpdated(state, timestamp);
+      const result = setUpdated(state, timestamp, nonDefaultKey && key);
       return assignTreatments(result, key, treatments);
     }
 

@@ -1,21 +1,42 @@
+import { splitSdk } from './asyncActions';
 import { ERROR_GETT_NO_PARAM_OBJECT, WARN_FEATUREFLAGS_AND_FLAGSETS } from './constants';
 import { IGetTreatmentsParams } from './types';
 
 /**
- * Validates if a value is an object.
+ * Validates if a given value is a plain object
  */
 export function isObject(obj: unknown) {
   return obj && typeof obj === 'object' && obj.constructor === Object;
 }
 
 /**
- * Verify type of key and return either its matchingKey or itself
+ * Validates if a given value is a string
  */
-export function matching(key: SplitIO.SplitKey): string {
-  return isObject(key) ? (key as SplitIO.SplitKeyObject).matchingKey : (key as string);
+function isString(val: unknown): val is string {
+  return typeof val === 'string' || val instanceof String;
 }
 
-// The following utils might be removed in the future, if the JS SDK extends its public API with a "getStatus" method
+/**
+ * Removes duplicate items on an array of strings
+ */
+function uniq(arr: string[]): string[] {
+  const seen: Record<string, boolean> = {};
+  return arr.filter((item) => {
+    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
+  });
+}
+
+/**
+ * Verify type of key and return either its matchingKey or itself
+ */
+export function matching(key?: SplitIO.SplitKey): string | undefined {
+  return isObject(key) ? (key as SplitIO.SplitKeyObject).matchingKey : (key as string | undefined);
+}
+
+export function isMainClient(key?: SplitIO.SplitKey) {
+  const stringKey = matching(key);
+  return splitSdk.isDetached || !stringKey || stringKey === matching(splitSdk.config && (splitSdk.config as SplitIO.IBrowserSettings).core.key);
+}
 
 /**
  * ClientWithContext interface.
@@ -23,11 +44,14 @@ export function matching(key: SplitIO.SplitKey): string {
 export interface IClientStatus {
   isReady: boolean;
   isReadyFromCache: boolean;
-  isOperational: boolean;
+  isTimedout: boolean;
   hasTimedout: boolean;
   isDestroyed: boolean;
+  isOperational: boolean;
+  lastUpdate: number;
 }
 
+// The following util might be removed in the future, if the JS SDK extends its public API with a "getStatus" method
 export function __getStatus(client: SplitIO.IClient): IClientStatus {
   // @ts-expect-error, function exists but it is not part of JS SDK type definitions
   return client.__getStatus();
@@ -112,21 +136,4 @@ function validateFeatureFlag(maybeFeatureFlag: unknown, item = 'feature flag nam
   }
 
   return false;
-}
-
-/**
- * Removes duplicate items on an array of strings.
- */
-function uniq(arr: string[]): string[] {
-  const seen: Record<string, boolean> = {};
-  return arr.filter((item) => {
-    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
-  });
-}
-
-/**
- * Checks if a given value is a string.
- */
-function isString(val: unknown): val is string {
-  return typeof val === 'string' || val instanceof String;
 }

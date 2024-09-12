@@ -4,7 +4,7 @@ import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
 import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
-import { matching, __getStatus, validateGetTreatmentsParams } from './utils';
+import { matching, __getStatus, validateGetTreatmentsParams, isMainClient } from './utils';
 
 /**
  * Internal object SplitSdk. This object should not be accessed or
@@ -16,7 +16,7 @@ export interface ISplitSdk {
   splitio: ISplitFactoryBuilder;
   factory: SplitIO.ISDK;
   sharedClients: { [stringKey: string]: SplitIO.IClient };
-  isDetached: boolean; // true: server-side, false: client-side (i.e., client with binded key)
+  isDetached: boolean; // true: server-side, false: client-side (i.e., client with bound key)
   dispatch: Dispatch<Action>;
 }
 
@@ -66,16 +66,16 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 
     const status = __getStatus(defaultClient);
 
-    if (status.hasTimedout) dispatch(splitTimedout()); // dispatched before `splitReady`, since it overwrites `isTimedout` property
-    if (status.isReady) dispatch(splitReady());
-    if (status.isDestroyed) dispatch(splitDestroy());
+    if (status.hasTimedout) dispatch(splitTimedout(status.lastUpdate)); // dispatched before `splitReady`, since it overwrites `isTimedout` property
+    if (status.isReady) dispatch(splitReady(status.lastUpdate));
+    if (status.isDestroyed) dispatch(splitDestroy(status.lastUpdate));
 
     if (!splitSdk.isDetached) {  // Split SDK running in Browser
       // save the dispatch function, needed on browser to dispatch `getTreatment` actions on SDK_READY and SDK_UPDATE events
       // we do it before instantiating the client via `getClient`, to guarantee the reference of the dispatch function in `splitSdk`
       // @TODO possible refactor: no need to save the dispatch function if `getTreatments` return a thunk instead of a plain action
       splitSdk.dispatch = dispatch;
-      if (status.isReadyFromCache) dispatch(splitReadyFromCache());
+      if (status.isReadyFromCache) dispatch(splitReadyFromCache(status.lastUpdate));
     }
 
     // Return the client ready promise so that the user can call .then() on async dispatch result and wait until ready.
@@ -209,13 +209,12 @@ interface IClientNotDetached extends SplitIO.IClient {
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {
 
   const stringKey = matching(key);
-  const isMainClient = !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
   // we cannot simply use `stringKey` to get the client, since the main one could have been created with a bucketing key and/or a traffic type.
-  const client = (isMainClient ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
+  const client = (isMainClient(key) ? splitSdk.factory.client() : splitSdk.factory.client(stringKey)) as IClientNotDetached;
 
   if (client._trackingStatus) return client;
 
-  if (!isMainClient) splitSdk.sharedClients[stringKey] = client;
+  if (!isMainClient(key)) splitSdk.sharedClients[stringKey] = client;
   client._trackingStatus = true;
   client.evalOnUpdate = {}; // getTreatment actions stored to execute on SDK update
   client.evalOnReady = []; // getTreatment actions stored to execute when the SDK is ready
@@ -227,49 +226,48 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
   client.once(client.Event.SDK_READY, function onReady() {
     if (!splitSdk.dispatch) return;
 
-    // @TODO dispatch `splitReady` and `splitReadyWithEvaluations` for shared clients eventually
+    const lastUpdate = __getStatus(client).lastUpdate;
     if (client.evalOnReady.length) {
       const treatments = __getTreatments(client, client.evalOnReady);
 
-      if (!key) splitSdk.dispatch(splitReadyWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
-    } else if (!key) splitSdk.dispatch(splitReady());
+      splitSdk.dispatch(splitReadyWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+    } else {
+      splitSdk.dispatch(splitReady(lastUpdate, key));
+    }
   });
 
   // On SDK timed out, dispatch `splitTimedout` action
   client.once(client.Event.SDK_READY_TIMED_OUT, function onTimedout() {
-    // @TODO dispatch for shared clients eventually
-    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitTimedout());
+    if (splitSdk.dispatch) splitSdk.dispatch(splitTimedout(__getStatus(client).lastUpdate, key));
   });
 
   // On SDK timed out, dispatch `splitReadyFromCache` action
   client.once(client.Event.SDK_READY_FROM_CACHE, function onReadyFromCache() {
     if (!splitSdk.dispatch) return;
 
-    // @TODO dispatch `splitReadyFromCache` and `splitReadyFromCacheWithEvaluations` for shared clients eventually
+    const lastUpdate = __getStatus(client).lastUpdate;
     if (client.evalOnReadyFromCache.length) {
       const treatments = __getTreatments(client, client.evalOnReadyFromCache);
 
-      if (!key) splitSdk.dispatch(splitReadyFromCacheWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
-    } else if (!key) splitSdk.dispatch(splitReadyFromCache());
+      splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+    } else {
+      splitSdk.dispatch(splitReadyFromCache(lastUpdate, key));
+    }
   });
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action
   client.on(client.Event.SDK_UPDATE, function onUpdate() {
     if (!splitSdk.dispatch) return;
 
-    // @TODO dispatch `splitUpdate` and `splitUpdateWithEvaluations` for shared clients eventually
+    const lastUpdate = __getStatus(client).lastUpdate;
     const evalOnUpdate = Object.values(client.evalOnUpdate);
     if (evalOnUpdate.length) {
       const treatments = __getTreatments(client, evalOnUpdate);
 
-      if (!key) splitSdk.dispatch(splitUpdateWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
-    } else if (!key) splitSdk.dispatch(splitUpdate());
+      splitSdk.dispatch(splitUpdateWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+    } else {
+      splitSdk.dispatch(splitUpdate(lastUpdate, key));
+    }
   });
 
   return client;
@@ -307,7 +305,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   return (dispatch: Dispatch<Action>): Promise<void> => {
     dispatched = true;
     return Promise.all(destroyPromises).then(function () {
-      dispatch(splitDestroy());
+      dispatch(splitDestroy(__getStatus(mainClient).lastUpdate));
       if (params.onDestroy) params.onDestroy();
     });
   };
