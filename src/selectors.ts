@@ -84,7 +84,18 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
   };
 }
 
-function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
+/**
+ * Extracts an object with the status properties of the SDK client or manager from the Split state.
+ *
+ * @param {ISplitState} splitState
+ * @param {SplitIO.SplitKey} key To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
+ * If no key is provided, the status of the main client and manager is returned (the main client shares the status with the manager).
+ *
+ * @returns {IStatus} The status of the SDK client or manager.
+ *
+ * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#subscribe-to-events}
+ */
+export function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
   const status = splitState ?
     isMainClient(key) ?
       splitState :

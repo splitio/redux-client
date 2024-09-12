@@ -2,10 +2,11 @@
 export { splitReducer } from './reducer';
 export { initSplitSdk, getTreatments, destroySplitSdk, splitSdk } from './asyncActions';
 export { track, getSplitNames, getSplit, getSplits, getStatus } from './helpers';
-export { selectTreatmentValue, selectTreatmentWithConfig, selectTreatmentAndStatus, selectTreatmentWithConfigAndStatus } from './selectors';
+export { selectTreatmentValue, selectTreatmentWithConfig, selectTreatmentAndStatus, selectTreatmentWithConfigAndStatus, selectStatus } from './selectors';
 
 // For React-redux
 export { connectSplit } from './react-redux/connectSplit';
 export { connectToggler, mapTreatmentToProps, mapIsFeatureOnToProps } from './react-redux/connectToggler';
 
-export { ISplitState } from './types';
+// Types
+export { IStatus, ISplitState, IGetSplitState, IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ITrackParams } from './types';
