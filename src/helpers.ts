@@ -87,12 +87,10 @@ export function getSplits(): SplitIO.SplitViews {
 }
 
 /**
- * Gets an object with the status properties of the SDK client or manager:
+ * Gets an object with the status properties of the SDK client or manager.
  *
- * - `isReady` indicates if the SDK client has emitted the SDK_READY event.
- * - `isReadyFromCache` indicates if the SDK client has emitted the SDK_READY_FROM_CACHE event.
- * - `hasTimedout` indicates if the SDK client has emitted the SDK_READY_TIMED_OUT event.
- * - `isDestroyed` indicates if the SDK client has been destroyed, i.e., if the `destroySplitSdk` action was dispatched.
+ * This function is similar to the `selectStatus` selector, but it does not require the Split state as a parameter since it uses the global `splitSdk` object.
+ * Consider using the `selectStatus` selector instead for a more Redux-friendly approach.
  *
  * @param {SplitIO.SplitKey} key To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
  * If no key is provided, the status of the main client and manager is returned (the main client shares the status with the manager).
