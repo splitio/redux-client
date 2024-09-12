@@ -195,3 +195,13 @@ export interface ITrackParams {
 }
 
 export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
+
+export type ISplitAction = {
+  type: string;
+  payload: {
+    timestamp?: number;
+    key?: string;
+    treatments?: SplitIO.TreatmentsWithConfig;
+    nonDefaultKey?: boolean;
+  };
+}
