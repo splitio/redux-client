@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { ISplitState, IStatus } from './types';
+import { ISplitAction, ISplitState, IStatus } from './types';
 import {
   SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
@@ -106,7 +106,7 @@ export const splitReducer: Reducer<ISplitState> = function (
   state = initialState,
   action,
 ) {
-  const { type, payload: { timestamp, key, treatments, nonDefaultKey } = {} as any } = action as any;
+  const { type, payload: { timestamp, key, treatments, nonDefaultKey } = {} } = action as ISplitAction;
 
   switch (type) {
     case SPLIT_READY:
