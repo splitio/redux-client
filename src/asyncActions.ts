@@ -227,22 +227,18 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (!splitSdk.dispatch) return;
 
     const lastUpdate = __getStatus(client).lastUpdate;
-    // @TODO dispatch `splitReady` and `splitReadyWithEvaluations` for shared clients eventually
     if (client.evalOnReady.length) {
       const treatments = __getTreatments(client, client.evalOnReady);
 
-      if (!key) splitSdk.dispatch(splitReadyWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
+      splitSdk.dispatch(splitReadyWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
     } else {
-      if (!key) splitSdk.dispatch(splitReady(lastUpdate));
+      splitSdk.dispatch(splitReady(lastUpdate, key));
     }
   });
 
   // On SDK timed out, dispatch `splitTimedout` action
   client.once(client.Event.SDK_READY_TIMED_OUT, function onTimedout() {
-    // @TODO dispatch for shared clients eventually
-    if (splitSdk.dispatch && !key) splitSdk.dispatch(splitTimedout(__getStatus(client).lastUpdate));
+    if (splitSdk.dispatch) splitSdk.dispatch(splitTimedout(__getStatus(client).lastUpdate, key));
   });
 
   // On SDK timed out, dispatch `splitReadyFromCache` action
@@ -250,15 +246,12 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (!splitSdk.dispatch) return;
 
     const lastUpdate = __getStatus(client).lastUpdate;
-    // @TODO dispatch `splitReadyFromCache` and `splitReadyFromCacheWithEvaluations` for shared clients eventually
     if (client.evalOnReadyFromCache.length) {
       const treatments = __getTreatments(client, client.evalOnReadyFromCache);
 
-      if (!key) splitSdk.dispatch(splitReadyFromCacheWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
+      splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
     } else {
-      if (!key) splitSdk.dispatch(splitReadyFromCache(lastUpdate));
+      splitSdk.dispatch(splitReadyFromCache(lastUpdate, key));
     }
   });
 
@@ -267,16 +260,13 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (!splitSdk.dispatch) return;
 
     const lastUpdate = __getStatus(client).lastUpdate;
-    // @TODO dispatch `splitUpdate` and `splitUpdateWithEvaluations` for shared clients eventually
     const evalOnUpdate = Object.values(client.evalOnUpdate);
     if (evalOnUpdate.length) {
       const treatments = __getTreatments(client, evalOnUpdate);
 
-      if (!key) splitSdk.dispatch(splitUpdateWithEvaluations((splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate));
-      else splitSdk.dispatch(addTreatments(key, treatments));
-
+      splitSdk.dispatch(splitUpdateWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
     } else {
-      if (!key) splitSdk.dispatch(splitUpdate(lastUpdate));
+      splitSdk.dispatch(splitUpdate(lastUpdate, key));
     }
   });
 

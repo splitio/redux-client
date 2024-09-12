@@ -1,7 +1,7 @@
 import { ISplitState, IStatus } from './types';
 import { CONTROL, CONTROL_WITH_CONFIG, DEFAULT_SPLIT_STATE_SLICE, ERROR_SELECTOR_NO_SPLITSTATE } from './constants';
-import { matching } from './utils';
-import { getStatus } from './helpers';
+import { isMainClient, matching } from './utils';
+import { initialStatus } from './reducer';
 
 export const getStateSlice = (sliceName: string) => (state: any) => state[sliceName];
 
@@ -76,10 +76,22 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
 } & IStatus {
   const treatment = selectTreatmentWithConfig(splitState, featureFlagName, key, defaultValue);
 
-  const status = getStatus(key);
+  const status = selectStatus(splitState, key);
 
   return {
     ...status,
     treatment,
   };
+}
+
+function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
+  const status = splitState ?
+    isMainClient(key) ?
+      splitState :
+      splitState.status && splitState.status[matching(key)] :
+    console.error(ERROR_SELECTOR_NO_SPLITSTATE);
+
+  return status ?
+    { isReady: status.isReady, isReadyFromCache: status.isReadyFromCache, isTimedout: status.isTimedout, hasTimedout: status.hasTimedout, isDestroyed: status.isDestroyed, lastUpdate: status.lastUpdate } :
+    { ...initialStatus };
 }

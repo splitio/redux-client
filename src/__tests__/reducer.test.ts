@@ -1,4 +1,4 @@
-import { splitReducer } from '../reducer';
+import { initialStatus, splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
@@ -38,75 +38,148 @@ describe('Split reducer', () => {
   });
 
   it('should handle SPLIT_READY', () => {
-    const readyAction = splitReady(100);
-    expect(
-      splitReducer(initialState, readyAction),
-    ).toEqual({
+    const updatedState = splitReducer(initialState, splitReady(100));
+
+    // default key
+    expect(updatedState).toEqual({
       ...initialState,
       isReady: true,
       lastUpdate: 100,
     });
+
+    // non-default key
+    expect(splitReducer(updatedState, splitReady(200, { matchingKey: 'other_key', bucketingKey: 'bucketing' }))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          isReady: true,
+          lastUpdate: 200,
+        }
+      }
+    });
   });
 
   it('should handle SPLIT_READY_FROM_CACHE', () => {
-    const readyAction = splitReadyFromCache(200);
-    expect(
-      splitReducer(initialState, readyAction),
-    ).toEqual({
-      ...initialState,
+    const updatedState = splitReducer(initialState, splitReadyFromCache(200));
+
+    // default key
+    expect(updatedState).toEqual({
+      ...updatedState,
       isReadyFromCache: true,
       lastUpdate: 200,
+    });
+
+    // non-default key
+    expect(splitReducer(updatedState, splitReadyFromCache(300, 'other_key'))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          isReadyFromCache: true,
+          lastUpdate: 300,
+        }
+      }
     });
   });
 
   it('should handle SPLIT_TIMEDOUT', () => {
-    const timedoutAction = splitTimedout(300);
-    expect(
-      splitReducer(initialState, timedoutAction),
-    ).toEqual({
+    const updatedState = splitReducer(initialState, splitTimedout(300));
+
+    // default key
+    expect(updatedState).toEqual({
       ...initialState,
       isTimedout: true,
       hasTimedout: true,
       lastUpdate: 300,
     });
+
+    // non-default key
+    expect(splitReducer(updatedState, splitTimedout(400, 'other_key'))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          isTimedout: true,
+          hasTimedout: true,
+          lastUpdate: 400,
+        }
+      }
+    });
   });
 
   it('should handle SPLIT_READY after SPLIT_TIMEDOUT', () => {
-    const timedoutAction = splitTimedout(100);
-    const readyAction = splitReady(200);
-    expect(
-      splitReducer(splitReducer(initialState, timedoutAction), readyAction),
-    ).toEqual({
+    const updatedState = splitReducer(splitReducer(initialState, splitTimedout(100)), splitReady(200));
+
+    // default key
+    expect(updatedState).toEqual({
       ...initialState,
       isReady: true,
       isTimedout: false,
       hasTimedout: true,
       lastUpdate: 200,
     });
+
+    // non-default key
+    expect(splitReducer(splitReducer(updatedState, splitTimedout(100, 'other_key')), splitReady(200, 'other_key'))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          isReady: true,
+          isTimedout: false,
+          hasTimedout: true,
+          lastUpdate: 200,
+        }
+      }
+    });
   });
 
   it('should handle SPLIT_UPDATE', () => {
-    const updateAction = splitUpdate(300);
-    expect(
-      splitReducer(initialState, updateAction),
-    ).toEqual({
+    const updatedState = splitReducer(initialState, splitUpdate(300));
+
+    // default key
+    expect(updatedState).toEqual({
       ...initialState,
       lastUpdate: 300,
+    });
+
+    // non-default key
+    expect(splitReducer(updatedState, splitUpdate(400, 'other_key'))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          lastUpdate: 400,
+        }
+      }
     });
   });
 
   it('should handle SPLIT_DESTROY', () => {
-    const destroyAction = splitDestroy(400);
-    expect(
-      splitReducer(initialState, destroyAction),
-    ).toEqual({
+    const updatedState = splitReducer(initialState, splitDestroy(400));
+
+    // default key
+    expect(updatedState).toEqual({
       ...initialState,
       isDestroyed: true,
       lastUpdate: 400,
     });
+
+    // non-default key
+    expect(splitReducer(updatedState, splitDestroy(500, 'other_key'))).toEqual({
+      ...updatedState,
+      status: {
+        other_key: {
+          ...initialStatus,
+          isDestroyed: true,
+          lastUpdate: 500,
+        }
+      }
+    });
   });
 
-  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number) => AnyAction, boolean, boolean]> = [
+  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => AnyAction, boolean, boolean]> = [
     ['ADD_TREATMENTS', addTreatments, false, false],
     ['SPLIT_READY_WITH_EVALUATIONS', splitReadyWithEvaluations, true, false],
     ['SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS', splitReadyFromCacheWithEvaluations, false, true],
@@ -115,12 +188,10 @@ describe('Split reducer', () => {
 
   it.each(actionCreatorsWithEvaluations)('should handle %s', (_, actionCreator, isReady, isReadyFromCache) => {
     const initialTreatments = initialState.treatments;
-    const action = actionCreator(key, treatments, 1000);
 
-    // control assertion - reduced state has the expected shape
-    expect(
-      splitReducer(initialState, action),
-    ).toEqual({
+    // default key
+    const action = actionCreator(key, treatments, 1000);
+    expect(splitReducer(initialState, action)).toEqual({
       ...initialState,
       isReady,
       isReadyFromCache,
@@ -130,6 +201,24 @@ describe('Split reducer', () => {
           [key]: treatments.test_split,
         },
       },
+    });
+
+    // non-default key
+    expect(splitReducer(initialState, actionCreator(key, treatments, 1000, true))).toEqual({
+      ...initialState,
+      treatments: {
+        test_split: {
+          [key]: treatments.test_split,
+        },
+      },
+      status: action.type === 'ADD_TREATMENTS' ? undefined : {
+        [key]: {
+          ...initialStatus,
+          isReady,
+          isReadyFromCache,
+          lastUpdate: 1000,
+        }
+      }
     });
 
     expect(initialState.treatments).toBe(initialTreatments); // control-assert initialState treatments object shouldn't be replaced
