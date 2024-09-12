@@ -9,4 +9,4 @@ export { connectSplit } from './react-redux/connectSplit';
 export { connectToggler, mapTreatmentToProps, mapIsFeatureOnToProps } from './react-redux/connectToggler';
 
 // Types
-export type { IStatus, ISplitState, IGetSplitState, IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ITrackParams } from './types';
+export { IStatus, ISplitState, IGetSplitState, IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ITrackParams } from './types';

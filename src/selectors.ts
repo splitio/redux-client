@@ -85,7 +85,7 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
 }
 
 /**
- * Extracts an object with the status properties of the SDK manager or client from the Split state, for the given user key.
+ * Extracts an object with the status properties of the SDK client or manager from the Split state.
  *
  * @param {ISplitState} splitState
  * @param {SplitIO.SplitKey} key To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
