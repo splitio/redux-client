@@ -84,7 +84,14 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
   };
 }
 
-function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
+/**
+ * This function extracts the status properties of the client for the given user key from the Split state.
+ * If no user key is provided, it returns the status properties of the main client, which matches the SDK manager status.
+ *
+ * @param {ISplitState} splitState
+ * @param {SplitIO.SplitKey} key
+ */
+export function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
   const status = splitState ?
     isMainClient(key) ?
       splitState :
