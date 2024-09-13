@@ -158,8 +158,8 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       // If the SDK is operational (i.e., it is ready or ready from cache), it evaluates and adds treatments to the store
       const treatments = __getTreatments(client, [params]);
 
-      // Shared clients might be ready from cache immediately, so we need to dispatch a single action that updates treatments and `isReadyFromCache` status
-      // @TODO handle this corner case by refactoring actions into a single action that includes both the client status and optional evaluation/s
+      // Shared clients might be ready from cache immediately, so we need to dispatch a single action that updates treatments and `isReadyFromCache` status atomically
+      // @TODO handle this corner case by refactoring actions into a single action that includes both the client status and optional evaluation/s, to minimize state changes and avoid edge cases
       return status.isReadyFromCache && !status.isReady && !isMainClient(params.key) ?
         splitReadyFromCacheWithEvaluations(params.key, treatments, status.lastUpdate, true) :
         addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
