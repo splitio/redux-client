@@ -53,9 +53,12 @@ describe('initSplitSdk', () => {
 
         // Action is dispatched synchronously
         const action = store.getActions()[0];
-        expect(action.type).toEqual(SPLIT_READY);
-        expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
-        expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(action).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now()),
+          }
+        });
       }
 
       // create multiple stores
@@ -86,9 +89,12 @@ describe('initSplitSdk', () => {
       store.dispatch<any>(initSplitSdkAction);
 
       const action = store.getActions()[0];
-      expect(action.type).toEqual(SPLIT_TIMEDOUT);
-      expect(action.payload.timestamp).toBeLessThanOrEqual(Date.now());
-      expect(action.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+      expect(action).toEqual({
+        type: SPLIT_TIMEDOUT,
+        payload: {
+          timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+        }
+      });
       expect((SplitFactory as jest.Mock).mock.calls.length).toBe(1);
 
       timestamp = Date.now();
@@ -105,14 +111,20 @@ describe('initSplitSdk', () => {
 
         // Actions are dispatched synchronously
         const timeoutAction = store.getActions()[0];
-        expect(timeoutAction.type).toEqual(SPLIT_TIMEDOUT);
-        expect(timeoutAction.payload.timestamp).toBeLessThanOrEqual(Date.now());
-        expect(timeoutAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(timeoutAction).toEqual({
+          type: SPLIT_TIMEDOUT,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+          }
+        });
 
         const readyAction = store.getActions()[1];
-        expect(readyAction.type).toEqual(SPLIT_READY);
-        expect(readyAction.payload.timestamp).toBeLessThanOrEqual(Date.now());
-        expect(readyAction.payload.timestamp).toBeGreaterThanOrEqual(timestamp);
+        expect(readyAction).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.toBeWithinRange(timestamp, Date.now() + 1)
+          }
+        });
       }
 
       // create multiple stores
@@ -171,8 +183,13 @@ describe('getTreatments', () => {
 
         const actions = [store.getActions()[1], store.getActions()[2]]; // action 0 is SPLIT_READY
         actions.forEach(action => {
-          expect(action.type).toBe(ADD_TREATMENTS);
-          expect(action.payload.key).toBe(splitKey);
+          expect(action).toEqual({
+            type: ADD_TREATMENTS,
+            payload: {
+              key: splitKey,
+              treatments: expect.any(Object)
+            }
+          });
         });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[0].payload.treatments);
@@ -185,8 +202,13 @@ describe('getTreatments', () => {
         store.dispatch<any>(getTreatments({ key: 'other_user', splitNames: featureFlagNames, attributes }));
 
         const action = store.getActions()[3];
-        expect(action.type).toBe(ADD_TREATMENTS);
-        expect(action.payload.key).toBe('other_user');
+        expect(action).toEqual({
+          type: ADD_TREATMENTS,
+          payload: {
+            key: 'other_user',
+            treatments: expect.any(Object)
+          }
+        });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
@@ -241,9 +263,19 @@ describe('destroySplitSdk', () => {
         newStoreAfterDestroy.dispatch<any>(initSplitSdkAction);
 
         let action = newStoreAfterDestroy.getActions()[0];
-        expect(action.type).toEqual(SPLIT_READY);
+        expect(action).toEqual({
+          type: SPLIT_READY,
+          payload: {
+            timestamp: expect.any(Number),
+          }
+        });
         action = newStoreAfterDestroy.getActions()[1];
-        expect(action.type).toEqual(SPLIT_DESTROY);
+        expect(action).toEqual({
+          type: SPLIT_DESTROY,
+          payload: {
+            timestamp: expect.any(Number),
+          }
+        });
 
         done();
       }

@@ -1,3 +1,13 @@
+1.14.0 (September 13, 2024)
+ - Added `status` property to Split reducer's slice of state to track the SDK events of non-default clients (Related to https://github.com/splitio/redux-client/issues/113).
+ - Added `lastUpdate` and `isTimedout` properties to the object returned by the `getStatus` helper and `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors, to expose the last event timestamp and the timedout status of the SDK clients (Related to https://github.com/splitio/redux-client/issues/113).
+ - Added `selectStatus` selector to retrieve the status properties of the SDK manager and clients from the Split state.
+ - Added remaining TypeScript types and interfaces to the library index exports, allowing them to be imported from the library index in TypeScript, e.g., `import type { IInitSplitSdkParams } from '@splitsoftware/splitio-redux'`.
+ - Updated `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors to retrieve status properties from the state rather than the SDK client instances directly.
+ - Updated @splitsoftware/splitio package to version 10.28.0 that includes minor updates:
+      - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
+      - Updated some transitive dependencies for vulnerability fixes.
+
 1.13.0 (May 24, 2024)
  - Added a new `getStatus` helper function to retrieve the status properties of the SDK manager and clients: `isReady`, `isReadyFromCache`, `hasTimedout`, and `isDestroyed`.
  - Added new `selectTreatmentAndStatus` and `selectTreatmentWithConfigAndStatus` selectors as alternatives to the `selectTreatmentValue` and `selectTreatmentWithConfig` selectors, respectively.

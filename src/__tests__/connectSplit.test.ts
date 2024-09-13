@@ -13,7 +13,7 @@ import { connectSplit } from '../react-redux/connectSplit';
 const FeatureComponent = createComponentWithExposedProps('FeatureComponent');
 
 describe('connectSplit', () => {
-  it('should pass the Split piece of state and binded getTreatment as props', () => {
+  it('should pass the Split piece of state and bound getTreatment as props', () => {
     const store = mockStore(STATE_READY);
 
     const ConnectedFeatureComponent: React.ComponentType<any> = connectSplit()(FeatureComponent);

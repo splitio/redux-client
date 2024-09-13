@@ -1,7 +1,8 @@
 import { splitSdk, getClient } from './asyncActions';
 import { IStatus, ITrackParams } from './types';
 import { ERROR_TRACK_NO_INITSPLITSDK, ERROR_MANAGER_NO_INITSPLITSDK } from './constants';
-import { __getStatus, matching } from './utils';
+import { __getStatus, isMainClient, matching } from './utils';
+import { initialStatus } from './reducer';
 
 /**
  * This function track events, i.e., it invokes the actual `client.track*` methods.
@@ -86,12 +87,10 @@ export function getSplits(): SplitIO.SplitViews {
 }
 
 /**
- * Gets an object with the status properties of the SDK client or manager:
+ * Gets an object with the status properties of the SDK client or manager.
  *
- * - `isReady` indicates if the SDK client has emitted the SDK_READY event.
- * - `isReadyFromCache` indicates if the SDK client has emitted the SDK_READY_FROM_CACHE event.
- * - `hasTimedout` indicates if the SDK client has emitted the SDK_READY_TIMED_OUT event.
- * - `isDestroyed` indicates if the SDK client has been destroyed, i.e., if the `destroySplitSdk` action was dispatched.
+ * This function is similar to the `selectStatus` selector, but it does not require the Split state as a parameter since it uses the global `splitSdk` object.
+ * Consider using the `selectStatus` selector instead for a more Redux-friendly approach.
  *
  * @param {SplitIO.SplitKey} key To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
  * If no key is provided, the status of the main client and manager is returned (the main client shares the status with the manager).
@@ -103,17 +102,11 @@ export function getSplits(): SplitIO.SplitViews {
 export function getStatus(key?: SplitIO.SplitKey): IStatus {
   if (splitSdk.factory) {
     const stringKey = matching(key);
-    const isMainClient = splitSdk.isDetached || !stringKey || stringKey === matching((splitSdk.config as SplitIO.IBrowserSettings).core.key);
-    const client = isMainClient ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
+    const client = isMainClient(key) ? splitSdk.factory.client() : splitSdk.sharedClients[stringKey];
 
     if (client) return __getStatus(client);
   }
 
   // Default status if SDK is not initialized or client is not found. No warning logs for now, in case the helper is used before actions are dispatched
-  return {
-    isReady: false,
-    isReadyFromCache: false,
-    hasTimedout: false,
-    isDestroyed: false,
-  };
+  return { ...initialStatus };
 }

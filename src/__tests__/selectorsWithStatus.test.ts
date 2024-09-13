@@ -1,17 +1,13 @@
 /** Mocks */
-import { SPLIT_1, SPLIT_2, STATE_READY, USER_1 } from './utils/storeState';
-import { mockSdk, Event } from './utils/mockBrowserSplitSdk';
+import { SPLIT_1, SPLIT_2, USER_1, USER_2, STATUS_INITIAL, STATE_INITIAL, STATE_READY, STATE_READY_USER_2 } from './utils/storeState';
+import { mockSdk } from './utils/mockBrowserSplitSdk';
 jest.mock('@splitsoftware/splitio', () => {
   return { SplitFactory: mockSdk() };
 });
-
-import mockStore from './utils/mockStore';
-import { STATE_INITIAL, STATUS_INITIAL } from './utils/storeState';
-import { sdkBrowserConfig } from './utils/sdkConfigs';
-import { initSplitSdk, getTreatments, splitSdk } from '../asyncActions';
+import { initSplitSdk, splitSdk } from '../asyncActions';
 
 /** Constants */
-import { ON, CONTROL, CONTROL_WITH_CONFIG, ERROR_SELECTOR_NO_SPLITSTATE } from '../constants';
+import { ON, OFF, CONTROL, ERROR_SELECTOR_NO_SPLITSTATE } from '../constants';
 
 /** Test targets */
 import {
@@ -44,54 +40,55 @@ describe('selectTreatmentAndStatus & selectTreatmentWithConfigAndStatus', () => 
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
-  it('if getTreatments action was not dispatched for the provided feature flag and key, returns default treatment and client status', () => {
-    const store = mockStore(STATE_INITIAL);
-    store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
-    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
-
-    expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1)).toEqual({
-      treatment: CONTROL,
-      // status of main client:
-      ...STATUS_INITIAL, isReady: true, isOperational: true,
+  it('in client-side, there might be more than one client with its own status', () => {
+    initSplitSdk({
+      config: {
+        core: {
+          authorizationKey: 'SDK KEY',
+          key: USER_1,
+        },
+      }
     });
 
-    expect(selectTreatmentAndStatus(STATE_INITIAL.splitio, SPLIT_1, USER_1, 'some_value')).toEqual({
-      treatment: 'some_value',
-      // USER_1 client has not been initialized yet:
+    // Main client is ready and has treatments
+    expect(selectTreatmentAndStatus(STATE_READY.splitio, SPLIT_1)).toEqual({
+      treatment: ON,
+      ...STATUS_INITIAL, isReady: true, lastUpdate: STATE_READY.splitio.lastUpdate,
+    });
+
+    // USER_1 is the main client
+    expect(selectTreatmentWithConfigAndStatus(STATE_READY.splitio, SPLIT_2, USER_1)).toEqual({
+      treatment: { treatment: OFF, config: null },
+      ...STATUS_INITIAL, isReady: true, lastUpdate: STATE_READY.splitio.lastUpdate,
+    });
+
+    // USER_2 client is not ready and has no treatments
+    expect(selectTreatmentAndStatus(STATE_READY.splitio, SPLIT_1, USER_2)).toEqual({
+      treatment: CONTROL,
       ...STATUS_INITIAL,
     });
 
-    store.dispatch<any>(getTreatments({ key: USER_1, splitNames: [SPLIT_2] }));
-    (splitSdk.factory as any).client(USER_1).__emitter__.emit(Event.SDK_READY_FROM_CACHE);
-
-    expect(selectTreatmentWithConfigAndStatus(STATE_INITIAL.splitio, SPLIT_2, USER_1)).toEqual({
-      treatment: CONTROL_WITH_CONFIG,
-      // status of shared client:
-      ...STATUS_INITIAL, isReadyFromCache: true, isOperational: true,
+    // USER_2 client is ready but has no treatments
+    expect(selectTreatmentAndStatus(STATE_READY_USER_2.splitio, SPLIT_2, USER_2)).toEqual({
+      treatment: CONTROL,
+      ...STATUS_INITIAL, isReady: true, lastUpdate: STATE_READY_USER_2.splitio.status![USER_2].lastUpdate,
     });
 
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
-  it('happy path: returns the treatment value and status of the client', () => {
-    // The following actions result in STATE_READY state:
-    const store = mockStore();
-    store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
-    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
-    (splitSdk.factory as any).client(USER_1).__emitter__.emit(Event.SDK_READY_FROM_CACHE);
-    store.dispatch<any>(getTreatments({ splitNames: [SPLIT_1] }));
-    store.dispatch<any>(getTreatments({ key: USER_1, splitNames: [SPLIT_2] }));
+  it('in server-side, there is a single client and so all user keys share the same status', () => {
+    splitSdk.isDetached = true;
 
     expect(selectTreatmentAndStatus(STATE_READY.splitio, SPLIT_1)).toEqual({
       treatment: ON,
-      ...STATUS_INITIAL,
-      isReady: true, isOperational: true,
+      ...STATUS_INITIAL, isReady: true, lastUpdate: STATE_READY.splitio.lastUpdate
     });
 
-    expect(selectTreatmentWithConfigAndStatus(STATE_READY.splitio, SPLIT_2, USER_1)).toEqual({
-      treatment: STATE_READY.splitio.treatments[SPLIT_2][USER_1],
-      ...STATUS_INITIAL,
-      isReadyFromCache: true, isOperational: true,
+    // U
+    expect(selectTreatmentAndStatus(STATE_READY.splitio, SPLIT_1, USER_2)).toEqual({
+      treatment: CONTROL,
+      ...STATUS_INITIAL, isReady: true, lastUpdate: STATE_READY.splitio.lastUpdate
     });
 
     expect(errorSpy).not.toHaveBeenCalled();

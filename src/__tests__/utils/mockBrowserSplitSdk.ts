@@ -30,16 +30,26 @@ export function mockSdk() {
 
   return jest.fn((config: SplitIO.IBrowserSettings, __updateModules?: (modules: { settings: { version: string } }) => void) => {
 
+    // ATM, isReadyFromCache is shared among clients
+    let isReadyFromCache = false;
+
     function mockClient(key?: SplitIO.SplitKey) {
       // Readiness
-      let __isReady__: boolean | undefined;
-      let __isReadyFromCache__: boolean | undefined;
-      let __hasTimedout__: boolean | undefined;
-      let __isDestroyed__: boolean | undefined;
+      let isReady = false;
+      let hasTimedout = false;
+      let isDestroyed = false;
+      let lastUpdate = 0;
+
+      function syncLastUpdate() {
+        const dateNow = Date.now();
+        lastUpdate = dateNow > lastUpdate ? dateNow : lastUpdate + 1;
+      }
+
       const __emitter__ = new EventEmitter();
-      __emitter__.once(Event.SDK_READY, () => { __isReady__ = true; });
-      __emitter__.once(Event.SDK_READY_FROM_CACHE, () => { __isReadyFromCache__ = true; });
-      __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { __hasTimedout__ = true; });
+      __emitter__.once(Event.SDK_READY, () => { isReady = true; syncLastUpdate(); });
+      __emitter__.once(Event.SDK_READY_FROM_CACHE, () => { isReadyFromCache = true; syncLastUpdate(); });
+      __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { hasTimedout = true; syncLastUpdate(); });
+      __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
 
       // Client methods
       const track: jest.Mock = jest.fn((tt, et, v, p) => {
@@ -77,19 +87,22 @@ export function mockSdk() {
       });
       const ready: jest.Mock = jest.fn(() => {
         return promiseWrapper(new Promise<void>((res, rej) => {
-          __isReady__ ? res() : __emitter__.on(Event.SDK_READY, res);
-          __hasTimedout__ ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
+          isReady ? res() : __emitter__.on(Event.SDK_READY, res);
+          hasTimedout ? rej() : __emitter__.on(Event.SDK_READY_TIMED_OUT, rej);
         }), () => { });
       });
       const __getStatus = () => ({
-        isReady: __isReady__ || false,
-        isReadyFromCache: __isReadyFromCache__ || false,
-        hasTimedout: __hasTimedout__ || false,
-        isDestroyed: __isDestroyed__ || false,
-        isOperational: ((__isReady__ || __isReadyFromCache__) && !__isDestroyed__) || false,
+        isReady,
+        isReadyFromCache,
+        isTimedout: hasTimedout && !isReady,
+        hasTimedout,
+        isDestroyed,
+        isOperational: (isReady || isReadyFromCache) && !isDestroyed,
+        lastUpdate,
       });
       const destroy: jest.Mock = jest.fn(() => {
-        __isDestroyed__ = true;
+        isDestroyed = true;
+        syncLastUpdate();
         return new Promise((res) => { setTimeout(res, 100); });
       });
 
@@ -105,7 +118,7 @@ export function mockSdk() {
         getAttributes,
         // EventEmitter exposed to trigger events manually
         __emitter__,
-        // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isOperational, hasTimedout, isDestroyed)
+        // Clients expose a `__getStatus` method, that is not considered part of the public API, to get client readiness status (isReady, isReadyFromCache, isTimedout, hasTimedout, isDestroyed, isOperational, lastUpdate)
         __getStatus,
       });
     }
