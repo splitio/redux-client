@@ -540,32 +540,25 @@ describe('getTreatments', () => {
       expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1); // control assertion - 1 evaluation was registered for SDK_READY on the new client
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
 
-      // If SDK was ready from cache, the SPLIT_READY_FROM_CACHE action is dispatched for the new clients
+      // If SDK was ready from cache, the SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS action is dispatched for the new clients, calling SDK client to evaluate from cache
       let action = store.getActions()[2];
       expect(action).toEqual({
-        type: SPLIT_READY_FROM_CACHE,
+        type: SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
         payload: {
           key: 'other-user-key',
-          timestamp: expect.any(Number)
+          timestamp: 0,
+          treatments: expect.any(Object),
+          nonDefaultKey: true
         }
       });
 
-      // and an ADD_TREATMENTS action is dispatched calling SDK client to evaluate from cache
-      action = store.getActions()[3];
-      expect(action).toEqual({
-        type: ADD_TREATMENTS,
-        payload: {
-          key: 'other-user-key',
-          treatments: expect.any(Object)
-        }
-      });
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_READY, 'other-user-key');
 
       // The SPLIT_READY_WITH_EVALUATIONS action is dispatched synchronously once the SDK is ready for the new user key
-      action = store.getActions()[4];
+      action = store.getActions()[3];
       expect(action).toEqual({
         type: SPLIT_READY_WITH_EVALUATIONS,
         payload: {
@@ -585,7 +578,7 @@ describe('getTreatments', () => {
       // The getTreatments is dispatched again, but this time is evaluated with attributes and registered for 'evalOnUpdate'
       const attributes = { att1: 'att1' };
       store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes, key: 'other-user-key', evalOnUpdate: true }));
-      action = store.getActions()[5];
+      action = store.getActions()[4];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
@@ -598,7 +591,7 @@ describe('getTreatments', () => {
 
       // The SPLIT_UPDATE_WITH_EVALUATIONS action is dispatched when the SDK is updated for the new user key
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[6];
+      action = store.getActions()[5];
       expect(action).toEqual({
         type: SPLIT_UPDATE_WITH_EVALUATIONS,
         payload: {
@@ -614,7 +607,7 @@ describe('getTreatments', () => {
 
       // We deregister the item from evalOnUpdate.
       store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key', evalOnUpdate: false }));
-      action = store.getActions()[7];
+      action = store.getActions()[6];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
@@ -628,7 +621,7 @@ describe('getTreatments', () => {
 
       // Now, SDK_UPDATE events do not trigger SPLIT_UPDATE_WITH_EVALUATIONS but SPLIT_UPDATE instead
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[8];
+      action = store.getActions()[7];
       expect(action).toEqual({
         type: SPLIT_UPDATE,
         payload: {
@@ -637,8 +630,8 @@ describe('getTreatments', () => {
         }
       });
 
-      expect(store.getActions().length).toBe(9); // control assertion - no more actions after the update.
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(5); // control assertion - called 5 times, in actions ADD_TREATMENTS, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.
+      expect(store.getActions().length).toBe(8); // control assertion - no more actions after the update.
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(5); // control assertion - called 5 times, in actions SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, ADD_TREATMENTS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.
 
       done();
     });

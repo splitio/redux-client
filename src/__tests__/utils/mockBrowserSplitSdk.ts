@@ -30,7 +30,7 @@ export function mockSdk() {
 
   return jest.fn((config: SplitIO.IBrowserSettings, __updateModules?: (modules: { settings: { version: string } }) => void) => {
 
-    // isReadyFromCache is a shared status among clients
+    // ATM, isReadyFromCache is shared among clients
     let isReadyFromCache = false;
 
     function mockClient(key?: SplitIO.SplitKey) {
