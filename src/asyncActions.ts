@@ -148,6 +148,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       client.evalOnReady.push(params);
     }
 
+    // @TODO breaking: consider removing `evalOnReadyFromCache` config option, since `false` value has no effect on shared clients (they are ready from cache immediately) and on the main client if its ready from cache when `getTreatments` is called
     // If the SDK is not ready from cache and flag `evalOnReadyFromCache`, it stores the action to execute when ready from cache
     if (!status.isReadyFromCache && params.evalOnReadyFromCache) {
       client.evalOnReadyFromCache.push(params);
@@ -156,7 +157,12 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
     if (status.isOperational) {
       // If the SDK is operational (i.e., it is ready or ready from cache), it evaluates and adds treatments to the store
       const treatments = __getTreatments(client, [params]);
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
+
+      // Shared clients might be ready from cache immediately, so we need to dispatch a single action that updates treatments and `isReadyFromCache` status atomically
+      // @TODO handle this corner case by refactoring actions into a single action that includes both the client status and optional evaluation/s, to minimize state changes and avoid edge cases
+      return status.isReadyFromCache && !status.isReady && !isMainClient(params.key) ?
+        splitReadyFromCacheWithEvaluations(params.key, treatments, status.lastUpdate, true) :
+        addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
     } else {
       // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
       // With flag sets, an empty object is passed since we don't know their feature flag names
@@ -241,7 +247,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (splitSdk.dispatch) splitSdk.dispatch(splitTimedout(__getStatus(client).lastUpdate, key));
   });
 
-  // On SDK timed out, dispatch `splitReadyFromCache` action
+  // On SDK ready from cache, dispatch `splitReadyFromCache` action
   client.once(client.Event.SDK_READY_FROM_CACHE, function onReadyFromCache() {
     if (!splitSdk.dispatch) return;
 
