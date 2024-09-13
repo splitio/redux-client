@@ -148,6 +148,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       client.evalOnReady.push(params);
     }
 
+    // @TODO remove `evalOnReadyFromCache` config option, since `false` value has no effect on shared clients (they are ready from cache immediately) and on the main client if its ready from cache when `getTreatments` is called
     // If the SDK is not ready from cache and flag `evalOnReadyFromCache`, it stores the action to execute when ready from cache
     if (!status.isReadyFromCache && params.evalOnReadyFromCache) {
       client.evalOnReadyFromCache.push(params);
@@ -241,19 +242,24 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (splitSdk.dispatch) splitSdk.dispatch(splitTimedout(__getStatus(client).lastUpdate, key));
   });
 
-  // On SDK timed out, dispatch `splitReadyFromCache` action
-  client.once(client.Event.SDK_READY_FROM_CACHE, function onReadyFromCache() {
-    if (!splitSdk.dispatch) return;
+  // On SDK ready from cache, dispatch `splitReadyFromCache` action
+  const status = __getStatus(client);
+  if (status.isReadyFromCache) { // can be true immediately for shared clients
+    if (splitSdk.dispatch) splitSdk.dispatch(splitReadyFromCache(status.lastUpdate, key));
+  } else {
+    client.once(client.Event.SDK_READY_FROM_CACHE, function onReadyFromCache() {
+      if (!splitSdk.dispatch) return;
 
-    const lastUpdate = __getStatus(client).lastUpdate;
-    if (client.evalOnReadyFromCache.length) {
-      const treatments = __getTreatments(client, client.evalOnReadyFromCache);
+      const lastUpdate = __getStatus(client).lastUpdate;
+      if (client.evalOnReadyFromCache.length) {
+        const treatments = __getTreatments(client, client.evalOnReadyFromCache);
 
-      splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
-    } else {
-      splitSdk.dispatch(splitReadyFromCache(lastUpdate, key));
-    }
-  });
+        splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+      } else {
+        splitSdk.dispatch(splitReadyFromCache(lastUpdate, key));
+      }
+    });
+  }
 
   // On SDK update, evaluate the registered `getTreatments` actions and dispatch `splitUpdate` action
   client.on(client.Event.SDK_UPDATE, function onUpdate() {

@@ -30,10 +30,12 @@ export function mockSdk() {
 
   return jest.fn((config: SplitIO.IBrowserSettings, __updateModules?: (modules: { settings: { version: string } }) => void) => {
 
+    // isReadyFromCache is a shared status among clients
+    let isReadyFromCache = false;
+
     function mockClient(key?: SplitIO.SplitKey) {
       // Readiness
       let isReady = false;
-      let isReadyFromCache = false;
       let hasTimedout = false;
       let isDestroyed = false;
       let lastUpdate = 0;
