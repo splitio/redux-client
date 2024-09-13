@@ -148,7 +148,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       client.evalOnReady.push(params);
     }
 
-    // @TODO remove `evalOnReadyFromCache` config option, since `false` value has no effect on shared clients (they are ready from cache immediately) and on the main client if its ready from cache when `getTreatments` is called
+    // @TODO breaking: consider removing `evalOnReadyFromCache` config option, since `false` value has no effect on shared clients (they are ready from cache immediately) and on the main client if its ready from cache when `getTreatments` is called
     // If the SDK is not ready from cache and flag `evalOnReadyFromCache`, it stores the action to execute when ready from cache
     if (!status.isReadyFromCache && params.evalOnReadyFromCache) {
       client.evalOnReadyFromCache.push(params);

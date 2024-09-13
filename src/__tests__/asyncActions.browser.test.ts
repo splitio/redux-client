@@ -293,14 +293,13 @@ describe('getTreatments', () => {
         expect(store.getActions().length).toBe(4);
 
         // getting the evaluation result and validating it matches the results from SDK calls
-        const treatments = action.payload.treatments;
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(3, ['split1'], undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2', 'split3'], attributes);
         const expectedTreatments = {
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[2].value,
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[3].value,
         };
-        expect(treatments).toEqual(expectedTreatments);
+        expect(action.payload.treatments).toEqual(expectedTreatments);
 
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(4); // control assertion - getTreatmentsWithConfig calls
         expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
@@ -524,41 +523,49 @@ describe('getTreatments', () => {
     // Init SDK and set ready
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig }));
+    (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY);
 
     actionResult.then(() => {
-      // SPLIT_READY should have been dispatched
-      expect(store.getActions().length).toBe(1);
-      let action = store.getActions()[0];
-      expect(action).toEqual({
-        type: SPLIT_READY,
-        payload: {
-          timestamp: expect.any(Number)
-        }
-      });
+      // SDK_READY_FROM_CACHE & SPLIT_READY should have been dispatched
+      expect(store.getActions()).toEqual([{
+        type: SPLIT_READY_FROM_CACHE, payload: { timestamp: expect.any(Number) }
+      }, {
+        type: SPLIT_READY, payload: { timestamp: expect.any(Number) }
+      }]);
 
-      // If SDK is ready for the main key and a getTreatment is dispatched for a different user key:
-      // the item is added to the 'evalOnReady' list of the new client,
+      // If getTreatment is dispatched for a different user key, the item is added to the 'evalOnReady' list of the new client
       store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key' }));
       expect(getClient(splitSdk).evalOnReady.length).toEqual(0); // control assertion - no evaluations were registered for SDK_READY on main client
       expect(getClient(splitSdk, 'other-user-key').evalOnReady.length).toEqual(1); // control assertion - 1 evaluation was registered for SDK_READY on the new client
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
 
-      // and an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client.
-      action = store.getActions()[1];
+      // If SDK was ready from cache, the SPLIT_READY_FROM_CACHE action is dispatched for the new clients
+      let action = store.getActions()[2];
+      expect(action).toEqual({
+        type: SPLIT_READY_FROM_CACHE,
+        payload: {
+          key: 'other-user-key',
+          timestamp: expect.any(Number)
+        }
+      });
+
+      // and an ADD_TREATMENTS action is dispatched calling SDK client to evaluate from cache
+      action = store.getActions()[3];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
           key: 'other-user-key',
-          treatments: getControlTreatmentsWithConfig(['split2'])
+          treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(0);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_READY, 'other-user-key');
 
       // The SPLIT_READY_WITH_EVALUATIONS action is dispatched synchronously once the SDK is ready for the new user key
-      action = store.getActions()[2];
+      action = store.getActions()[4];
       expect(action).toEqual({
         type: SPLIT_READY_WITH_EVALUATIONS,
         payload: {
@@ -570,16 +577,15 @@ describe('getTreatments', () => {
       });
 
       // getting the evaluation result and validating it matches the results from SDK
-      const treatments = action.payload.treatments;
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion
 
       // The getTreatments is dispatched again, but this time is evaluated with attributes and registered for 'evalOnUpdate'
       const attributes = { att1: 'att1' };
       store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes, key: 'other-user-key', evalOnUpdate: true }));
-      action = store.getActions()[3];
+      action = store.getActions()[5];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
@@ -592,7 +598,7 @@ describe('getTreatments', () => {
 
       // The SPLIT_UPDATE_WITH_EVALUATIONS action is dispatched when the SDK is updated for the new user key
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[4];
+      action = store.getActions()[6];
       expect(action).toEqual({
         type: SPLIT_UPDATE_WITH_EVALUATIONS,
         payload: {
@@ -608,7 +614,7 @@ describe('getTreatments', () => {
 
       // We deregister the item from evalOnUpdate.
       store.dispatch<any>(getTreatments({ splitNames: 'split2', key: 'other-user-key', evalOnUpdate: false }));
-      action = store.getActions()[5];
+      action = store.getActions()[7];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
@@ -622,7 +628,7 @@ describe('getTreatments', () => {
 
       // Now, SDK_UPDATE events do not trigger SPLIT_UPDATE_WITH_EVALUATIONS but SPLIT_UPDATE instead
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[6];
+      action = store.getActions()[8];
       expect(action).toEqual({
         type: SPLIT_UPDATE,
         payload: {
@@ -631,8 +637,8 @@ describe('getTreatments', () => {
         }
       });
 
-      expect(store.getActions().length).toBe(7); // control assertion - no more actions after the update.
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(4); // control assertion - called 4 times, in actions SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.
+      expect(store.getActions().length).toBe(9); // control assertion - no more actions after the update.
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toBeCalledTimes(5); // control assertion - called 5 times, in actions ADD_TREATMENTS, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.
 
       done();
     });
