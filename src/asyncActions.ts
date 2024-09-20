@@ -294,15 +294,12 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // Destroy the client(s) outside the thunk action, since on server-side the action is not dispatched
   // because stores have a life-span per session/request and there may not be one when server shuts down.
   const mainClient = splitSdk.factory.client();
-  // in node, `splitSdk.sharedClients` is an empty object
-  const sharedClients = splitSdk.sharedClients;
-  const destroyPromises = Object.keys(sharedClients).map((clientKey) => sharedClients[clientKey].destroy());
-  destroyPromises.push(mainClient.destroy());
+  const destroyPromise = splitSdk.factory.destroy();
 
   // Add onDestroy callback listener. It is important for server-side, where the thunk action is not dispatched
   // and so the user cannot access the promise as follows: `store.dispatch(destroySplitSdk()).then(...)`
   let dispatched = false;
-  if (params.onDestroy) Promise.all(destroyPromises).then(() => {
+  if (params.onDestroy) destroyPromise.then(() => {
     // condition to avoid calling the callback twice, since it should be called preferably after the action has been dispatched
     if (!dispatched) params.onDestroy();
   });
@@ -310,7 +307,7 @@ export function destroySplitSdk(params: IDestroySplitSdkParams = {}): (dispatch:
   // Return Thunk (async) action
   return (dispatch: Dispatch<Action>): Promise<void> => {
     dispatched = true;
-    return Promise.all(destroyPromises).then(function () {
+    return destroyPromise.then(function () {
       dispatch(splitDestroy(__getStatus(mainClient).lastUpdate));
       if (params.onDestroy) params.onDestroy();
     });
