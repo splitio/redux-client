@@ -285,7 +285,8 @@ describe('getTreatments', () => {
           payload: {
             key: sdkBrowserConfig.core.key,
             treatments: expect.any(Object),
-            timestamp: expect.any(Number)
+            timestamp: expect.any(Number),
+            nonDefaultKey: false
           }
         });
 
@@ -364,7 +365,8 @@ describe('getTreatments', () => {
         payload: {
           key: sdkBrowserConfig.core.key,
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: false
         }
       });
 
@@ -438,7 +440,8 @@ describe('getTreatments', () => {
         payload: {
           key: sdkBrowserConfig.core.key,
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: false
         }
       });
 
@@ -459,7 +462,8 @@ describe('getTreatments', () => {
         payload: {
           key: sdkBrowserConfig.core.key,
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: false
         }
       });
 
@@ -478,7 +482,8 @@ describe('getTreatments', () => {
         payload: {
           key: sdkBrowserConfig.core.key,
           treatments: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
+          nonDefaultKey: false
         }
       });
 

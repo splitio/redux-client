@@ -92,6 +92,11 @@ export function mockSdk() {
       return __client__;
     });
 
+    // Factory destroy
+    const destroy = jest.fn(() => {
+      return __client__.destroy();
+    });
+
     const modules = { settings: { version: 'nodejs-10.18.0' } };
     if (__updateModules) __updateModules(modules);
 
@@ -99,6 +104,7 @@ export function mockSdk() {
     const factory = {
       client,
       manager,
+      destroy,
       settings: modules.settings,
       __names__: names,
       __split__: split,
