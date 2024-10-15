@@ -190,7 +190,7 @@ describe('Split reducer', () => {
     const initialTreatments = initialState.treatments;
 
     // default key
-    const action = actionCreator(key, treatments, 1000);
+    const action = actionCreator(key, treatments, 1000, false);
     expect(splitReducer(initialState, action)).toEqual({
       ...initialState,
       isReady,
@@ -231,7 +231,7 @@ describe('Split reducer', () => {
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: { ...previousTreatment },
     };
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was not replaced in the state
@@ -262,7 +262,7 @@ describe('Split reducer', () => {
         config: previousTreatment.config,
       },
     };
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -293,7 +293,7 @@ describe('Split reducer', () => {
       },
     };
     // const action = addTreatments(key, newTreatments);
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -312,6 +312,14 @@ describe('Split reducer', () => {
         },
       },
     });
+  });
+
+  it('should ignore other actions', () => {
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION' })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: null })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: undefined })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: {} })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: true })).toBe(initialState);
   });
 
 });
