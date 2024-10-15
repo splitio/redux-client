@@ -236,7 +236,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (client.evalOnReady.length) {
       const treatments = __getTreatments(client, client.evalOnReady);
 
-      splitSdk.dispatch(splitReadyWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+      splitSdk.dispatch(splitReadyWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key ? true : false));
     } else {
       splitSdk.dispatch(splitReady(lastUpdate, key));
     }
@@ -255,7 +255,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (client.evalOnReadyFromCache.length) {
       const treatments = __getTreatments(client, client.evalOnReadyFromCache);
 
-      splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+      splitSdk.dispatch(splitReadyFromCacheWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key ? true : false));
     } else {
       splitSdk.dispatch(splitReadyFromCache(lastUpdate, key));
     }
@@ -270,7 +270,7 @@ export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientN
     if (evalOnUpdate.length) {
       const treatments = __getTreatments(client, evalOnUpdate);
 
-      splitSdk.dispatch(splitUpdateWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key && true));
+      splitSdk.dispatch(splitUpdateWithEvaluations(key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments, lastUpdate, key ? true : false));
     } else {
       splitSdk.dispatch(splitUpdate(lastUpdate, key));
     }
