@@ -1,3 +1,6 @@
+2.0.0 (September XX, 2024)
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
+
 1.14.1 (October 15, 2024)
  - Bugfixing - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
 

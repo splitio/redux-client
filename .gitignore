@@ -1,9 +1,9 @@
 .DS_Store
-node_modules
-lib
-es
-types
-coverage
-examples
-.vscode
-.scannerwork
+/node_modules
+/cjs
+/esm
+/types
+/coverage
+/examples
+/.vscode
+/.scannerwork
