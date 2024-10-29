@@ -1,8 +1,5 @@
-1.15.0 (October XX, 2024)
- - Updated @splitsoftware/splitio package to version 10.29.0 that includes minor updates:
-      - Added `factory.destroy()` method, which invokes the `destroy` method on all SDK clients created by the factory.
-      - Added support for targeting rules based on large segments for browsers.
-      - Updated some transitive dependencies for vulnerability fixes.
+2.0.0 (September XX, 2024)
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
 
 1.14.1 (October 15, 2024)
  - Bugfixing - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
