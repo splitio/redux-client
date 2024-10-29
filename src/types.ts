@@ -193,7 +193,7 @@ export interface ITrackParams {
   properties?: SplitIO.Properties;
 }
 
-export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
+export type ISplitFactoryBuilder = ((settings: SplitIO.IBrowserSettings) => SplitIO.ISDK) | ((settings: SplitIO.INodeSettings) => SplitIO.INodeSDK);
 
 export type ISplitAction = {
   type: string;

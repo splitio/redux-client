@@ -14,7 +14,7 @@ import { matching, __getStatus, validateGetTreatmentsParams, isMainClient } from
 export interface ISplitSdk {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
   splitio: ISplitFactoryBuilder;
-  factory: SplitIO.ISDK;
+  factory: SplitIO.ISDK | SplitIO.INodeSDK;
   sharedClients: { [stringKey: string]: SplitIO.IClient };
   isDetached: boolean; // true: server-side, false: client-side (i.e., client with bound key)
   dispatch: Dispatch<Action>;

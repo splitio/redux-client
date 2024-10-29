@@ -17,20 +17,20 @@ export function track(params: ITrackParams): boolean {
     console.error(ERROR_TRACK_NO_INITSPLITSDK);
     return false;
   }
-  const trackParams = [params.eventType, params.value, params.properties];
-  let client; // Client getting variates depending on browser or node.
+
+  const { key, trafficType, eventType, value, properties } = params;
 
   if (splitSdk.isDetached) { // Node
     // In node, user must always provide key and TT as params
-    client = splitSdk.factory.client();
-    trackParams.unshift(params.key, params.trafficType);
+    const client = splitSdk.factory.client() as SplitIO.INodeClient;
+
+    return client.track(key, trafficType, eventType, value, properties);
   } else { // Browser
     // client is a shared or main client whether or not the key is provided
-    client = getClient(splitSdk, params.key);
-    trackParams.unshift(params.trafficType);
-  }
+    const client = getClient(splitSdk, params.key);
 
-  return client.track(...trackParams as [string, any]);
+    return client.track(trafficType, eventType, value, properties);
+  }
 }
 
 /**
