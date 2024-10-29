@@ -138,6 +138,11 @@ export function mockSdk() {
       return __clients__[instanceId] || (__clients__[instanceId] = mockClient(key));
     });
 
+    // Factory destroy
+    const destroy = jest.fn(() => {
+      return Promise.all(Object.keys(__clients__).map(instanceId => __clients__[instanceId].destroy()));
+    });
+
     const modules = { settings: { version: 'javascript-10.18.0' } };
     if (__updateModules) __updateModules(modules);
 
@@ -145,6 +150,7 @@ export function mockSdk() {
     const factory = {
       client,
       manager,
+      destroy,
       settings: modules.settings,
       __names__: names,
       __split__: split,
