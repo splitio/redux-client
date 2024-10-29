@@ -2,7 +2,7 @@
 
 VERSION=$(node -e "(function () { console.log(require('./package.json').version) })()")
 
-replace 'REDUX_SDK_VERSION_NUMBER' $VERSION ./lib/constants.js ./es/constants.js
+replace 'REDUX_SDK_VERSION_NUMBER' $VERSION ./cjs/constants.js ./esm/constants.js
 
 if [ $? -eq 0 ]
 then
