@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import promiseWrapper from './promiseWrapper';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
@@ -22,7 +21,7 @@ function parseKey(key: SplitIO.SplitKey): SplitIO.SplitKey {
     };
   }
 }
-function buildInstanceId(key: any, trafficType: string | undefined) {
+function buildInstanceId(key: any, trafficType?: string) {
   return `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 }
 
@@ -33,7 +32,7 @@ export function mockSdk() {
     // ATM, isReadyFromCache is shared among clients
     let isReadyFromCache = false;
 
-    function mockClient(key?: SplitIO.SplitKey) {
+    function mockClient(_key?: SplitIO.SplitKey) {
       // Readiness
       let isReady = false;
       let hasTimedout = false;
@@ -51,14 +50,10 @@ export function mockSdk() {
       __emitter__.once(Event.SDK_READY_TIMED_OUT, () => { hasTimedout = true; syncLastUpdate(); });
       __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
 
+      let attributesCache = {};
+
       // Client methods
       const track: jest.Mock = jest.fn((tt, et, v, p) => {
-        if (!(key || !config.core.trafficType)) {
-          p = v;
-          v = et;
-          et = tt;
-          tt = config.core.trafficType;
-        }
         return typeof tt === 'string' &&
           typeof et === 'string' &&
           (typeof v === 'number' || typeof v === 'undefined') &&
@@ -76,14 +71,16 @@ export function mockSdk() {
           return acc;
         }, {});
       });
-      const setAttributes: jest.Mock = jest.fn(() => {
+      const setAttributes: jest.Mock = jest.fn((attributes) => {
+        attributesCache = Object.assign(attributesCache, attributes);
         return true;
       });
       const clearAttributes: jest.Mock = jest.fn(() => {
+        attributesCache = {};
         return true;
       });
       const getAttributes: jest.Mock = jest.fn(() => {
-        return true;
+        return attributesCache;
       });
       const ready: jest.Mock = jest.fn(() => {
         return promiseWrapper(new Promise<void>((res, rej) => {
@@ -130,11 +127,10 @@ export function mockSdk() {
     const manager: jest.Mock = jest.fn().mockReturnValue({ names, split, splits });
 
     // Cache of clients
-    const __clients__: { [key: string]: any } = {};
+    const __clients__: { [instanceId: string]: any } = {};
     const client = jest.fn((key?: SplitIO.SplitKey) => {
       const clientKey = key || parseKey(config.core.key);
-      const clientTT = key ? undefined : config.core.trafficType;
-      const instanceId = buildInstanceId(clientKey, clientTT);
+      const instanceId = buildInstanceId(clientKey);
       return __clients__[instanceId] || (__clients__[instanceId] = mockClient(key));
     });
 

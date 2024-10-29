@@ -173,7 +173,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
   } else { // Split SDK running in Node
 
     // Evaluate Split and return redux action.
-    const client = splitSdk.factory.client();
+    const client = splitSdk.factory.client() as unknown as SplitIO.INodeClient;
     const treatments = splitNames ?
       client.getTreatmentsWithConfig(params.key, splitNames, params.attributes) :
       client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes);

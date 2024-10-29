@@ -27,11 +27,7 @@ export function track(params: ITrackParams): boolean {
   } else { // Browser
     // client is a shared or main client whether or not the key is provided
     client = getClient(splitSdk, params.key);
-
-    // TT is required if the key is provided (shared client) or if not present in config (main client)
-    if (params.key || !(splitSdk.config.core as SplitIO.IBrowserSettings['core']).trafficType) {
-      trackParams.unshift(params.trafficType);
-    }
+    trackParams.unshift(params.trafficType);
   }
 
   return client.track(...trackParams as [string, any]);

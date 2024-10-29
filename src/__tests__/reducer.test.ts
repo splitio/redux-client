@@ -1,7 +1,6 @@
 import { initialStatus, splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
-import SplitIO from '@splitsoftware/splitio/types/splitio';
 import { AnyAction } from 'redux';
 
 const initialState: ISplitState = {
