@@ -77,7 +77,7 @@ export interface IInitSplitSdkParams {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
   /**
-   * Optional param to provide a Split factory initializer to use instead of SplitFactory from '@splitsoftware/splitio'.
+   * Optional param to provide a Split factory initializer to use instead of SplitFactory from `'@splitsoftware/splitio'`.
    * It can be useful when the Split factory is imported from the UMD bundle in a HTML script.
    */
   splitio?: ISplitFactoryBuilder;
@@ -125,14 +125,16 @@ export type IGetTreatmentsParams = {
    * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
    * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
    * you want to keep the treatment unchanged during the sesion of the user.
-   * @default false
+   *
+   * @defaultValue `false`
    */
   evalOnUpdate?: boolean;
 
   /**
    * This param indicates to evaluate the feature flags if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
    * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
-   * @default false
+   *
+   * @defaultValue `false`
    */
   evalOnReadyFromCache?: boolean;
 } & ({

@@ -8,8 +8,8 @@
  *  - setting an `onFinally` handler as the first handler (e.g. `promiseWrapper(Promise.reject()).finally(...)`)
  *  - setting more than one handler with at least one of them being an onRejected handler
  *
- * @param customPromise promise to wrap
- * @param defaultOnRejected default onRejected function
+ * @param customPromise - Promise to wrap
+ * @param defaultOnRejected - Default onRejected function
  * @returns a promise that doesn't need to be handled for rejection (except when using async/await syntax).
  */
 export default function promiseWrapper(customPromise: Promise<any>, defaultOnRejected: (_: any) => any): Promise<any> {

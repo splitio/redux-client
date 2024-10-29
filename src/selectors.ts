@@ -12,10 +12,10 @@ export const defaultGetSplitState = getStateSlice(DEFAULT_SPLIT_STATE_SLICE);
  * If a treatment is not found, it returns the default value, which is `'control'` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
- * @param {ISplitState} splitState
- * @param {string} featureFlagName
- * @param {SplitIO.SplitKey} key
- * @param {string} defaultValue
+ * @param splitState - The Split piece of state.
+ * @param featureFlagName - The feature flag name.
+ * @param key - The user key.
+ * @param defaultValue - The default value to return if the treatment is not found.
  */
 export function selectTreatmentValue(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: string = CONTROL): string {
   return selectTreatmentWithConfig(splitState, featureFlagName, key, { treatment: defaultValue, config: null }).treatment;
@@ -26,10 +26,10 @@ export function selectTreatmentValue(splitState: ISplitState, featureFlagName: s
  * If a treatment is not found, it returns the default value, which is `{ treatment: 'control', configuration: null }` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
- * @param {ISplitState} splitState
- * @param {string} featureFlagName
- * @param {SplitIO.SplitKey} key
- * @param {SplitIO.TreatmentWithConfig} defaultValue
+ * @param splitState - The Split piece of state.
+ * @param featureFlagName - The feature flag name.
+ * @param key - The user key.
+ * @param defaultValue - The default value to return if the treatment is not found.
  */
 export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): SplitIO.TreatmentWithConfig {
   const splitTreatments = splitState && splitState.treatments ? splitState.treatments[featureFlagName] : console.error(ERROR_SELECTOR_NO_SPLITSTATE);
@@ -48,10 +48,10 @@ export function selectTreatmentWithConfig(splitState: ISplitState, featureFlagNa
  * If a treatment is not found, it returns the default value, which is `'control'` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
- * @param {ISplitState} splitState
- * @param {string} featureFlagName
- * @param {SplitIO.SplitKey} key
- * @param {string} defaultValue
+ * @param splitState - The Split piece of state.
+ * @param featureFlagName - The feature flag name.
+ * @param key - The user key.
+ * @param defaultValue - The default value to return if the treatment is not found.
  */
 export function selectTreatmentAndStatus(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: string = CONTROL): {
   treatment: string
@@ -66,10 +66,10 @@ export function selectTreatmentAndStatus(splitState: ISplitState, featureFlagNam
  * If a treatment is not found, it returns the default value as treatment, which is `{ treatment: 'control', configuration: null }` if not specified.
  * A treatment is not found if an invalid Split state is passed or if a `getTreatments` action has not been dispatched for the provided feature flag name and key.
  *
- * @param {ISplitState} splitState
- * @param {string} featureFlagName
- * @param {SplitIO.SplitKey} key
- * @param {SplitIO.TreatmentWithConfig} defaultValue
+ * @param splitState - The Split piece of state.
+ * @param featureFlagName - The feature flag name.
+ * @param key - The user key.
+ * @param defaultValue - The default value to return if the treatment is not found.
  */
 export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, featureFlagName: string, key?: SplitIO.SplitKey, defaultValue: SplitIO.TreatmentWithConfig = CONTROL_WITH_CONFIG): {
   treatment: SplitIO.TreatmentWithConfig
@@ -87,11 +87,11 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
 /**
  * Extracts an object with the status properties of the SDK client or manager from the Split state.
  *
- * @param {ISplitState} splitState
- * @param {SplitIO.SplitKey} key To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
+ * @param splitState - The Split piece of state.
+ * @param key - To use only on client-side. Ignored in server-side. If a key is provided and a client associated to that key has been used, the status of that client is returned.
  * If no key is provided, the status of the main client and manager is returned (the main client shares the status with the manager).
  *
- * @returns {IStatus} The status of the SDK client or manager.
+ * @returns The status of the SDK client or manager.
  *
  * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#subscribe-to-events}
  */
