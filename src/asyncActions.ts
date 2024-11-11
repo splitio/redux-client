@@ -39,7 +39,7 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
   splitSdk.config = params.config;
 
   splitSdk.splitio = params.splitio ||
-    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in NodeJS
+    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in Node.js
     (splitSdk.config?.core?.authorizationKey === 'localhost' && typeof splitSdk.config?.features === 'object' ?
       SplitFactoryForLocalhost :
       SplitFactory) as ISplitFactoryBuilder;
@@ -170,7 +170,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, splitNames ? getControlTreatmentsWithConfig(splitNames) : {});
     }
 
-  } else { // Split SDK running in Node
+  } else { // Split SDK running in Node.js
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client() as unknown as SplitIO.IClient;

@@ -89,7 +89,7 @@ export function mockSdk() {
     const splits: jest.Mock = jest.fn().mockReturnValue([]);
     const manager: jest.Mock = jest.fn().mockReturnValue({ names, split, splits });
 
-    // Client (only one client on Node SDK)
+    // Client (only one client on Node.js)
     const __client__ = mockClient();
     const client = jest.fn(() => {
       return __client__;
