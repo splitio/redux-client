@@ -22,7 +22,7 @@ export function track(params: ITrackParams): boolean {
 
   if (splitSdk.isDetached) { // Node
     // In node, user must always provide key and TT as params
-    const client = splitSdk.factory.client() as SplitIO.INodeClient;
+    const client = splitSdk.factory.client() as SplitIO.IClient;
 
     return client.track(key, trafficType, eventType, value, properties);
   } else { // Browser
