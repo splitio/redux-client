@@ -1,6 +1,6 @@
 2.0.0 (November XX, 2024)
  - Added support for targeting rules based on large segments.
- - Updated @splitsoftware/splitio package to version 11.0.0 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
+ - Updated @splitsoftware/splitio package to version 11.0.1 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - BREAKING CHANGES:
       - Removed the `core.trafficType` configuration option and made required the `trafficType` argument when calling the `track` helper function. This is because traffic types can no longer be bound to SDK clients in JavaScript SDK v11.0.0, and so the traffic type must be provided as argument in the `track` method calls.
