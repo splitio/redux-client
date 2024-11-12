@@ -2,7 +2,7 @@ import { initialStatus, splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
-import { AnyAction } from 'redux';
+import { Action } from 'redux';
 
 const initialState: ISplitState = {
   isReady: false,
@@ -179,7 +179,7 @@ describe('Split reducer', () => {
     });
   });
 
-  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => AnyAction, boolean, boolean]> = [
+  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => Action, boolean, boolean]> = [
     ['ADD_TREATMENTS', addTreatments, false, false],
     ['SPLIT_READY_WITH_EVALUATIONS', splitReadyWithEvaluations, true, false],
     ['SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS', splitReadyFromCacheWithEvaluations, false, true],

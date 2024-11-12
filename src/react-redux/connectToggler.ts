@@ -8,7 +8,7 @@ const NullRenderComponent: React.ComponentType = () => null;
 
 /**
  * To avoid passing down dispatch property, merge props override default
- * behaviour from connect. Here dispatchProps are not passing down.
+ * behavior from connect. Here dispatchProps are not passing down.
  */
 const mergeProps = (stateProps: any, dispatchProps: any, ownProps: any) => ({
   ...stateProps,
