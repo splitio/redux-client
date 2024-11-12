@@ -26,8 +26,12 @@ function mockClient() {
   __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
 
   // Client methods
-  const track: jest.Mock = jest.fn(() => {
-    return true;
+  const track: jest.Mock = jest.fn((key, tt, et, v, p) => {
+    return typeof key === 'string' &&
+      typeof tt === 'string' &&
+      typeof et === 'string' &&
+      (typeof v === 'number' || typeof v === 'undefined') &&
+      (typeof p === 'object' || typeof p === 'undefined');
   });
   const getTreatmentsWithConfig: jest.Mock = jest.fn((key, featureFlagNames) => {
     return featureFlagNames.reduce((acc: SplitIO.TreatmentsWithConfig, featureFlagName: string) => {

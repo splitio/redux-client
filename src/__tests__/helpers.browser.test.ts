@@ -122,11 +122,11 @@ describe('track', () => {
 
   it('logs error and returns false if the SDK was not initialized', () => {
     const errorSpy = jest.spyOn(console, 'error');
-    expect(track({ eventType: 'event' })).toBe(false);
+    expect(track({ eventType: 'event', trafficType: 'user' })).toBe(false);
     expect(errorSpy).toBeCalledWith(ERROR_TRACK_NO_INITSPLITSDK);
   });
 
-  it('should invoke the track method of the main client (no traffic type in config)', () => {
+  it('should invoke the track method of the main client', () => {
     initSplitSdk({ config: sdkBrowserConfig });
 
     expect(track({ eventType: 'event', trafficType: 'user' })).toBe(true);
@@ -134,22 +134,11 @@ describe('track', () => {
     expect((splitSdk.factory as any).client().track.mock.calls[0][0]).toBe('user');
     expect((splitSdk.factory as any).client().track.mock.calls[0][1]).toBe('event');
 
-    // TT must be provided if not included in the config
+    // @ts-expect-error TT must be provided
     expect(track({ eventType: 'event' })).toBe(false);
   });
 
-  it('should invoke the track method of the main client (traffic type in config)', () => {
-    initSplitSdk({ config: { ...sdkBrowserConfig, core: { ...sdkBrowserConfig.core, trafficType: 'user' } } });
-
-    expect(track({ eventType: 'event' })).toBe(true);
-    expect((splitSdk.factory as any).client().track.mock.calls.length).toBe(1);
-    expect((splitSdk.factory as any).client().track.mock.calls[0][0]).toBe('event');
-
-    // TT is ignored if included in the config
-    expect(track({ eventType: 'event', trafficType: 'user' })).toBe(true);
-  });
-
-  it('should invoke the track method of a shared client (no traffic type in config)', () => {
+  it('should invoke the track method of a shared client', () => {
     initSplitSdk({ config: sdkBrowserConfig });
 
     expect(track({ eventType: 'event', key: 'user1', trafficType: 'user' })).toBe(true);
@@ -157,19 +146,7 @@ describe('track', () => {
     expect((splitSdk.factory as any).client('user1').track.mock.calls[0][0]).toBe('user');
     expect((splitSdk.factory as any).client('user1').track.mock.calls[0][1]).toBe('event');
 
-    // TT must be provided if key is provided
-    expect(track({ eventType: 'event', key: 'user1' })).toBe(false);
-  });
-
-  it('should invoke the track method of a shared client (traffic type in config)', () => {
-    initSplitSdk({ config: { ...sdkBrowserConfig, core: { ...sdkBrowserConfig.core, trafficType: 'user' } } });
-
-    expect(track({ eventType: 'event', key: 'user1', trafficType: 'user' })).toBe(true);
-    expect((splitSdk.factory as any).client('user1').track.mock.calls.length).toBe(1);
-    expect((splitSdk.factory as any).client('user1').track.mock.calls[0][0]).toBe('user');
-    expect((splitSdk.factory as any).client('user1').track.mock.calls[0][1]).toBe('event');
-
-    // TT must be provided if key is provided, no matter if present in the config, since that TT is for main client
+    // @ts-expect-error TT must be provided
     expect(track({ eventType: 'event', key: 'user1' })).toBe(false);
   });
 

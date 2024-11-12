@@ -14,8 +14,8 @@ import { matching, __getStatus, validateGetTreatmentsParams, isMainClient } from
 export interface ISplitSdk {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
   splitio: ISplitFactoryBuilder;
-  factory: SplitIO.ISDK;
-  sharedClients: { [stringKey: string]: SplitIO.IClient };
+  factory: SplitIO.IBrowserSDK | SplitIO.ISDK;
+  sharedClients: { [stringKey: string]: SplitIO.IBrowserClient };
   isDetached: boolean; // true: server-side, false: client-side (i.e., client with bound key)
   dispatch: Dispatch<Action>;
 }
@@ -173,7 +173,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
   } else { // Split SDK running in Node
 
     // Evaluate Split and return redux action.
-    const client = splitSdk.factory.client();
+    const client = splitSdk.factory.client() as SplitIO.IClient;
     const treatments = splitNames ?
       client.getTreatmentsWithConfig(params.key, splitNames, params.attributes) :
       client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes);
@@ -185,7 +185,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 /**
  * Interface of SDK client for not detached execution (browser).
  */
-interface IClientNotDetached extends SplitIO.IClient {
+interface IClientNotDetached extends SplitIO.IBrowserClient {
   _trackingStatus?: boolean;
   /**
    * stored evaluations to execute on SDK update. It is an object because we might

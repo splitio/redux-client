@@ -173,10 +173,9 @@ export interface ITrackParams {
   key?: SplitIO.SplitKey;
 
   /**
-   * the traffic type of the key in the track call. If not provided, it defaults to the traffic type defined in the SDK
-   * config object. If not provided either in the SDK setting, the function logs an error message and returns false.
+   * the traffic type of the key in the track call. If not provided, the function logs an error message and returns false.
    */
-  trafficType?: string;
+  trafficType: string;
 
   /**
    * The event type that this event should correspond to. The expected data type is String.
@@ -194,7 +193,7 @@ export interface ITrackParams {
   properties?: SplitIO.Properties;
 }
 
-export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
+export type ISplitFactoryBuilder = ((settings: SplitIO.IBrowserSettings) => SplitIO.IBrowserSDK) | ((settings: SplitIO.INodeSettings) => SplitIO.ISDK);
 
 export type ISplitAction = {
   type: string;
