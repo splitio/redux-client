@@ -32,14 +32,14 @@ export const splitSdk: ISplitSdk = {
 /**
  * This action creator initializes the Split SDK. It dispatches a Thunk (async) action.
  *
- * @param {IInitSplitSdkParams} params
+ * @param params - Parameter object to initialize the SDK.
  */
 export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<Action>) => Promise<void> {
 
   splitSdk.config = params.config;
 
   splitSdk.splitio = params.splitio ||
-    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in NodeJS
+    // For client-side localhost mode, we need to use the client-side SDK, to support test runners that execute in Node.js
     (splitSdk.config?.core?.authorizationKey === 'localhost' && typeof splitSdk.config?.features === 'object' ?
       SplitFactoryForLocalhost :
       SplitFactory) as ISplitFactoryBuilder;
@@ -86,8 +86,8 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
 /**
  * Util that reduce the results of multiple calls to `client.getTreatmentsWithConfig` method into a single `SplitIO.TreatmentsWithConfig` object.
  *
- * @param client Sdk client to call
- * @param evalParams validated list of evaluation params
+ * @param client - SDK client to call
+ * @param evalParams - Validated list of evaluation params
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
@@ -102,9 +102,9 @@ function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsP
 }
 
 /**
- * This action creator performs a treatment evaluation, i.e., it invokes the actual `client.getTreatment*` methods.
+ * This action creator performs a feature flag evaluation, i.e., it invokes the actual `client.getTreatment*` methods.
  *
- * @param {IGetTreatmentsParams} params
+ * @param params - Parameter object to evaluate feature flags.
  */
 export function getTreatments(params: IGetTreatmentsParams): Action | (() => void) {
 
@@ -170,7 +170,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
       return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, splitNames ? getControlTreatmentsWithConfig(splitNames) : {});
     }
 
-  } else { // Split SDK running in Node
+  } else { // Split SDK running in Node.js
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client() as SplitIO.IClient;
@@ -208,8 +208,8 @@ interface IClientNotDetached extends SplitIO.IBrowserClient {
  * These lists are used by `getTreatments` action creator to schedule evaluation of feature flags on SDK_UPDATE, SDK_READY and SDK_READY_FROM_CACHE events.
  * It is exported for testing purposes only.
  *
- * @param splitSdk it contains the Split factory, the store dispatch function, and other internal properties
- * @param key optional user key
+ * @param splitSdk - It contains the Split factory, the store dispatch function, and other internal properties
+ * @param key - Optional user key
  * @returns SDK client with `evalOnUpdate`, `evalOnReady` and `evalOnReadyFromCache` action lists.
  */
 export function getClient(splitSdk: ISplitSdk, key?: SplitIO.SplitKey): IClientNotDetached {

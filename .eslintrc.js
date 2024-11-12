@@ -17,6 +17,7 @@ module.exports = {
   'plugins': [
     'react',
     '@typescript-eslint',
+    'eslint-plugin-tsdoc',
     'import'
   ],
   'rules': {
@@ -55,6 +56,12 @@ module.exports = {
       'no-throw-literal': 'error',
       'import/no-self-import': 'error',
       'import/no-default-export': 'error',
+    }
+  }, {
+    // Enable TSDoc rules for TypeScript files, allowing the use of JSDoc in JS files.
+    'files': ['**/*.ts'],
+    'rules': {
+      'tsdoc/syntax': 'warn'
     }
   }],
 };
