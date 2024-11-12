@@ -13,7 +13,7 @@ import { sdkBrowserConfig } from './utils/sdkConfigs';
 import {
   SPLIT_READY, SPLIT_READY_WITH_EVALUATIONS, SPLIT_READY_FROM_CACHE, SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
   SPLIT_UPDATE, SPLIT_UPDATE_WITH_EVALUATIONS, SPLIT_TIMEDOUT, SPLIT_DESTROY, ADD_TREATMENTS,
-  ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig, ERROR_GETT_NO_PARAM_OBJECT,
+  ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, ERROR_GETT_NO_PARAM_OBJECT,
 } from '../constants';
 
 /** Test targets */
@@ -323,7 +323,7 @@ describe('getTreatments', () => {
     }
   });
 
-  it('stores control treatments (without calling SDK client) and registers pending evaluations if Split SDK is not operational, to dispatch it when ready (Using action result promise)', (done) => {
+  it('registers evaluations if Split SDK is not operational, to dispatch it when ready (Using action result promise)', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     const actionResult = store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig, onReadyFromCache: onReadyFromCacheCb }));
@@ -332,10 +332,7 @@ describe('getTreatments', () => {
 
     // If SDK is not operational, ADD_TREATMENTS actions are dispatched, with control treatments for provided feature flag names, and no treatments for provided flag sets.
 
-    expect(store.getActions()).toEqual([
-      { type: ADD_TREATMENTS, payload: { key: sdkBrowserConfig.core.key, treatments: getControlTreatmentsWithConfig(['split2']) } },
-      { type: ADD_TREATMENTS, payload: { key: sdkBrowserConfig.core.key, treatments: {} } },
-    ]);
+    expect(store.getActions().length).toBe(0);
     // SDK client is not called, but items are added to 'evalOnReady' list.
     expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(0);
     expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toBeCalledTimes(0);
@@ -345,8 +342,8 @@ describe('getTreatments', () => {
     // When the SDK is ready from cache, the SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS action is not dispatched if the `getTreatments` action was dispatched with `evalOnReadyFromCache` false
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     function onReadyFromCacheCb() {
-      expect(store.getActions().length).toBe(3);
-      const action = store.getActions()[2];
+      expect(store.getActions().length).toBe(1);
+      const action = store.getActions()[0];
       expect(action).toEqual({
         type: SPLIT_READY_FROM_CACHE,
         payload: {
@@ -359,7 +356,7 @@ describe('getTreatments', () => {
 
     actionResult.then(() => {
       // The SPLIT_READY_WITH_EVALUATIONS action is dispatched if the SDK is ready and there are pending evaluations.
-      const action = store.getActions()[3];
+      const action = store.getActions()[1];
       expect(action).toEqual({
         type: SPLIT_READY_WITH_EVALUATIONS,
         payload: {
@@ -392,7 +389,7 @@ describe('getTreatments', () => {
     });
   });
 
-  it('stores control treatments (without calling SDK client) and registers pending evaluations if Split SDK is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when SDK timeout)', (done) => {
+  it('registers pending evaluations if Split SDK is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when SDK timeout)', (done) => {
 
     const store = mockStore(STATE_INITIAL);
     store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
@@ -401,15 +398,7 @@ describe('getTreatments', () => {
     store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, evalOnUpdate: true, evalOnReadyFromCache: true }));
 
     // If SDK is not ready, an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
-    expect(store.getActions().length).toBe(1);
-    let action = store.getActions()[0];
-    expect(action).toEqual({
-      type: ADD_TREATMENTS,
-      payload: {
-        key: sdkBrowserConfig.core.key,
-        treatments: getControlTreatmentsWithConfig(['split3'])
-      }
-    });
+    expect(store.getActions().length).toBe(0);
     expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(0);
 
     // the item is added for evaluation on SDK_READY, and also on SDK_READY_FROM_CACHE and SDK_UPDATE events
@@ -421,7 +410,7 @@ describe('getTreatments', () => {
     // When the SDK has timedout, the SPLIT_TIMEDOUT action is dispatched. It doesn't affect registered evaluations for other SDK events.
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_TIMED_OUT);
     function onTimedoutCb() {
-      action = store.getActions()[1];
+      const action = store.getActions()[0];
       expect(action).toEqual({
         type: SPLIT_TIMEDOUT,
         payload: {
@@ -434,7 +423,7 @@ describe('getTreatments', () => {
     // SPLIT_READY_FROM_CACHE, because of the `evalOnReadyFromCache` param in `getTreatments` action
     (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_READY_FROM_CACHE);
     function onReadyFromCacheCb() {
-      action = store.getActions()[2];
+      const action = store.getActions()[1];
       expect(action).toEqual({
         type: SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS,
         payload: {
@@ -456,7 +445,7 @@ describe('getTreatments', () => {
     // Using cb for ready event, because action result is rejected due to SDK timeout
     function onReadyCb() {
       // The SPLIT_READY_WITH_EVALUATIONS action is dispatched if the SDK is ready and there are pending evaluations.
-      action = store.getActions()[3];
+      let action = store.getActions()[2];
       expect(action).toEqual({
         type: SPLIT_READY_WITH_EVALUATIONS,
         payload: {
@@ -476,7 +465,7 @@ describe('getTreatments', () => {
 
       // Triggering an update dispatches SPLIT_UPDATE_WITH_EVALUATIONS
       (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[4];
+      action = store.getActions()[3];
       expect(action).toEqual({
         type: SPLIT_UPDATE_WITH_EVALUATIONS,
         payload: {
@@ -496,7 +485,7 @@ describe('getTreatments', () => {
 
       // We deregister the item from evalOnUpdate.
       store.dispatch<any>(getTreatments({ splitNames: 'split3', evalOnUpdate: false, key: { matchingKey: sdkBrowserConfig.core.key as string, bucketingKey: 'bucket' } }));
-      action = store.getActions()[5];
+      action = store.getActions()[4];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
         payload: {
@@ -508,7 +497,7 @@ describe('getTreatments', () => {
 
       // Now, SDK_UPDATE events do not trigger SPLIT_UPDATE_WITH_EVALUATIONS but SPLIT_UPDATE instead
       (splitSdk.factory as any).client().__emitter__.emit(Event.SDK_UPDATE);
-      action = store.getActions()[6];
+      action = store.getActions()[5];
       expect(action).toEqual({
         type: SPLIT_UPDATE,
         payload: {
@@ -516,14 +505,14 @@ describe('getTreatments', () => {
         }
       });
 
-      expect(store.getActions().length).toBe(7); // control assertion - no more actions after the update.
+      expect(store.getActions().length).toBe(6); // control assertion - no more actions after the update.
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledTimes(4); // control assertion - called 4 times, in actions SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS, SPLIT_READY_WITH_EVALUATIONS, SPLIT_UPDATE_WITH_EVALUATIONS and ADD_TREATMENTS.
 
       done();
     }
   });
 
-  it('for non-default clients, it stores control treatments (without calling SDK client) and registers pending evaluations if the client is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when the client timeouts)', (done) => {
+  it('for non-default clients, registers pending evaluations if the client is not operational, to dispatch it when ready from cache, ready, and updated (Using callbacks to assert that registered evaluations are not affected when the client timeouts)', (done) => {
 
     // Init SDK and set ready
     const store = mockStore(STATE_INITIAL);
@@ -676,7 +665,7 @@ describe('destroySplitSdk', () => {
       const actionResult = store.dispatch<any>(destroySplitSdk());
 
       actionResult.then(() => {
-        const action = store.getActions()[3];
+        const action = store.getActions()[1];
         expect(action).toEqual({
           type: SPLIT_DESTROY,
           payload: {
