@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import promiseWrapper from './promiseWrapper';
+import SplitIO from '@splitsoftware/splitio/types/splitio';
 
 export const Event = {
   SDK_READY_TIMED_OUT: 'init::timeout',
