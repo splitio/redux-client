@@ -2,7 +2,7 @@ import { initialStatus, splitReducer } from '../reducer';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from '../actions';
 import { ISplitState } from '../types';
 import SplitIO from '@splitsoftware/splitio/types/splitio';
-import { AnyAction } from 'redux';
+import { Action } from 'redux';
 
 const initialState: ISplitState = {
   isReady: false,
@@ -179,7 +179,7 @@ describe('Split reducer', () => {
     });
   });
 
-  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => AnyAction, boolean, boolean]> = [
+  const actionCreatorsWithEvaluations: Array<[string, (key: SplitIO.SplitKey, treatments: SplitIO.TreatmentsWithConfig, timestamp: number, nonDefaultKey?: boolean) => Action, boolean, boolean]> = [
     ['ADD_TREATMENTS', addTreatments, false, false],
     ['SPLIT_READY_WITH_EVALUATIONS', splitReadyWithEvaluations, true, false],
     ['SPLIT_READY_FROM_CACHE_WITH_EVALUATIONS', splitReadyFromCacheWithEvaluations, false, true],
@@ -190,7 +190,7 @@ describe('Split reducer', () => {
     const initialTreatments = initialState.treatments;
 
     // default key
-    const action = actionCreator(key, treatments, 1000);
+    const action = actionCreator(key, treatments, 1000, false);
     expect(splitReducer(initialState, action)).toEqual({
       ...initialState,
       isReady,
@@ -231,7 +231,7 @@ describe('Split reducer', () => {
     const newTreatments: SplitIO.TreatmentsWithConfig = {
       test_split: { ...previousTreatment },
     };
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was not replaced in the state
@@ -262,7 +262,7 @@ describe('Split reducer', () => {
         config: previousTreatment.config,
       },
     };
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -293,7 +293,7 @@ describe('Split reducer', () => {
       },
     };
     // const action = addTreatments(key, newTreatments);
-    const action = actionCreator(key, newTreatments, 1000);
+    const action = actionCreator(key, newTreatments, 1000, false);
     const reduxState = splitReducer(stateWithTreatments, action);
 
     // control assertion - treatment object was replaced in the state
@@ -312,6 +312,14 @@ describe('Split reducer', () => {
         },
       },
     });
+  });
+
+  it('should ignore other actions', () => {
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION' })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: null })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: undefined })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: {} })).toBe(initialState);
+    expect(splitReducer(initialState, { type: 'OTHER_ACTION', payload: true })).toBe(initialState);
   });
 
 });

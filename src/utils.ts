@@ -6,7 +6,7 @@ import { IGetTreatmentsParams } from './types';
  * Validates if a given value is a plain object
  */
 export function isObject(obj: unknown) {
-  return obj && typeof obj === 'object' && obj.constructor === Object;
+  return obj !== null && typeof obj === 'object' && (obj.constructor === Object || (obj.constructor != null && obj.constructor.name === 'Object'));
 }
 
 /**
@@ -52,7 +52,7 @@ export interface IClientStatus {
 }
 
 // The following util might be removed in the future, if the JS SDK extends its public API with a "getStatus" method
-export function __getStatus(client: SplitIO.IClient): IClientStatus {
+export function __getStatus(client: SplitIO.IBasicClient): IClientStatus {
   // @ts-expect-error, function exists but it is not part of JS SDK type definitions
   return client.__getStatus();
 }

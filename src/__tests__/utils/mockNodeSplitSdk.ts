@@ -26,8 +26,12 @@ function mockClient() {
   __emitter__.on(Event.SDK_UPDATE, () => { syncLastUpdate(); });
 
   // Client methods
-  const track: jest.Mock = jest.fn(() => {
-    return true;
+  const track: jest.Mock = jest.fn((key, tt, et, v, p) => {
+    return typeof key === 'string' &&
+      typeof tt === 'string' &&
+      typeof et === 'string' &&
+      (typeof v === 'number' || typeof v === 'undefined') &&
+      (typeof p === 'object' || typeof p === 'undefined');
   });
   const getTreatmentsWithConfig: jest.Mock = jest.fn((key, featureFlagNames) => {
     return featureFlagNames.reduce((acc: SplitIO.TreatmentsWithConfig, featureFlagName: string) => {
@@ -86,10 +90,15 @@ export function mockSdk() {
     const splits: jest.Mock = jest.fn().mockReturnValue([]);
     const manager: jest.Mock = jest.fn().mockReturnValue({ names, split, splits });
 
-    // Client (only one client on Node SDK)
+    // Client (only one client on Node.js)
     const __client__ = mockClient();
     const client = jest.fn(() => {
       return __client__;
+    });
+
+    // Factory destroy
+    const destroy = jest.fn(() => {
+      return __client__.destroy();
     });
 
     const modules = { settings: { version: 'nodejs-10.18.0' } };
@@ -99,6 +108,7 @@ export function mockSdk() {
     const factory = {
       client,
       manager,
+      destroy,
       settings: modules.settings,
       __names__: names,
       __split__: split,

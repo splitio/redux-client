@@ -77,7 +77,7 @@ export interface IInitSplitSdkParams {
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
   /**
-   * Optional param to provide a Split factory initializer to use instead of SplitFactory from '@splitsoftware/splitio'.
+   * Optional param to provide a Split factory initializer to use instead of SplitFactory from `'@splitsoftware/splitio'`.
    * It can be useful when the Split factory is imported from the UMD bundle in a HTML script.
    */
   splitio?: ISplitFactoryBuilder;
@@ -109,7 +109,7 @@ export interface IInitSplitSdkParams {
 export type IGetTreatmentsParams = {
 
   /**
-   * user key used to evaluate. It is mandatory for node but optional for browser. If not provided in browser,
+   * user key used to evaluate. It is mandatory for Node.js but optional for browser. If not provided in browser,
    * it defaults to the key defined in the SDK config, i.e., the config object passed to `initSplitSdk`.
    */
   key?: SplitIO.SplitKey;
@@ -122,17 +122,19 @@ export type IGetTreatmentsParams = {
 
   /**
    * This param indicates to re-evaluate the feature flags if the SDK is updated. For example, a `true` value might be
-   * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
-   * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
-   * you want to keep the treatment unchanged during the sesion of the user.
-   * @default false
+   * the desired behavior for permission toggles or operation toggles, such as a kill switch, that you want to
+   * immediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
+   * you want to keep the treatment unchanged during the session of the user.
+   *
+   * @defaultValue `false`
    */
   evalOnUpdate?: boolean;
 
   /**
    * This param indicates to evaluate the feature flags if the SDK is ready from cache (i.e., it emits SDK_READY_FROM_CACHE event).
    * This params is only relevant when using 'LOCALSTORAGE' as storage type, since otherwise the event is never emitted.
-   * @default false
+   *
+   * @defaultValue `false`
    */
   evalOnReadyFromCache?: boolean;
 } & ({
@@ -167,16 +169,15 @@ export interface IDestroySplitSdkParams {
 export interface ITrackParams {
 
   /**
-   * user key used to track event. It is mandatory for node but optional for browser. If not provided in browser,
+   * user key used to track event. It is mandatory for Node.js but optional for browser. If not provided in browser,
    * it defaults to the key defined in the SDK config object.
    */
   key?: SplitIO.SplitKey;
 
   /**
-   * the traffic type of the key in the track call. If not provided, it defaults to the traffic type defined in the SDK
-   * config object. If not provided either in the SDK setting, the function logs an error message and returns false.
+   * the traffic type of the key in the track call. If not provided, the function logs an error message and returns false.
    */
-  trafficType?: string;
+  trafficType: string;
 
   /**
    * The event type that this event should correspond to. The expected data type is String.
@@ -194,7 +195,7 @@ export interface ITrackParams {
   properties?: SplitIO.Properties;
 }
 
-export type ISplitFactoryBuilder = (settings: SplitIO.IBrowserSettings | SplitIO.INodeSettings) => SplitIO.ISDK;
+export type ISplitFactoryBuilder = ((settings: SplitIO.IBrowserSettings) => SplitIO.IBrowserSDK) | ((settings: SplitIO.INodeSettings) => SplitIO.ISDK);
 
 export type ISplitAction = {
   type: string;
