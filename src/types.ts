@@ -109,7 +109,7 @@ export interface IInitSplitSdkParams {
 export type IGetTreatmentsParams = {
 
   /**
-   * user key used to evaluate. It is mandatory for node but optional for browser. If not provided in browser,
+   * user key used to evaluate. It is mandatory for Node.js but optional for browser. If not provided in browser,
    * it defaults to the key defined in the SDK config, i.e., the config object passed to `initSplitSdk`.
    */
   key?: SplitIO.SplitKey;
@@ -169,7 +169,7 @@ export interface IDestroySplitSdkParams {
 export interface ITrackParams {
 
   /**
-   * user key used to track event. It is mandatory for node but optional for browser. If not provided in browser,
+   * user key used to track event. It is mandatory for Node.js but optional for browser. If not provided in browser,
    * it defaults to the key defined in the SDK config object.
    */
   key?: SplitIO.SplitKey;

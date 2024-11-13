@@ -1,4 +1,4 @@
-2.0.0 (November 15, 2024)
+2.0.0 (November 14, 2024)
  - Added support for targeting rules based on large segments.
  - Updated @splitsoftware/splitio package to version 11.0.1 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
  - Updated `getTreatments` action creator to not dispatch an action when called while the SDK is not ready or ready from cache, to avoid unnecessary updates in the state.
@@ -7,6 +7,7 @@
       - Removed the `core.trafficType` option from the `config` object accepted by the `initSplitSdk` action creator, and made the `trafficType` argument of the `track` helper function mandatory.
       This is because traffic types can no longer be bound to SDK clients since JavaScript SDK v11.0.0, so the traffic type must now be provided as an argument in `track` function calls.
       Refer to ./MIGRATION-GUIDE.md for more details.
+      - Updated peer dependencies to drop support for Redux library below v3.0.0.
 
 1.14.1 (October 15, 2024)
  - Bugfixing - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
