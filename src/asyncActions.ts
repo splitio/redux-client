@@ -3,7 +3,7 @@ import { SplitFactory as SplitFactoryForLocalhost } from '@splitsoftware/splitio
 import { Dispatch, Action } from 'redux';
 import { IInitSplitSdkParams, IGetTreatmentsParams, IDestroySplitSdkParams, ISplitFactoryBuilder } from './types';
 import { splitReady, splitReadyWithEvaluations, splitReadyFromCache, splitReadyFromCacheWithEvaluations, splitTimedout, splitUpdate, splitUpdateWithEvaluations, splitDestroy, addTreatments } from './actions';
-import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK, getControlTreatmentsWithConfig } from './constants';
+import { VERSION, ERROR_GETT_NO_INITSPLITSDK, ERROR_DESTROY_NO_INITSPLITSDK } from './constants';
 import { matching, __getStatus, validateGetTreatmentsParams, isMainClient } from './utils';
 
 /**
@@ -164,10 +164,7 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
         splitReadyFromCacheWithEvaluations(params.key, treatments, status.lastUpdate, true) :
         addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, treatments);
     } else {
-      // Otherwise, it adds control treatments to the store, without calling the SDK (no impressions sent)
-      // With flag sets, an empty object is passed since we don't know their feature flag names
-      // @TODO remove eventually to minimize state changes
-      return addTreatments(params.key || (splitSdk.config as SplitIO.IBrowserSettings).core.key, splitNames ? getControlTreatmentsWithConfig(splitNames) : {});
+      return () => { };
     }
 
   } else { // Split SDK running in Node.js

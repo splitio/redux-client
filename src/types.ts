@@ -122,9 +122,9 @@ export type IGetTreatmentsParams = {
 
   /**
    * This param indicates to re-evaluate the feature flags if the SDK is updated. For example, a `true` value might be
-   * the desired behaviour for permission toggles or operation toggles, such as a kill switch, that you want to
-   * inmediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
-   * you want to keep the treatment unchanged during the sesion of the user.
+   * the desired behavior for permission toggles or operation toggles, such as a kill switch, that you want to
+   * immediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
+   * you want to keep the treatment unchanged during the session of the user.
    *
    * @defaultValue `false`
    */
