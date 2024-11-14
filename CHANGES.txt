@@ -1,3 +1,14 @@
+2.0.0 (November 14, 2024)
+ - Added support for targeting rules based on large segments.
+ - Updated @splitsoftware/splitio package to version 11.0.1 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
+ - Updated `getTreatments` action creator to not dispatch an action when called while the SDK is not ready or ready from cache, to avoid unnecessary updates in the state.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
+ - BREAKING CHANGES:
+      - Removed the `core.trafficType` option from the `config` object accepted by the `initSplitSdk` action creator, and made the `trafficType` argument of the `track` helper function mandatory.
+      This is because traffic types can no longer be bound to SDK clients since JavaScript SDK v11.0.0, so the traffic type must now be provided as an argument in `track` function calls.
+      Refer to ./MIGRATION-GUIDE.md for more details.
+      - Updated peer dependencies to drop support for Redux library below v3.0.0.
+
 1.14.1 (October 15, 2024)
  - Bugfixing - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
 
@@ -55,7 +66,7 @@
  - Updated linter dependencies and rules. The deprecated TSLint package was replaced by ESLint.
  - Updated some transitive dependencies for vulnerability fixes.
  - Updated @splitsoftware/splitio package to version 10.22.4 that includes minor improvements.
- - Bugfixing - Fixed error when using the SDK in localhost mode for testing with NodeJS test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
+ - Bugfixing - Fixed error when using the SDK in localhost mode for testing with Node.js test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
 
 1.7.1 (November 15, 2022)
  - Updated React Redux peer dependency range to include React-redux@8.x.x and React@18.x.x.

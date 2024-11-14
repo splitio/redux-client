@@ -8,7 +8,7 @@ import { defaultGetSplitState } from '../selectors';
  * - The Split state at Redux, under the prop key `split`.
  * - The action creator `getTreatments`, bound to the `dispatch` of your store.
  *
- * @param {IGetSplitState} getSplitState optional function that takes the entire Redux state and returns
+ * @param getSplitState - Optional function that takes the entire Redux state and returns
  * the state slice which corresponds to where the Split reducer was mounted. This functionality is rarely
  * needed, and defaults to assuming that the reducer is mounted under the `splitio` key.
  */

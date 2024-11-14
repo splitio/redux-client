@@ -1,9 +1,9 @@
 {
   "name": "@splitsoftware/splitio-redux",
-  "version": "1.14.1",
+  "version": "2.0.0",
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
-  "main": "lib/index.js",
-  "module": "es/index.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "types": "types/index.d.ts",
   "files": [
     "README.md",
@@ -11,17 +11,17 @@
     "LICENSE",
     "CHANGES.txt",
     "src",
-    "lib",
-    "es",
+    "cjs",
+    "esm",
     "types"
   ],
   "scripts": {
-    "build": "rimraf lib/* es/* types/* && tsc && tsc -m commonjs --outDir lib -d true --declarationDir types",
+    "build": "rimraf cjs/* esm/* types/* && tsc && tsc -m commonjs --outDir cjs -d true --declarationDir types",
     "postbuild": "./version_replace.sh",
     "check": "npm run check:lint && npm run check:types",
     "check:lint": "eslint 'src/**/*.ts'",
     "check:types": "tsc --noEmit",
-    "test": "jest src",
+    "test": "jest src --silent",
     "test:watch": "npm test -- --watch",
     "test:coverage": "jest src --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/splitio/redux-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "10.28.0",
+    "@splitsoftware/splitio": "11.0.1",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
@@ -74,6 +74,7 @@
     "eslint-plugin-compat": "^4.1.2",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-tsdoc": "^0.3.0",
     "husky": "^3.1.0",
     "jest": "^27.2.3",
     "react": "^18.0.0",
@@ -89,7 +90,7 @@
   },
   "peerDependencies": {
     "react-redux": ">=4.0.0",
-    "redux": ">=2.0.0",
+    "redux": ">=3.0.0",
     "redux-thunk": ">=2.0.0"
   },
   "peerDependenciesMeta": {
