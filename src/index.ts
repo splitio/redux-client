@@ -1,3 +1,6 @@
+// SplitIO namespace
+import '@splitsoftware/splitio';
+
 // For Redux
 export { splitReducer } from './reducer';
 export { initSplitSdk, getTreatments, destroySplitSdk, splitSdk } from './asyncActions';
