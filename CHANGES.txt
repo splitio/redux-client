@@ -1,3 +1,7 @@
+2.0.1 (December 5, 2024)
+ - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
+ - Bugfixing - Fixed issue where the `SplitIO` namespace from `@splitsoftware/splitio` was not accessible through the library, enabling users to use the namespace without additional imports (Related to https://github.com/splitio/redux-client/issues/130).
+
 2.0.0 (November 14, 2024)
  - Added support for targeting rules based on large segments.
  - Updated @splitsoftware/splitio package to version 11.0.1 that includes major updates, and updated some transitive dependencies for vulnerability fixes.
