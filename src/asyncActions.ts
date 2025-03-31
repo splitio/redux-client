@@ -91,11 +91,12 @@ export function initSplitSdk(params: IInitSplitSdkParams): (dispatch: Dispatch<A
  */
 function __getTreatments(client: IClientNotDetached, evalParams: IGetTreatmentsParams[]): SplitIO.TreatmentsWithConfig {
   return evalParams.reduce((acc, params) => {
+    const evaluationOptions = params.properties ? { properties: params.properties } : undefined;
     return {
       ...acc,
       ...(params.splitNames ?
-        client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes) :
-        client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes)
+        client.getTreatmentsWithConfig(params.splitNames as string[], params.attributes, evaluationOptions) :
+        client.getTreatmentsWithConfigByFlagSets(params.flagSets as string[], params.attributes, evaluationOptions)
       )
     };
   }, {});
@@ -171,9 +172,10 @@ export function getTreatments(params: IGetTreatmentsParams): Action | (() => voi
 
     // Evaluate Split and return redux action.
     const client = splitSdk.factory.client() as SplitIO.IClient;
+    const evaluationOptions = params.properties ? { properties: params.properties } : undefined;
     const treatments = splitNames ?
-      client.getTreatmentsWithConfig(params.key, splitNames, params.attributes) :
-      client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes);
+      client.getTreatmentsWithConfig(params.key, splitNames, params.attributes, evaluationOptions) :
+      client.getTreatmentsWithConfigByFlagSets(params.key, flagSets, params.attributes, evaluationOptions);
     return addTreatments(params.key, treatments);
 
   }

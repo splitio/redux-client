@@ -222,11 +222,11 @@ describe('getTreatments', () => {
       });
 
       // getting the evaluation result and validating it matches the results from SDK
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenCalledWith(['split1'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenCalledWith(['split1'], undefined, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveReturnedWith(actions[0].payload.treatments);
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(['split2'], undefined, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[1].payload.treatments);
-      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(['set1'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(['set1'], undefined, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveLastReturnedWith(actions[2].payload.treatments);
 
       expect(getClient(splitSdk).evalOnUpdate).toEqual({});
@@ -258,7 +258,7 @@ describe('getTreatments', () => {
           treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(1, ['split1'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(1, ['split1'], undefined, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveNthReturnedWith(1, action.payload.treatments);
 
       // getting the 2nd evaluation result and validating it matches the results from SDK
@@ -270,7 +270,7 @@ describe('getTreatments', () => {
           treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(2, ['split2', 'split3'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(2, ['split2', 'split3'], attributes, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveNthReturnedWith(2, action.payload.treatments);
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion - cbs scheduled for update
       expect(getClient(splitSdk).evalOnReady.length).toEqual(2); // control assertion - cbs scheduled for ready
@@ -294,8 +294,8 @@ describe('getTreatments', () => {
         expect(store.getActions().length).toBe(4);
 
         // getting the evaluation result and validating it matches the results from SDK calls
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(3, ['split1'], undefined);
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2', 'split3'], attributes);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(3, ['split1'], undefined, undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenNthCalledWith(4, ['split2', 'split3'], attributes, undefined);
         const expectedTreatments = {
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[2].value,
           ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[3].value,
@@ -369,8 +369,8 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       const treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledWith(['split2'], undefined);
-      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toBeCalledWith(['set2'], undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).toBeCalledWith(['split2'], undefined, undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toBeCalledWith(['set2'], undefined, undefined);
       expect(treatments).toEqual({
         ...(splitSdk.factory.client().getTreatmentsWithConfig as jest.Mock).mock.results[0].value,
         ...(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets as jest.Mock).mock.results[0].value,
@@ -436,7 +436,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       const treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
     }
 
@@ -458,7 +458,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       let treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
 
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1); // control assertion - We should have an item to evaluate on update
@@ -478,7 +478,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
 
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1); // control assertion - still have one evalOnUpdate subscription
@@ -546,7 +546,7 @@ describe('getTreatments', () => {
         }
       });
 
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined, undefined);
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
       (splitSdk.factory as any).client('other-user-key').__emitter__.emit(Event.SDK_READY, 'other-user-key');
@@ -564,7 +564,7 @@ describe('getTreatments', () => {
       });
 
       // getting the evaluation result and validating it matches the results from SDK
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined, undefined);
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
 
       expect(getClient(splitSdk).evalOnUpdate).toEqual({}); // control assertion
@@ -580,7 +580,7 @@ describe('getTreatments', () => {
           treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, undefined);
       expect(Object.values(getClient(splitSdk, 'other-user-key').evalOnUpdate).length).toBe(1); // control assertion - added evalOnUpdate subscription
 
       // The SPLIT_UPDATE_WITH_EVALUATIONS action is dispatched when the SDK is updated for the new user key
@@ -595,7 +595,7 @@ describe('getTreatments', () => {
           nonDefaultKey: true
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, undefined);
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       expect(Object.values(getClient(splitSdk, 'other-user-key').evalOnUpdate).length).toBe(1); // control assertion - keeping evalOnUpdate subscription
 
@@ -609,7 +609,7 @@ describe('getTreatments', () => {
           treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], undefined, undefined);
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(0); // control assertion - removed evalOnUpdate subscription
 

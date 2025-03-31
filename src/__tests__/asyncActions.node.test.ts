@@ -191,9 +191,9 @@ describe('getTreatments', () => {
             }
           });
         });
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith(splitKey, ['split1'], undefined, undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(actions[0].payload.treatments);
-        expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(splitKey, ['set1'], undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveBeenLastCalledWith(splitKey, ['set1'], undefined, undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfigByFlagSets).toHaveLastReturnedWith(actions[1].payload.treatments);
 
         // Invoke with a list of feature flag names and a attributes object
@@ -209,7 +209,7 @@ describe('getTreatments', () => {
             treatments: expect.any(Object)
           }
         });
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes, undefined);
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
 
