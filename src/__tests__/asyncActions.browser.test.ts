@@ -395,7 +395,8 @@ describe('getTreatments', () => {
     store.dispatch<any>(initSplitSdk({ config: sdkBrowserConfig, onTimedout: onTimedoutCb, onReadyFromCache: onReadyFromCacheCb, onReady: onReadyCb }));
 
     const attributes = { att1: 'att1' };
-    store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, evalOnUpdate: true, evalOnReadyFromCache: true }));
+    const properties = { prop1: 'prop1' };
+    store.dispatch<any>(getTreatments({ splitNames: 'split3', attributes, properties, evalOnUpdate: true, evalOnReadyFromCache: true }));
 
     // If SDK is not ready, an ADD_TREATMENTS action is dispatched with control treatments without calling SDK client
     expect(store.getActions().length).toBe(0);
@@ -436,7 +437,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       const treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, { properties });
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
     }
 
@@ -458,7 +459,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       let treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, { properties });
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
 
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1); // control assertion - We should have an item to evaluate on update
@@ -478,7 +479,7 @@ describe('getTreatments', () => {
 
       // getting the evaluation result and validating it matches the results from SDK
       treatments = action.payload.treatments;
-      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, undefined);
+      expect(splitSdk.factory.client().getTreatmentsWithConfig).lastCalledWith(['split3'], attributes, { properties });
       expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(treatments);
 
       expect(Object.values(getClient(splitSdk).evalOnUpdate).length).toBe(1); // control assertion - still have one evalOnUpdate subscription
@@ -571,7 +572,8 @@ describe('getTreatments', () => {
 
       // The getTreatments is dispatched again, but this time is evaluated with attributes and registered for 'evalOnUpdate'
       const attributes = { att1: 'att1' };
-      store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes, key: 'other-user-key', evalOnUpdate: true }));
+      const properties = { prop1: 'prop1' };
+      store.dispatch<any>(getTreatments({ splitNames: 'split2', attributes, properties, key: 'other-user-key', evalOnUpdate: true }));
       action = store.getActions()[4];
       expect(action).toEqual({
         type: ADD_TREATMENTS,
@@ -580,7 +582,7 @@ describe('getTreatments', () => {
           treatments: expect.any(Object)
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, { properties });
       expect(Object.values(getClient(splitSdk, 'other-user-key').evalOnUpdate).length).toBe(1); // control assertion - added evalOnUpdate subscription
 
       // The SPLIT_UPDATE_WITH_EVALUATIONS action is dispatched when the SDK is updated for the new user key
@@ -595,7 +597,7 @@ describe('getTreatments', () => {
           nonDefaultKey: true
         }
       });
-      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, undefined);
+      expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).lastCalledWith(['split2'], attributes, { properties });
       expect(splitSdk.factory.client('other-user-key').getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       expect(Object.values(getClient(splitSdk, 'other-user-key').evalOnUpdate).length).toBe(1); // control assertion - keeping evalOnUpdate subscription
 

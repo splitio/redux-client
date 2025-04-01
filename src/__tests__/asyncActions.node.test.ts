@@ -199,7 +199,8 @@ describe('getTreatments', () => {
         // Invoke with a list of feature flag names and a attributes object
         const featureFlagNames = ['split1', 'split2'];
         const attributes = { att1: 'att1' };
-        store.dispatch<any>(getTreatments({ key: 'other_user', splitNames: featureFlagNames, attributes }));
+        const properties = { prop1: 'prop1' };
+        store.dispatch<any>(getTreatments({ key: 'other_user', splitNames: featureFlagNames, attributes, properties }));
 
         const action = store.getActions()[3];
         expect(action).toEqual({
@@ -209,7 +210,7 @@ describe('getTreatments', () => {
             treatments: expect.any(Object)
           }
         });
-        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes, undefined);
+        expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveBeenLastCalledWith('other_user', featureFlagNames, attributes, { properties });
         expect(splitSdk.factory.client().getTreatmentsWithConfig).toHaveLastReturnedWith(action.payload.treatments);
       }
 
