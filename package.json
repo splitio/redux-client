@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-redux",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A library to easily use Split JS SDK with Redux and React Redux",
   "main": "cjs/index.js",
   "module": "esm/index.js",
@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/splitio/redux-client#readme",
   "dependencies": {
-    "@splitsoftware/splitio": "11.0.3",
+    "@splitsoftware/splitio": "11.2.0",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
