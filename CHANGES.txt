@@ -1,3 +1,12 @@
+2.1.0 (April 1, 2025)
+ - Added a new optional `properties` argument to the options object of the `getTreatments` action creator, allowing to pass a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
+ - Updated @splitsoftware/splitio package to version 11.2.0 that includes some minor updates:
+      - Added support for the new impressions tracking toggle available on feature flags, both respecting the setting and including the new field being returned on `SplitView` type objects. Read more in our docs.
+      - Added two new configuration options for the SDK's `LOCALSTORAGE` storage type to control the behavior of the persisted rollout plan cache in the browser:
+           - `storage.expirationDays` to specify the validity period of the rollout plan cache in days.
+           - `storage.clearOnInit` to clear the rollout plan cache on SDK initialization.
+      - Updated SDK_READY_FROM_CACHE event when using the `LOCALSTORAGE` storage type to be emitted alongside the SDK_READY event if it has not already been emitted.
+
 2.0.1 (December 5, 2024)
  - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
  - Bugfixing - Fixed issue where the `SplitIO` namespace from `@splitsoftware/splitio` was not accessible through the library, enabling users to use the namespace without additional imports (Related to https://github.com/splitio/redux-client/issues/130).

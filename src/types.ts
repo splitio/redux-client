@@ -121,6 +121,11 @@ export type IGetTreatmentsParams = {
   attributes?: SplitIO.Attributes;
 
   /**
+   * Optional properties to append to the generated impression object sent to Split backend.
+   */
+  properties?: SplitIO.Properties;
+
+  /**
    * This param indicates to re-evaluate the feature flags if the SDK is updated. For example, a `true` value might be
    * the desired behavior for permission toggles or operation toggles, such as a kill switch, that you want to
    * immediately reflect in your app. A `false` value might be useful for experiment or release toggles, where
