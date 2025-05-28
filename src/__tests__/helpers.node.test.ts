@@ -34,6 +34,7 @@ const featureFlagViews: SplitIO.SplitViews = [
     sets: [],
     defaultTreatment: 'off',
     impressionsDisabled: false,
+    prerequisites: []
   }, {
     name: 'split_2',
     trafficType: 'user',
@@ -44,6 +45,7 @@ const featureFlagViews: SplitIO.SplitViews = [
     sets: [],
     defaultTreatment: 'off',
     impressionsDisabled: false,
+    prerequisites: [{ flagName: 'flag_1', treatments: ['on'] }]
   },
 ];
 
