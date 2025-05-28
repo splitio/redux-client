@@ -1,3 +1,9 @@
+2.2.0 (May 28, 2025)
+ - Added support for rule-based segments. These segments determine membership at runtime by evaluating their configured rules against the user attributes provided to the SDK.
+ - Added support for feature flag prerequisites. This allows customers to define dependency conditions between flags, which are evaluated before any allowlists or targeting rules.
+ - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations.
+ - Updated @splitsoftware/splitio package to version 11.4.0.
+
 2.1.0 (April 1, 2025)
  - Added a new optional `properties` argument to the options object of the `getTreatments` action creator, allowing to pass a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
  - Updated @splitsoftware/splitio package to version 11.2.0 that includes some minor updates:
@@ -9,7 +15,7 @@
 
 2.0.1 (December 5, 2024)
  - Updated @splitsoftware/splitio package to version 11.0.3 that includes some improvements and bugfixes.
- - Bugfixing - Fixed issue where the `SplitIO` namespace from `@splitsoftware/splitio` was not accessible through the library, enabling users to use the namespace without additional imports (Related to https://github.com/splitio/redux-client/issues/130).
+ - Bugfix - Fixed issue where the `SplitIO` namespace from `@splitsoftware/splitio` was not accessible through the library, enabling users to use the namespace without additional imports (Related to https://github.com/splitio/redux-client/issues/130).
 
 2.0.0 (November 14, 2024)
  - Added support for targeting rules based on large segments.
@@ -23,7 +29,7 @@
       - Updated peer dependencies to drop support for Redux library below v3.0.0.
 
 1.14.1 (October 15, 2024)
- - Bugfixing - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
+ - Bugfix - Fixed error in `splitReducer` when handling actions with a `null` payload, preventing crashes caused by accessing undefined payload properties (Related to https://github.com/splitio/redux-client/issues/121).
 
 1.14.0 (September 13, 2024)
  - Added `status` property to Split reducer's slice of state to track the SDK events of non-default clients (Related to https://github.com/splitio/redux-client/issues/113).
@@ -45,7 +51,7 @@
       - Added support for targeting rules based on semantic versions (https://semver.org/).
       - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
       - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
- - Bugfixing - Fixed error when calling `selectTreatmentValue` and `selectTreatmentWithConfig` selectors with an object as a key, caused by the key being stringified rather than using the `matchingKey` property of the object.
+ - Bugfix - Fixed error when calling `selectTreatmentValue` and `selectTreatmentWithConfig` selectors with an object as a key, caused by the key being stringified rather than using the `matchingKey` property of the object.
 
 1.11.0 (April 3, 2024)
  - Added `sideEffects: false` property in the package.json file to allow tree shaking.
@@ -79,7 +85,7 @@
  - Updated linter dependencies and rules. The deprecated TSLint package was replaced by ESLint.
  - Updated some transitive dependencies for vulnerability fixes.
  - Updated @splitsoftware/splitio package to version 10.22.4 that includes minor improvements.
- - Bugfixing - Fixed error when using the SDK in localhost mode for testing with Node.js test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
+ - Bugfix - Fixed error when using the SDK in localhost mode for testing with Node.js test runners such as Jest (See https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#localhost-mode).
 
 1.7.1 (November 15, 2022)
  - Updated React Redux peer dependency range to include React-redux@8.x.x and React@18.x.x.
@@ -103,7 +109,7 @@
       - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
       - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
       - Updated eventsource dependency range to ^1.1.2 to avoid a vulnerability and dependency resolution to a vulnerable version of url-parse transitive dependency.
-      - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
+      - Bugfix - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
 
 1.5.0 (April 20, 2022)
  - Updated @splitsoftware/splitio dependency to version 10.18.1, which includes:
@@ -146,13 +152,13 @@
  - Added an optional callback parameter to `destroySplitSdk` action creator: `onDestroy`, to listen when the SDK has gracefully shut down.
 
 1.1.0 (May 11, 2020)
- - Bugfixing - Incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments (Related to issue https://github.com/splitio/redux-client/issues/9).
+ - Bugfix - Incorrect evaluation of feature flags on browser when using `getTreatments` with a different user key than the default, caused by not waiting the fetch of segments (Related to issue https://github.com/splitio/redux-client/issues/9).
  - Added `destroySplitSdk` action creator to gracefully shutdown the SDK.
  - Added two new status properties to split's piece of state: `hasTimedout` and `isDestroyed` to better reflect the current state of the associated factory.
 
 1.0.1 (April 6, 2020)
  - Updated dependencies to fix vulnerabilities.
- - Bugfixing - Support numbers as user keys.
+ - Bugfix - Support numbers as user keys.
 
 1.0.0 (January 24, 2020)
  - Initial public release!
