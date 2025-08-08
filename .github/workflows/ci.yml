@@ -2,7 +2,7 @@ name: ci
 on:
   pull_request:
     branches:
-      - master
+      - main
   pull_request_target:
     branches:
       - development
@@ -42,7 +42,7 @@ jobs:
         run: echo "VERSION=$(cat package.json | jq -r .version)" >> $GITHUB_ENV
 
       - name: SonarQube Scan (Push)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
         uses: SonarSource/sonarcloud-github-action@v1.9
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
