@@ -93,7 +93,7 @@ export function selectTreatmentWithConfigAndStatus(splitState: ISplitState, feat
  *
  * @returns The status of the SDK client or manager.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#subscribe-to-events}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#subscribe-to-events}
  */
 export function selectStatus(splitState: ISplitState, key?: SplitIO.SplitKey): IStatus {
   const status = splitState ?
