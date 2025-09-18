@@ -10,7 +10,7 @@ import { initialStatus } from './reducer';
  *
  * @param params - Parameter object to track an event.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#track}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#track}
  */
 export function track(params: ITrackParams): boolean {
   if (!splitSdk.factory) {
@@ -38,7 +38,7 @@ export function track(params: ITrackParams): boolean {
  *
  * @returns The list of feature flag names. The list might be empty if the SDK was not initialized or if it's not ready yet.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#manager}
  */
 export function getSplitNames(): string[] {
   if (!splitSdk.factory) {
@@ -55,7 +55,7 @@ export function getSplitNames(): string[] {
  * @param featureFlagName - The name of the feature flag we wan't to get info of.
  * @returns The SplitIO.SplitView of the given split, or null if split does not exist or the SDK was not initialized or is not ready.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#manager}
  */
 export function getSplit(featureFlagName: string): SplitIO.SplitView {
   if (!splitSdk.factory) {
@@ -71,7 +71,7 @@ export function getSplit(featureFlagName: string): SplitIO.SplitView {
  *
  * @returns The list of SplitIO.SplitView. The list might be empty if the SDK was not initialized or if it's not ready yet
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#manager}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#manager}
  */
 export function getSplits(): SplitIO.SplitViews {
   if (!splitSdk.factory) {
@@ -93,7 +93,7 @@ export function getSplits(): SplitIO.SplitViews {
  *
  * @returns The status of the SDK client or manager.
  *
- * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#subscribe-to-events}
+ * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#subscribe-to-events}
  */
 export function getStatus(key?: SplitIO.SplitKey): IStatus {
   if (splitSdk.factory) {
