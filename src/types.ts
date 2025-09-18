@@ -4,7 +4,7 @@ export interface IStatus {
 
   /**
    * isReady indicates if Split client is ready, i.e., if it has emitted an SDK_READY event.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#subscribe-to-events}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#subscribe-to-events}
    */
   isReady: boolean;
 
@@ -12,33 +12,33 @@ export interface IStatus {
    * isReadyFromCache indicates if Split client has emitted an SDK_READY_FROM_CACHE event, what means that the SDK is ready to
    * evaluate using LocalStorage cached data (which might be stale).
    * This flag only applies for the Browser if using LOCALSTORAGE as storage type.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#subscribe-to-events}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#subscribe-to-events}
    */
   isReadyFromCache: boolean;
 
   /**
    * isTimedout indicates if the Split client has emitted an SDK_READY_TIMED_OUT event and is not ready.
    * In other words, `isTimedout` is equivalent to `hasTimeout && !isReady`.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#subscribe-to-events}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#subscribe-to-events}
    */
   isTimedout: boolean;
 
   /**
    * hasTimedout indicates if the Split client has ever emitted an SDK_READY_TIMED_OUT event.
    * It's meant to keep a reference that the SDK emitted a timeout at some point, not the current state.
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#subscribe-to-events}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/javascript-sdk/#subscribe-to-events}
    */
   hasTimedout: boolean;
 
   /**
    * isDestroyed indicates if the Split client has been destroyed by dispatching a `destroySplitSdk` action.
-   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#shutdown}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#shutdown}
    */
   isDestroyed: boolean;
 
   /**
    * lastUpdate is the timestamp of the last Split client event (SDK_READY, SDK_READY_TIMED_OUT or SDK_UPDATE).
-   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#subscribe-to-events}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#subscribe-to-events}
    */
   lastUpdate: number;
 }
@@ -72,7 +72,7 @@ export interface IInitSplitSdkParams {
 
   /**
    * Setting object used to initialize the Split factory.
-   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#configuration}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#configuration}
    */
   config: SplitIO.IBrowserSettings | SplitIO.INodeSettings;
 
@@ -116,7 +116,7 @@ export type IGetTreatmentsParams = {
 
   /**
    * optional map of attributes passed to the actual `client.getTreatment*` methods.
-   * @see {@link https://help.split.io/hc/en-us/articles/360038851551-Redux-SDK#attribute-syntax}
+   * @see {@link https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/redux-sdk/#attribute-syntax}
    */
   attributes?: SplitIO.Attributes;
 
