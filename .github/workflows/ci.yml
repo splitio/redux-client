@@ -55,7 +55,7 @@ jobs:
             -Dsonar.projectVersion=${{ env.VERSION }}
 
       - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
