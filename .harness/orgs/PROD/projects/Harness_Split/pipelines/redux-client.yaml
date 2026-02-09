@@ -60,7 +60,7 @@ pipeline:
                   identifier: npm_run_test
                   spec:
                     shell: Sh
-                    command: npm run test -- --coverage
+                    command: npm run test
               - step:
                   type: Run
                   name: npm run build
