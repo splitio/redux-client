@@ -1,0 +1,15 @@
+inputSet:
+  name: redux-client
+  tags: {}
+  identifier: reduxclient
+  orgIdentifier: PROD
+  projectIdentifier: Harness_Split
+  pipeline:
+    identifier: reduxclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
