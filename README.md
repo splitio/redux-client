@@ -78,7 +78,7 @@ The Split team monitors all issues submitted to this [issue tracker](https://git
 
 ## Contributing
 Please see [Contributors Guide](CONTRIBUTORS-GUIDE.md) to find all you need to submit a Pull Request (PR).
-
+ 
 ## License
 Licensed under the Apache License, Version 2.0. See: [Apache License](https://www.apache.org/licenses/).
 
