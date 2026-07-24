@@ -1,3 +1,13 @@
+2.4.0 (July 24, 2026)
+ - Updated @splitsoftware/splitio package to version 11.11.2 that includes minor updates:
+      - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
+      - Added support for custom loggers: added `logger` configuration option and `factory.Logger.setLogger` method to allow the SDK to use a custom logger.
+      - Added functionality to provide metadata alongside SDK update and READY events. Read more in our docs.
+      - Added `client.getStatus()` method to retrieve the client readiness status properties (`isReady`, `isReadyFromCache`, etc).
+      - Added `client.whenReady()` and `client.whenReadyFromCache()` methods to replace the deprecated `client.ready()` method, which has an issue causing the returned promise to hang when using async/await syntax if it was rejected.
+      - Updated TypeScript declaration to use `namespace` instead of `module` for compatibility with TypeScript 7 (Related to issue https://github.com/splitio/javascript-client/issues/920).
+      - Updated some dependencies for vulnerability fixes.
+
 2.3.0 (September 18, 2025)
  - Updated @splitsoftware/splitio package to version 11.6.0 that includes minor updates:
       - Added `storage.wrapper` configuration option to allow the SDK to use a custom storage wrapper for the storage type `LOCALSTORAGE`. Default value is `window.localStorage`.
