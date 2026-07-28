@@ -30,7 +30,7 @@ pipeline:
           runtime:
             type: Cloud
             spec:
-              size: flex
+              size: large
           execution:
             steps:
               - step:
@@ -75,7 +75,7 @@ pipeline:
                       export PATH="$HOME/.local/bin:$PATH"
                       eval "$(mise activate bash)"
                       export NODE_OPTIONS="--max-old-space-size=4096"
-                      npm run test -- --coverage --maxWorkers=2
+                      npm run test -- --coverage --runInBand
               - step:
                   type: Run
                   name: Build
