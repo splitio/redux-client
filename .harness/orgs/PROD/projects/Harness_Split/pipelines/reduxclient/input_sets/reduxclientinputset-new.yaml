@@ -1,0 +1,12 @@
+inputSet:
+  identifier: reduxclientinputset
+  name: reduxclientinputset
+  pipeline:
+    identifier: reduxclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
