@@ -74,7 +74,8 @@ pipeline:
                     command: |-
                       export PATH="$HOME/.local/bin:$PATH"
                       eval "$(mise activate bash)"
-                      npm run test -- --coverage
+                      export NODE_OPTIONS="--max-old-space-size=4096"
+                      npm run test -- --coverage --maxWorkers=2
               - step:
                   type: Run
                   name: Build
