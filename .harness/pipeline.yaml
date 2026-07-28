@@ -30,7 +30,7 @@ pipeline:
           runtime:
             type: Cloud
             spec:
-              size: flex
+              size: large
           execution:
             steps:
               - step:
@@ -74,7 +74,8 @@ pipeline:
                     command: |-
                       export PATH="$HOME/.local/bin:$PATH"
                       eval "$(mise activate bash)"
-                      npm run test -- --coverage
+                      export NODE_OPTIONS="--max-old-space-size=4096"
+                      npm run test -- --coverage --runInBand
               - step:
                   type: Run
                   name: Build
@@ -91,7 +92,7 @@ pipeline:
                   identifier: SonarQube_Scan
                   when:
                     stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts/*"
+                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     shell: Sh
                     command: |-
@@ -139,7 +140,7 @@ pipeline:
                   identifier: Post_Quality_Gate
                   when:
                     stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts/*"
+                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     shell: Bash
                     command: |-
@@ -179,4 +180,4 @@ pipeline:
         strategy:
           matrix:
             nodeVersion:
-              - "lts/*"
+              - "lts"
