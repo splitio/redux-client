@@ -91,7 +91,7 @@ pipeline:
                   identifier: SonarQube_Scan
                   when:
                     stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts/*"
+                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     shell: Sh
                     command: |-
@@ -139,7 +139,7 @@ pipeline:
                   identifier: Post_Quality_Gate
                   when:
                     stageStatus: Success
-                    condition: <+matrix.nodeVersion> == "lts/*"
+                    condition: <+matrix.nodeVersion> == "lts"
                   spec:
                     shell: Bash
                     command: |-
@@ -179,4 +179,4 @@ pipeline:
         strategy:
           matrix:
             nodeVersion:
-              - "lts/*"
+              - "lts"
