@@ -1,0 +1,14 @@
+inputSet:
+  name: reduxclientinputset
+  identifier: reduxclientinputset
+  orgIdentifier: PROD
+  projectIdentifier: Harness_Split
+  pipeline:
+    identifier: reduxclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
